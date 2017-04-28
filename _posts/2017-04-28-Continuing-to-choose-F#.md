@@ -1,7 +1,8 @@
+---
 layout: default
-
 title: Continuing to choose F\#
-
+date: 2017-04-28
+---
 Continuing to choose F\#
 ========================
 
