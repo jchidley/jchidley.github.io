@@ -156,3 +156,7 @@ the Pictures
 
 [The Thing About Git](https://2ndscale.com/rtomayko/2008/the-thing-about-git) –
 I especially like *The Tangled Working Copy Problem*
+
+[Getting
+Started](https://www.atlassian.com/git/tutorials/setting-up-a-repository) -
+Attractive and helpful
