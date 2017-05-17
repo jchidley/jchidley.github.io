@@ -134,29 +134,60 @@ Selected Links
 --------------
 
 [Git Is Simpler Than You
-Think](http://nfarina.com/post/9868516270/git-is-simpler) – Source of my
+Think](http://nfarina.com/post/9868516270/git-is-simpler) is the source of my
 epiphany
 
-[Git Magic](http://www-cs-students.stanford.edu/~blynn/gitmagic/ch01.html) – My
-favourite academic style explanation
+[Blogging Like a
+Hacker](http://tom.preston-werner.com/2008/11/17/blogging-like-a-hacker.html) By
+the guy that created GitHub and Jekyll
+
+[Git Magic](http://www-cs-students.stanford.edu/~blynn/gitmagic/ch01.html) is my
+current favourite academic style explanation
 
 [just a simple guide for getting started with git. no deep shit
-;)](http://rogerdudler.github.io/git-guide/) – A friendlier version of the [git
+;)](http://rogerdudler.github.io/git-guide/) is a friendlier version of the [git
 everyday documentation](https://git-scm.com/docs/everyday)
 
-[Think Like (a) Git](http://think-like-a-git.net/) – When I read this, I no
-longer felt like an idiot
+When I read [Think Like (a) Git](http://think-like-a-git.net/) I no longer felt
+like an idiot
 
-[Git for Ages 4 and Up - Video](Git%20for%20Ages%204%20and%20Up%20-%20Video) –
-Git illustrated with a physical model
+[Git for Ages 4 and Up - Video](Git%20for%20Ages%204%20and%20Up%20-%20Video) is
+git illustrated with a physical model
 
-[A Visual Git
-Reference](http://marklodato.github.io/visual-git-guide/index-en.html) – Love
-the Pictures
+I love the pictures in [A Visual Git
+Reference](http://marklodato.github.io/visual-git-guide/index-en.html)
 
-[The Thing About Git](https://2ndscale.com/rtomayko/2008/the-thing-about-git) –
-I especially like *The Tangled Working Copy Problem*
+I especially like *The Tangled Working Copy Problem* [The Thing About
+Git](https://2ndscale.com/rtomayko/2008/the-thing-about-git)
 
 [Getting
-Started](https://www.atlassian.com/git/tutorials/setting-up-a-repository) -
-Attractive and helpful
+Started](https://www.atlassian.com/git/tutorials/setting-up-a-repository) is an
+attractive and helpful site from bitbucket.
+
+Epilogue, 17th May
+------------------
+
+I reread the [Pro Git book](https://git-scm.com/book/en/v2) and *actually*
+understood it.
+
+I completely messed up my git entries shortly after the original post by
+rebasing them, orphaning a branch and then merging the branch back into the
+original master. If you’ve done this, you’ll know how ugly the history becomes.
+In frustration, I “fixed” the dirty history by deleting .git and starting fresh.
+The good news is that my data was completely unaffected. The bad news was I lost
+my git history. Now I know how I could have fixed the original history.
+
+Finally, I just did a
+
+git commit --amend
+
+on a branch, followed by a
+
+git reset
+
+on the master and finished with a
+
+git push -f
+
+to GitHub. All to get a clean history. I *knew* the pitfalls with public commits
+and I *knew* that it was no problem!

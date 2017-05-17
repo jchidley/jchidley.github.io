@@ -4,12 +4,12 @@ Jack Chidley's Programming Efforts
 From the horse's keyboard. Learn from my mistakes and my efforts to understand
 things.
 
-Why this Blog?
---------------
+Why this Log?
+-------------
 
 These are my main motivations:
 
-1.  To learn about blogging by doing it.
+1.  To learn about logging by doing it.
 
 2.  Write articles when I have learnt something that I haven’t found well
     explained elsewhere online.
@@ -18,16 +18,16 @@ These are my main motivations:
     people’s efforts.
 
 I have had several aborted attempts before. Those aborted attempts made me feel
-kind of useless at blogging. Then I realized that many of the web articles that
-I have found useful are part of tiny blogs, blogs that are often abandoned. So I
-have resolved to try again.
+kind of useless at logging. Then I realized that many of the articles that I
+find useful are often part of tiny abandoned logs. I have resolved to try again.
 
-Why Github for my blog?
------------------------
+Why Github for my log?
+----------------------
 
 I use GitHub for programming source control. GitHub, magic though it is, is
-difficult enough to learn. I want to build on that learning. And I want a simple
-life.
+difficult enough to learn. I want to build on that, I want a simple life and I
+want to [log like a
+hacker](http://tom.preston-werner.com/2008/11/17/blogging-like-a-hacker.html).
 
 GitHub has excellent support for, [it's own version
 of](https://guides.github.com/features/mastering-markdown/),
@@ -40,7 +40,7 @@ Why Jekyll?
 -----------
 
 I chose [Jekyll](https://jekyllrb.com/), and the
-[Cayman](https://pages.github.com/themes/) theme, to make the blog prettier and
+[Cayman](https://pages.github.com/themes/) theme, to make the log prettier and
 so that it was easily read on phones, tablets. Having things easily read on lots
 of different devices is called, as I now understand, [responsive
 design](https://en.wikipedia.org/wiki/Responsive_web_design).

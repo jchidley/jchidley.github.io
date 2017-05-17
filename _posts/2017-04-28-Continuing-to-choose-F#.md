@@ -84,4 +84,4 @@ those communities too.
 
 See why [Colin Bull](http://www.colinbull.net/2015/03/24/Why-I-Like-FSharp/)
 likes the language. If you’re interested in learning F\# then check [Biarity
-Blog](http://biarity.me/2016/11/30/An-unassuming-F-study-plan/).
+log](http://biarity.me/2016/11/30/An-unassuming-F-study-plan/).
