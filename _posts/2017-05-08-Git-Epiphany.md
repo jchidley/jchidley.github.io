@@ -74,20 +74,20 @@ will eventually wear out and fail. If you’re not using it, switch it off).
 
 User and software errors are harder to fix. What I needed was:
 
-1.  Uniquely identify individual files and be sure that hadn’t become corrupted.
+1.  Uniquely identify files
 
-2.  Track changes over time, so that when I discovered that I’d done something
+2.  Ensure that files remained uncorrupted
+
+3.  Track changes over time, so that when I discovered that I’d done something
     stupid, I could revert things.
 
-What I needed for 1) was a unique name that could also serve to guarantee the
-file contents. Eventually I realised that a
-[hash](https://en.wikipedia.org/wiki/Hash_function) of the file would be perfect
-for both. The hash had to be complex enough to make duplicate file names nearly
-impossible, short enough to be quick to calculate and a public standard for
-longevity. Being cryptographically secure is an irrelevance as I am not worried
-about malicious intent. SHA1 fits the bill on all counts.
+Eventually I realised that a [hash](https://en.wikipedia.org/wiki/Hash_function)
+of the file would be perfect for both 1 and 2. The hash had to be complex enough
+to make duplicate file names nearly impossible, short enough to be quick to
+calculate and a public standard for longevity. Cryptographic security is an
+irrelevance as I am unworried about malicious intent. SHA1 fitted the bill.
 
-For 2) I needed a small human-readable file with the status of all of the files
+For 3 I needed a small human-readable file with the status of all of the files
 that would be timestamped: a census of the files. I could then look through my
 censuses and find a known state to recover from.
 
@@ -126,9 +126,9 @@ utilities have grown organically over time. They can, and do, have bizarre
 names, conflicting and duplicating functionality and use different names for the
 same basic idea (cache, stage).
 
-The main differences with a source control system vs a photographic control
-system is that you need to track changes within text files and manage multiple
-authors. Git has a lot of extra functionality to take care of both things.
+The main differences with a programming source control vs a photographic source
+control are that you need to track changes within text files and manage multiple
+authors. Git has a lot of functionality for those things.
 
 Selected Links
 --------------
@@ -138,7 +138,7 @@ Think](http://nfarina.com/post/9868516270/git-is-simpler) is the source of my
 epiphany
 
 [Blogging Like a
-Hacker](http://tom.preston-werner.com/2008/11/17/blogging-like-a-hacker.html) By
+Hacker](http://tom.preston-werner.com/2008/11/17/blogging-like-a-hacker.html) by
 the guy that created GitHub and Jekyll
 
 [Git Magic](http://www-cs-students.stanford.edu/~blynn/gitmagic/ch01.html) is my
@@ -157,37 +157,9 @@ git illustrated with a physical model
 I love the pictures in [A Visual Git
 Reference](http://marklodato.github.io/visual-git-guide/index-en.html)
 
-I especially like *The Tangled Working Copy Problem* [The Thing About
+I especially like *The Tangled Working Copy Problem* in [The Thing About
 Git](https://2ndscale.com/rtomayko/2008/the-thing-about-git)
 
 [Getting
 Started](https://www.atlassian.com/git/tutorials/setting-up-a-repository) is an
 attractive and helpful site from bitbucket.
-
-Epilogue, 17th May
-------------------
-
-I reread the [Pro Git book](https://git-scm.com/book/en/v2) and *actually*
-understood it.
-
-I completely messed up my git entries shortly after the original post by
-rebasing them, orphaning a branch and then merging the branch back into the
-original master. If you’ve done this, you’ll know how ugly the history becomes.
-In frustration, I “fixed” the dirty history by deleting .git and starting fresh.
-The good news is that my data was completely unaffected. The bad news was I lost
-my git history. Now I know how I could have fixed the original history.
-
-Finally, I just did a
-
-git commit --amend
-
-on a branch, followed by a
-
-git reset
-
-on the master and finished with a
-
-git push -f
-
-to GitHub. All to get a clean history. I *knew* the pitfalls with public commits
-and I *knew* that it was no problem!
