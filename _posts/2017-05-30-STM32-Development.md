@@ -23,22 +23,30 @@ that route).
 The really useful
 [STM32SnippetsF0](http://www.st.com/content/st_com/en/products/embedded-software/mcus-embedded-software/stm32-embedded-software/stm32snippets/stm32snippetsf0.html)
 are written for the discovery board above and will probably work for the Nucleo
-variant without modification. The snippets use the registers very directly which
-is useful for their very small code size, clear understanding of how the
-software and hardware work together and directly links to the reference manual
-for the part: [RM0091: STM32F0x1/STM32F0x2/STM32F0x8 advanced ARM®-based 32-bit
+variant without modification. The snippets use the registers directly which is
+good for their very small code size, clear understanding of how the software and
+hardware work together and direct relationship with the reference manual:
+[RM0091: STM32F0x1/STM32F0x2/STM32F0x8 advanced ARM®-based 32-bit
 MCUs.](http://www.st.com/resource/en/reference_manual/dm00031936.pdf)
 
-Higher up the development stack, you’ll want to use ST’s own
+I found an extremely cheap STM32F030F4P6 break-out board – including an external
+8Mhz clock - on ebay (e.g. “STM32F030F4P6 Minimum System Board”) for \$1.69 /
+£1.30 to experiment on. You need to use the ST-Link on your Discovery or Nucleo
+to program and debug it.
+
+Higher up the development stack, you may want to use ST’s own
 [STM32CubeMX](http://www.st.com/en/development-tools/stm32cubemx.html) graphical
 “initialization code generator” and
 [stm32cubef0](http://www.st.com/content/st_com/en/products/embedded-software/mcus-embedded-software/stm32-embedded-software/stm32cube-embedded-software/stm32cubef0.html)
-for the example software, drivers and general development support.
+for the example software, drivers and general development support. These tools
+will give you usable code that shows you how things can be done. But the code
+generated can be unnecessarily long, with a lot of abstraction, making it
+difficult to follow and, according to some sources, it can be buggy too.
 
-You could go the whole hog and get a full fledged IDE. If so, I suggest you take
-advantage of a free (as in beer) offer for the F0/L0 processors, like the one
-above, for [ARM's Keil Embedded Development
-Tools](http://www2.keil.com/stmicroelectronics-stm32) (see this [FAQ from
+You could go the whole hog and get a IDE. If so, I suggest you take advantage of
+a free (as in beer) offer for the F0/L0 processors for [ARM's Keil Embedded
+Development Tools](http://www2.keil.com/stmicroelectronics-stm32) (see this [FAQ
+from
 ST](http://www.st.com/resource/en/product_presentation/faq_stm32f0-l0_discover-webinar_a.pdf)).
 That IDE uses ARM’s own excellent compiler, for free.
 
@@ -48,16 +56,21 @@ the development board is compatible with [mbed’s OS
 online compiler](https://developer.mbed.org/compiler/), which is even higher up
 the software stack.
 
-Personally I use the [GNU
-Toolchains](https://developer.arm.com/open-source/gnu-toolchain/gnu-rm) and
-[this](https://github.com/texane/stlink) reverse engineered ST Link with GNU’s
-gdb (debugger). That allows me to use the IDE of my choice (Notepad++, VS Code,
-Atom, for example) with a little command line fiddling.
+I use the [GNU
+Toolchain](https://developer.arm.com/open-source/gnu-toolchain/gnu-rm), ST
+ST-Link tool and [VS Code](https://code.visualstudio.com/).
+
+For GDB debugging use SEGGER’s [J-Link for ST-Link on
+board](https://www.segger.com/products/debug-probes/j-link/models/other-j-links/st-link-on-board/?L=0)
+or [this](https://github.com/texane/stlink) reverse engineered ST Link.
+
+With this setup, you can use pretty much anything for development (Notepad++, VS
+Code, Atom, for example) with a little command line fiddling.
 
 Toolchain – GNU ARM - Rough Notes
 ---------------------------------
 
-download Linux 64-bit version of GNU ARM GCC toolchain 
+download Linux 64-bit version of GNU ARM GCC toolchain
 https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads
 
 open a bash on Windows prompt
@@ -70,31 +83,53 @@ open a bash on Windows prompt
 
 `export PATH=$PATH:$arm_bin`
 
-should be able to run `bash -c "make"` from a windows command prompt, from within the source directory.
+should be able to run `bash -c "make"` from a windows command prompt, from
+within the source directory.
 
 Using STMCubeMX
 ---------------
 
 Code Generator: copy only the necessary library files
 
-- Install STMCubeMX
-- run it, pick a board, config, adjust Project Settings
-- Toolchain/IDE to Makefile
-- Edit project makefile, adjust BINPATH like so:
-`BINPATH = ~/Downloads/arm/gcc-arm-none-eabi-6-2017-q1-update/bin `
-- Edit the main.c as required.
+-   Install STMCubeMX
 
-from the windows command prompt cd to generated source file directory, then compile with `bash -c "make"` 
+-   run it, pick a board, config, adjust Project Settings
 
-You can use ST's GUI ST-Link Utility to Program & Verify or the same utilty from the command line the (the cli version)
+-   Toolchain/IDE to Makefile
+
+-   Edit project makefile, adjust BINPATH like so: `BINPATH =
+    ~/Downloads/arm/gcc-arm-none-eabi-6-2017-q1-update/bin`
+
+-   Edit the main.c as required.
+
+-   Remove all the extra source files that you don't need. The bare minimum is:
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C_SOURCES =  \
+Src/system_stm32f0xx.c \
+Src/main.c \
+Src/morse.c
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+from the windows command prompt cd to generated source file directory, then
+compile with
+
+`bash -c "make"`
+
+You can use ST's GUI ST-Link Utility to Program & Verify or the same utilty from
+the command line the (the cli version). E.g.
+
+`"C:\\Program Files (x86)\\STMicroelectronics\\STM32 ST-LINK Utility\\ST-LINK
+Utility\\ST-Link\_CLI.exe" -me -p build\\try.hex -v -rst`
+
+(-me = full chip erase, -p program the following file, -v verify, -rst reset the
+chip)
 
 When the Chip hangs…
 --------------------
 
-This was really painful for me because I couldn’t follow the instructions. Here
-are my brief notes.
-
-Use the ST supplied Windows [ST-Link
+This was really painful for me because I couldn’t follow these instructions: use
+the ST supplied Windows [ST-Link
 Utility](http://www.st.com/content/st_com/en/products/embedded-software/development-tool-software/stsw-link004.html).
 Select menu item Target, Settings. Then pick *Connect Under Reset* (probably
-showing *Normal*) in the **Mode** box.
+currently showing *Normal*) in the **Mode** box.
