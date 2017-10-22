@@ -33,25 +33,25 @@ I just followed the Kit's and Scott's guidance, the specific instrucitons on the
 In all I spent several days on it.  Well worth the time as now I have a more effective testing system and my tests are clearly marked in the source code.
 
 ## Useful Links
-* https://fscheck.github.io/FsCheck/ FsCheck
-* https://xunit.github.io/ xUnit
-* http://fsharpforfunandprofit.com/posts/property-based-testing/ Scott's blog about property testing.  Look at this entry too https://fsharpforfunandprofit.com/posts/low-risk-ways-to-use-fsharp-at-work-3/ 
-* https://skillsmatter.com/skillscasts/9726-a-gazillion-ways-to-test-with-f-sharp Kit's webcast about testing in F#
-* http://blog.ploeh.dk/tags/#F%23-ref There's an FsCheck section in these tags
-* http://blog.mavnn.co.uk/fscheck-breaking-your-code-in-new-and-exciting-ways/ 
-* http://www.navision-blog.de/blog/2016/03/21/property-based-testing-in-the-real-world/ 
-* http://jackfoxy.com/gaining-fscheck-fluency-through-transparency/ 
-* https://stackoverflow.com/questions/38839721/how-do-i-implement-multiple-argument-generation-using-fscheck/38841255#38841255 stackoverflow has useful stuff
-* https://fscheck.github.io/FsCheck/LearningResources.html 
+* [FsCheck](https://fscheck.github.io/FsCheck/)
+* [xUnit](https://xunit.github.io/) 
+* [http://fsharpforfunandprofit.com/posts/property-based-testing/](http://fsharpforfunandprofit.com/posts/property-based-testing/) Scott's blog about property testing.  Look at [this entry](https://fsharpforfunandprofit.com/posts/low-risk-ways-to-use-fsharp-at-work-3/) too 
+* [https://skillsmatter.com/skillscasts/9726-a-gazillion-ways-to-test-with-f-sharp](https://skillsmatter.com/skillscasts/9726-a-gazillion-ways-to-test-with-f-sharp) Kit's webcast about testing in F#
+* [http://blog.ploeh.dk/tags/#F%23-ref](http://blog.ploeh.dk/tags/#F%23-ref) There's an FsCheck section in these tags
+* [http://blog.mavnn.co.uk/fscheck-breaking-your-code-in-new-and-exciting-ways/](http://blog.mavnn.co.uk/fscheck-breaking-your-code-in-new-and-exciting-ways/) 
+* [http://www.navision-blog.de/blog/2016/03/21/property-based-testing-in-the-real-world/](http://www.navision-blog.de/blog/2016/03/21/property-based-testing-in-the-real-world/) 
+* [http://jackfoxy.com/gaining-fscheck-fluency-through-transparency/](http://jackfoxy.com/gaining-fscheck-fluency-through-transparency/) 
+* [https://stackoverflow.com/questions/38839721/how-do-i-implement-multiple-argument-generation-using-fscheck/38841255#38841255](https://stackoverflow.com/questions/38839721/how-do-i-implement-multiple-argument-generation-using-fscheck/38841255#38841255) stackoverflow has useful stuff
+* [https://fscheck.github.io/FsCheck/LearningResources.html](https://fscheck.github.io/FsCheck/LearningResources.html) 
 
 ## More Links
-* http://www.ncrunch.net/ Very interesting Visual Studio integration, potentially high productivity gains.
-* https://github.com/haf/expecto A fully F#'d testing framework
-* https://github.com/hedgehogqa/fsharp-hedgehog Another F# implementation of QuickCheck.
-* http://smallcheck.codeplex.com/ Exhaustive small scale testing.
+* [http://www.ncrunch.net/](http://www.ncrunch.net/) Very interesting Visual Studio integration, potentially high productivity gains.
+* [https://github.com/haf/expecto](https://github.com/haf/expecto) A fully F#'d testing framework
+* [https://github.com/hedgehogqa/fsharp-hedgehog](https://github.com/hedgehogqa/fsharp-hedgehog) Another F# implementation of QuickCheck.
+* [http://smallcheck.codeplex.com/](http://smallcheck.codeplex.com/) Exhaustive small scale testing.
 
 ## QuickCheck Links
 There's a lot of information about QuickCheck.  QuickCheck has been around for a long time and FsCheck is based on it.  All of this is useful backgound
-* https://begriffs.com/posts/2017-01-14-design-use-quickcheck.html QuickCheck information
-* https://www.stackbuilders.com/news/a-quickcheck-tutorial-generators Generators are the core of property testing
-* https://www.stuartgunter.org/posts/intro-to-quickcheck/ QuickCheck
+* [https://begriffs.com/posts/2017-01-14-design-use-quickcheck.html](https://begriffs.com/posts/2017-01-14-design-use-quickcheck.html) QuickCheck information
+* [https://www.stackbuilders.com/news/a-quickcheck-tutorial-generators](https://www.stackbuilders.com/news/a-quickcheck-tutorial-generators) Generators are the core of property testing
+* [https://www.stuartgunter.org/posts/intro-to-quickcheck/](https://www.stuartgunter.org/posts/intro-to-quickcheck/) QuickCheck
