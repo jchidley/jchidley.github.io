@@ -1,9 +1,9 @@
 ﻿---
 date: "2017-10-23"
-title: "Parsing with FParsec"
+title: "Testing and FParsec"
 ---
 
-# Parsing with FParsec
+# Testing and FParsec
 
 **TL;DR** Follow the [FParsec Tutorial](http://www.quanttec.com/fparsec/tutorial.html).
 
@@ -21,7 +21,9 @@ If you're using F\# then [FParsec](http://www.quanttec.com/fparsec/) is the way 
 ## Getting Started
 I just followed the [tutorial](http://www.quanttec.com/fparsec/tutorial.html).  Rather than download the tutorial's source code, I decided to follow along and write it all myself.
 
-Because I've recently discovered *proper* testing with xUnit and FsCheck I wanted to use those tools instead of just printing out things to stdout.  But I couldn't, for the life of me, get the values out of the parser to test.  [Fog Creek's FParsec blog entry](https://blog.fogcreek.com/fparsec/) came to the rescue.  I borrowed some of their code:
+## Testing, testing
+
+I recently discovered *proper* testing with xUnit and FsCheck so I wanted to use those tools instead of just printing out things to stdout.  But I couldn't, for the life of me, get the values out of the parser to test.  [Fog Creek's FParsec blog entry](https://blog.fogcreek.com/fparsec/) came to the rescue.  I borrowed some of their code:
 
 ```fsharp
     exception ParseError of string

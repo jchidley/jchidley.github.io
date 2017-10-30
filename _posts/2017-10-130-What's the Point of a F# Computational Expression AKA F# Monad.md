@@ -1,9 +1,9 @@
----
-date: "2017-10-28"
-title: "Understanding and Using FsCheck"
+﻿---
+date: "2017-10-30"
+title: "What's the Point of a F# Computational Expression AKA F# Monad"
 ---
 
-# Understanding and Using FsCheck
+# What's the Point of a F# Computational Expression AKA F# Monad
 **TL;DR** [FsCheck](https://fscheck.github.io/FsCheck/) documentation does cover what you need to know and is probably enough for experienced people. For those that need more detail, like me, read below.
 
 ## Introduction
@@ -54,21 +54,19 @@ The magical or hidden bit here is ```Check.Quick``` has inspected the function, 
 
 You can use the above arrangement in your programs and just inspect the results on the output.  No test runner required.
 
-To turn this into a form suitable for the various testing frameworks, e.g. xUnit, is relatively easy.  You need to enclose the entire test above in another let binding that takes no arguments and change ``Check.Quick revRevIsOrig`` line to ``Check.QuickThrowOnFailure revRevIsOrig``.
+To turn this into a form suitable for the various testing frameworks, e.g. xUnit, is relatively easy.  You need to enclose the entire test above in another let binding that takes no arguments and change ``Check.Quick revRevIsOrig`` line to ``Check.QuickThrowOnFailure revRevIsOrig``, which throws an exception on failure which both nUnit and xUnit treat as a test fail.
 
 ```fsharp
 [<Fact>]
-// normal xUnit stuff
 let ``Reversing a reversed list is identical to the original list``() = 
     let revRevIsOrig (xs:list<int>) = 
         let actual = List.rev(List.rev xs)
         let expected = xs
         actual = expected
-    // This throws and exception on failure, which fails the nUnit test.
     Check.QuickThrowOnFailure revRevIsOrig
 ```
 
-xUnit calls the function ``` ``Reversing a reversed list is identical to the original list``() ``` when you run one of xUnit's test runners.  I like to use the one that integrates with Visual Studio's test runner.  The test results appear like all of your other test results.
+Use one of the test suite's runners.  I like to use the one that integrates with Visual Studio's test explorer.
 
 FsCheck has extended xUnit.  We can can decorate the original form of the test with the ```[<Property>]```.  The ```Check.Quick revRevIsOrig``` is redundant but you might want to leave it in if you're going to be running the tests from a command line runner too.
 
@@ -80,7 +78,7 @@ let revRevIsOrig (xs:list<int>) =
     actual = expected
 ```
 
-Extra details of the results are produced.  With xUnit, these are sent to the output window.
+Test results appear in the output window, as expected.
 
 ```
 [28/10/17 17:47:09 Informational] ------ Run test started ------
