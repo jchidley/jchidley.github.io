@@ -1,6 +1,6 @@
 ﻿---
 date: "2017-10-30"
-title: "What's the Point of a F# Computational Expression AKA F# Monad"
+title: "The Point of F# Computational Expressions AKA F# Monads"
 ---
 
 # What's the Point of a F# Computational Expression AKA F# Monad?

@@ -11,14 +11,18 @@ title: "Understanding and Using FsCheck"
 I really like [FsCheck](https://fscheck.github.io/FsCheck/)'s property based testing, which is based on Haskell's [QuickCheck](https://hackage.haskell.org/package/QuickCheck), with its randomised inputs. But I have found it tricky to  understand and use it effectively.  I wrote these notes to help other novice F\# and FsCheck users to get started.
 
 ## Basic principles
-In essence, the whole idea around FsCheck, and property based testing is this: find properties of your program that should always be true (or false) for all of its valid, or invalid respectively, data.  The canonical example is associativity for addition ```(a + b) + c = a + (b + c)``` i.e. the brackets make no difference.  So the process of building the tests falls into 2 parts:
+In essence, the whole idea around FsCheck, and property based testing is this: find properties of your program that should always be true for all valid data.  The canonical property example is associativity for addition ```(a + b) + c = a + (b + c)``` i.e. brackets make no difference.  
 
-1. Build the test, including the test execution's framework, for the property under question.
-2. Generate the right kind of data. 
+Testing is 2 parts:
+
+1. Build the test for the "property" (i.e. test) under question.
+2. Generate the right kind of data - FsCheck will try to do this automagically. 
+
+The property, return type ``<'Testable>``, must either return a Boolean or return unit ().  An exception is a test failure
 
 
 ## Building and Running Tests
-The [tutorial](https://fscheck.github.io/FsCheck/QuickStart.html) is very good for this but I will stress a few things.
+The [tutorial](https://fscheck.github.io/FsCheck/QuickStart.html) is good but I will stress a few things.
 
 Here the property under test is that a list, when reversed and reversed again should be identical to the original list.  Here's a function that does just that:
 
@@ -50,27 +54,30 @@ Which gives this result:
 Ok, passed 100 tests.
 ```
 
-The magical or hidden bit here is ```Check.Quick``` has inspected the function, in particular looked at the type of the parameter ```xs:list<int>``` and automatically generated 100 random lists of integers and run the function 100 times, inputting the unique data - one of the 100 integer lists - each time.  Clearly all 100 versions of this must have ended with true (i.e. expected  = actual).  More on the data generation later.
+The magical or hidden bit is that ```Check.Quick``` has inspected the function, in particular looked at the arguments's type, ```xs:list<int>```, generated 100 random versions of the argument and then run the test for each version of the argument (i.e. 100 times).  To pass the test all 100 versions of this must have ended with true (i.e. expected  = actual).  More on the data generation later.
 
 You can use the above arrangement in your programs and just inspect the results on the output.  No test runner required.
 
-To turn this into a form suitable for the various testing frameworks, e.g. xUnit, is relatively easy.  You need to enclose the entire test above in another let binding that takes no arguments and change ``Check.Quick revRevIsOrig`` line to ``Check.QuickThrowOnFailure revRevIsOrig``.
+To turn this into a form suitable for the various testing frameworks, e.g. xUnit, is relatively easy.  You need to enclose the entire test above in another let binding that takes no arguments and change ``Check.Quick revRevIsOrig`` line to ``Check.QuickThrowOnFailure revRevIsOrig``.  We're relying on the fact that the testing framework recognises an exception as a test fail. 
 
 ```fsharp
 [<Fact>]
 // normal xUnit stuff
 let ``Reversing a reversed list is identical to the original list``() = 
+    // All of this is the Arrange part now.
     let revRevIsOrig (xs:list<int>) = 
         let actual = List.rev(List.rev xs)
         let expected = xs
         actual = expected
-    // This throws and exception on failure, which fails the nUnit test.
+    // Act and Assert together
     Check.QuickThrowOnFailure revRevIsOrig
 ```
 
-xUnit calls the function ``` ``Reversing a reversed list is identical to the original list``() ``` when you run one of xUnit's test runners.  I like to use the one that integrates with Visual Studio's test runner.  The test results appear like all of your other test results.
+xUnit calls the function ``` ``Reversing a reversed list is identical to the original list``() ``` when you run one of xUnit's test runners.  I like to use xUnit's one that integrates with Visual Studio's *Test Explorer*.
 
-FsCheck has extended xUnit.  We can can decorate the original form of the test with the ```[<Property>]```.  The ```Check.Quick revRevIsOrig``` is redundant but you might want to leave it in if you're going to be running the tests from a command line runner too.
+FsCheck has also extended xUnit so we can can decorate the original form of the test with the ``[<Property>]`` and, behind the scenes, FsCheck now does something similar to the original ``Check.Quick revRevIsOrig`` line.  Although this means that  the original ``Check.Quick revRevIsOrig`` line is redundant, leaving it in isn't a huge problem, other than impacting performance and getting extra output.  
+
+Our revised test looks like this:
 
 ```fsharp
 [<Property>]
@@ -97,6 +104,8 @@ So we have seen 3 ways to run the test:
 3. Using the FsUnit's extension of the framework to simplyfy 2. above, if the extension exists (i.e. xUnit and FsUnit)
 
 ## Standard Types Aren't Enough
+
+Remember the magic part where FsUnit figured out how to build 100 examples of data for your tests?  That works with standard primitive types (e.g. int, float, char) and will work on your types that are derived from those. 
 
 I've been learning [FParsec](http://www.quanttec.com/fparsec/) and using FsCheck at the same time to investigate some properties.  I wanted to check that that FParsec parses just like the standard parsing the .net framework.  Silly me.
 
