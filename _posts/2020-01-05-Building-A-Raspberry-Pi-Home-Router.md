@@ -87,4 +87,5 @@ table inet routing_table {
 ## Links
 * [BigDinosaur Blog on Running BIND9 and ISC-DHCP](https://blog.bigdinosaur.org/running-bind9-and-isc-dhcp/)
 * [The Ars guide to building a Linux router from scratch](https://arstechnica.com/gadgets/2016/04/the-ars-guide-to-building-a-linux-router-from-scratch/)
-* [Arch Linux nftables](https://wiki.archlinux.org/index.php/nftables)
+*  [Why nftables?](https://wiki.nftables.org/wiki-nftables/index.php/Why_nftables%3F)
+*  [Arch Linux nftables](https://wiki.archlinux.org/index.php/nftables)
