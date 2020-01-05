@@ -1,5 +1,5 @@
-Jack Chidley's Programming Efforts
-==================================
+Jack Chidley's Learning Experiences
+===================================
 
 From the horse's keyboard. Learn from my mistakes and my efforts to understand
 things.
