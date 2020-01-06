@@ -14,6 +14,10 @@ I had orginally wanted to use a Raspberry Pi 3 (the latest available) as they ar
 
 Recently however the Raspberry Pi foundation has released a Pi 4.  This is a cracking bit of kit - I use a 4GB version as a desktop.  This Pi has up to 400Mb capable USB ports, easily good enough for the 100MB connection that I need.  Now is my chance to revisit the work that I did earlier and clean it up a bit.  Then I will probably install it on a 1 or 2GB version of the Pi 4.  It is trivial to make a copy of the SD card.  So if something terrible happens to my router I can run the internet on another older Pi lying around until a new Pi 4 (or 5!) arrives.
 
+[Getting Gigabit Networking on a Raspberry Pi 2, 3 and B+](https://www.jeffgeerling.com/blogs/jeff-geerling/getting-gigabit-networking).  "You can get Gigabit networking working on any current Raspberry Pi (A+, B+, Pi 2 model B, Pi 3 model B), and you can increase the throughput to at least 300+ Mbps (up from the standard 100 Mbps connection via built-in Ethernet).
+Note about model 3 B+: The Raspberry Pi 3 model B+ includes a Gigabit wired LAN adapter onboard—though it's still hampered by the USB 2.0 bus speed (so in real world use you get ~224 Mbps instead of ~950 Mbps). So if you have a 3 B+, there's no need to buy an external USB Gigabit adapter if you want to max out the wired networking speed!
+Note about model 4: The Raspberry Pi 4 model B finally has true Gigabit wired LAN, owing to it's new I/O architecture. If you're taxing the CPU and USB device bandwidth on the new USB 3.0 ports, you might not get consistent Gbps-range performance, but in my testing so far, the Pi 4 can sustain over 900 Mbps [with adequate cooling]"
+
 ## Instructions
 
 Install Arch Linux on ARM for Raspberry Pis using [these instructions](https://archlinuxarm.org/platforms/armv7/broadcom/raspberry-pi-2).
