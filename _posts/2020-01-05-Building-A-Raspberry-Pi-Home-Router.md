@@ -22,76 +22,124 @@ Note about model 4: The Raspberry Pi 4 model B finally has true Gigabit wired LA
 
 Install Arch Linux on ARM for Raspberry Pis using [these instructions](https://archlinuxarm.org/platforms/armv7/broadcom/raspberry-pi-2).
 
-install the required packages
+It is possible to configure a simple router based on the [Arch Linux Router](https://wiki.archlinux.org/index.php/Router) instructions.  But will will be going further and installing the software that runs the internet, including the newer firewall nftables.
+
+install the packages
 ````bash
 sudo pacman -S nftables dhcp bind usbutils 
 ````
 
-Work out what the name of the additional ethernet device is.  I am using an USB3 one.
+## Known Network Interface Names
+
+We're going to do a little extra work here to give our Ethernet (or other network) interfaces known names.  These saves a lot of time troubleshooting later.
+
+I am using a USB3 Gigabit Ethernet device for the best performance.  Here's how I identify the driver and check that it has been loaded.
 ````bash
 lsusb # find out what USB ethernet device is, can do before and after plus diff 
-dmesg | grep ax88179 # ax88179 is from above, check to see if driver loaded 
-ip addr # see if it's up and has an ip addr and the interface names 
+dmesg | grep AX88179 # ax88179 is from above, check to see if driver loaded 
+ip addr # to see current interface names and MAC addresses 
 ````
 
-set up [/etc/nftables.conf](https://wiki.archlinux.org/index.php/nftables)
+Give the [network interfaces a known and consistent-desptite-booting name](https://wiki.archlinux.org/index.php/Systemd-networkd#Renaming_an_interface), using the MAC addresses from above.
 
+/etc/systemd/network/10-ethusb0.link
+````
+[Match]
+MACAddress=12:34:56:78:90:ab
+
+[Link]
+Description=USB to Ethernet Adapter
+Name=ethusb0
+````
+The other link file will need to be called ```11-intern0.link``` or something memorable. Each interface will need an associated profile. This one is for the "public" or ISP facing interface.
+/etc/netctl/ethusb0-profile
+````
+Description='Public Interface.'
+Interface=ethusb0
+Connection=ethernet
+IP='dhcp
+````
+
+and this one for the home network.  I have chosen ```10.0.0.0``` for my private network and ```/24``` gives me about 250 addresses for devices.  I might change this to ```/16``` later.
+/etc/netctl/intern0-profile
+````
+Description='Private Interface'
+Interface=intern0
+Connection=ethernet
+IP='static'
+Address=('10.0.0.1/24')
+````
+
+These interfaces are enabled with ```netctl enable intern0-profile``` commands.  A reboot is the quickest way to reset things and an ```ip addr``` should show that both interfaces are up and have assigned addresses.
+
+## Setting up nftables
+
+[/etc/nftables.conf](https://wiki.archlinux.org/index.php/nftables)
 ```bash
-table ip nat_table { 
-    chain prerouting { 
-        type nat hook prerouting priority filter; policy accept; 
-    } 
-    
-    chain input { 
-        type nat hook input priority filter; policy accept; 
-    } 
+flush ruleset
+define wan_if = "ethusb0"
+define lan_if = "intern0"
+table ip nat_table {
+        chain prerouting {
+                type nat hook prerouting priority 0; policy accept;
+        }
 
-    chain output { 
-        type nat hook output priority filter; policy accept; 
-    } 
-    
-    chain postrouting { 
-        type nat hook postrouting priority filter; policy accept; 
-        oifname "eth1" masquerade 
-    } 
-} 
+        chain input {
+                type nat hook input priority 0; policy accept;
+        }
 
-table inet routing_table { 
-    chain input { 
-        type filter hook input priority filter; policy accept; 
-        iifname "lo" ip saddr 127.0.0.0/8 ip daddr 127.0.0.0/8 accept 
-        ip protocol icmp counter packets 11208 bytes 1671957 accept 
-        ct state established accept 
-        udp dport 33434-33523 counter packets 0 bytes 0 reject 
-        iifname "eth0" tcp dport 53 accept 
-        iifname "eth0" udp dport 53 accept 
-        iifname "eth0" tcp dport 22 accept 
-        iifname "eth0" udp dport 67-68 accept 
-        iifname "eth0" tcp dport 591 counter packets 0 bytes 0 accept 
-        iifname "eth0" tcp dport 8443 counter packets 0 bytes 0 accept 
-        iifname "eth0" tcp dport 8843 counter packets 0 bytes 0 accept 
-        iifname "eth0" udp dport 3478 counter packets 0 bytes 0 accept 
-        counter packets 42441 bytes 7119203 drop 
-    } 
+        chain output {
+                type nat hook output priority 0; policy accept;
+        }
 
-    chain forward { 
-        type filter hook forward priority filter; policy accept; 
-        ct state established,related accept 
-        iifname "eth0" oifname "eth1" accept 
-        counter packets 0 bytes 0 drop 
-    } 
+        chain postrouting {
+                type nat hook postrouting priority 0; policy accept;
+                oifname $wan_if masquerade
+        }
+}
+table inet routing_table {
+        chain input {
+                type filter hook input priority 0; policy accept;
+                iifname "lo" ip saddr 127.0.0.0/8 ip daddr 127.0.0.0/8 accept
+                ip protocol icmp counter packets 0 accept
+                ct state established accept
+                udp dport 33434-33523 counter reject
+                iifname $lan_if tcp dport domain accept
+                iifname $lan_if udp dport domain accept
+                iifname $lan_if tcp dport ssh accept
+                iifname $lan_if udp dport 67-68 accept
 
-    chain output { 
-        type filter hook output priority filter; policy accept; 
-    } 
-} 
+                # for UniFi, check to see what is used, then prune useless rules
+                iifname $lan_if tcp dport http-alt counter accept
+                iifname $lan_if tcp dport 8443 counter accept
+                iifname $lan_if tcp dport 8843 counter accept
+                iifname $lan_if udp dport 3478 counter accept
+
+		# Drop everything else
+                counter packets 0 dropenp2s0f2
+        }
+
+        chain forward {
+                type filter hook forward priority 0; policy accept;
+                ct state established,related accept
+                iifname $lan_if oifname $wan_if accept
+                counter drop
+        }
+
+        chain output {
+                type filter hook output priority 0; policy accept;
+        }
+}
 ```
 
 
 ## Links
 * [BigDinosaur Blog on Running BIND9 and ISC-DHCP](https://blog.bigdinosaur.org/running-bind9-and-isc-dhcp/)
 * [The Ars guide to building a Linux router from scratch](https://arstechnica.com/gadgets/2016/04/the-ars-guide-to-building-a-linux-router-from-scratch/)
-*  [Why nftables?](https://wiki.nftables.org/wiki-nftables/index.php/Why_nftables%3F)
-*  [Arch Linux nftables](https://wiki.archlinux.org/index.php/nftables)
 *  [Getting Gigabit Networking on a Raspberry Pi 2, 3 and B+](https://www.jeffgeerling.com/blogs/jeff-geerling/getting-gigabit-networking)
 *  [Pi4 Firmware solves overheating driven throtteling](https://www.jeffgeerling.com/blog/2019/raspberry-pi-4-might-not-need-fan-anymore)
+*  [Arch Linux Router](https://wiki.archlinux.org/index.php/Router)
+*  [Renaming an interface](https://wiki.archlinux.org/index.php/Systemd-networkd#Renaming_an_interface)
+*  [Why nftables?](https://wiki.nftables.org/wiki-nftables/index.php/Why_nftables%3F)
+*  [Arch Linux nftables](https://wiki.archlinux.org/index.php/nftables)
+
