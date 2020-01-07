@@ -1,0 +1,38 @@
+﻿---
+date: "2020-01-07"
+title: "Traffic-Manager-Not-Firewall"
+---
+
+# Building A Raspberry Pi Home Router
+**TL;DR** That thing called a "Firewall" really is just a traffic manager: security must be done at the device level too.
+
+## Introduction
+
+## Simple Firewall
+I know that I said that it wasn't a firewall but here's a simple one copied from [Gentoo's example](https://wiki.gentoo.org/wiki/Nftables/Examples).
+
+````
+table ip filter {
+	# allow all packets sent by the firewall machine itself
+	chain output {
+		type filter hook output priority 100; policy accept;
+	}
+
+	# allow LAN to firewall, disallow WAN to firewall
+	chain input {
+		type filter hook input priority 0; policy accept;
+		iifname "lan0" accept
+		iifname "wan0" drop
+	}
+
+	# allow packets from LAN to WAN, and WAN to LAN if LAN initiated the connection
+	chain forward {
+		type filter hook forward priority 0; policy drop;
+		iifname "lan0" oifname "wan0" accept
+		iifname "wan0" oifname "lan0" ct state related,established accept
+	}
+}
+````
+
+## Links
+* [Gentoo Nftables/Examples](https://wiki.gentoo.org/wiki/Nftables/Examples)
