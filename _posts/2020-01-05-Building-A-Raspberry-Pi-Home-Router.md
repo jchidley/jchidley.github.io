@@ -29,7 +29,7 @@ install the packages
 sudo pacman -S nftables dhcp bind usbutils 
 ````
 
-## Known Network Interface Names
+## Setup The Network Connections
 
 We're going to do a little extra work here to give our Ethernet (or other network) interfaces known names.  These saves a lot of time troubleshooting later.
 
@@ -72,66 +72,46 @@ Address=('10.0.0.1/24')
 
 These interfaces are enabled with ```netctl enable intern0-profile``` commands.  A reboot is the quickest way to reset things and an ```ip addr``` should show that both interfaces are up and have assigned addresses.
 
+## Routing Between networks
+
+Run these commands to temporaily enable forwarding between networks:
+````
+sysctl net.ipv4.ip_forward=1
+sysctl sysctl net.ipv6.conf.default.forwarding=1
+net.ipv6.conf.all.forwarding=1
+````
+Then add the following lines to ```/etc/sysctl.d/30-ipforward.conf``` to make it permanent.
+````
+net.ipv4.ip_forward=1
+net.ipv6.conf.default.forwarding=1
+net.ipv6.conf.all.forwarding=1
+````
 ## Setting up nftables
+
+We are on a private network with a single globally visible IP address provided by the ISP.  To allow that address to be shared by all of the devices internally we will need to ```masquerade``` it.  For this, we're going to use ```nftables```, which is the new replacement for ```iptables``` (and similar). 
 
 [/etc/nftables.conf](https://wiki.archlinux.org/index.php/nftables)
 ```bash
 flush ruleset
 define wan_if = "ethusb0"
-define lan_if = "intern0"
 table ip nat_table {
-        chain prerouting {
-                type nat hook prerouting priority 0; policy accept;
-        }
-
-        chain input {
-                type nat hook input priority 0; policy accept;
-        }
-
-        chain output {
-                type nat hook output priority 0; policy accept;
-        }
-
         chain postrouting {
                 type nat hook postrouting priority 0; policy accept;
                 oifname $wan_if masquerade
         }
 }
-table inet routing_table {
-        chain input {
-                type filter hook input priority 0; policy accept;
-                iifname "lo" ip saddr 127.0.0.0/8 ip daddr 127.0.0.0/8 accept
-                ip protocol icmp counter packets 0 accept
-                ct state established accept
-                udp dport 33434-33523 counter reject
-                iifname $lan_if tcp dport domain accept
-                iifname $lan_if udp dport domain accept
-                iifname $lan_if tcp dport ssh accept
-                iifname $lan_if udp dport 67-68 accept
+````
 
-                # for UniFi, check to see what is used, then prune useless rules
-                iifname $lan_if tcp dport http-alt counter accept
-                iifname $lan_if tcp dport 8443 counter accept
-                iifname $lan_if tcp dport 8843 counter accept
-                iifname $lan_if udp dport 3478 counter accept
+Run these commands
 
-		# Drop everything else
-                counter packets 0 dropenp2s0f2
-        }
+````
+nft -f /etc/nftables.conf
+systemctl enable nftables
+systemctl start nftables
+````
+and bingo!  We have a fully functioning Internet router.
 
-        chain forward {
-                type filter hook forward priority 0; policy accept;
-                ct state established,related accept
-                iifname $lan_if oifname $wan_if accept
-                counter drop
-        }
-
-        chain output {
-                type filter hook output priority 0; policy accept;
-        }
-}
-```
-
+You can implement a ["firewall"]() if you like.
 
 ## Links
 * [BigDinosaur Blog on Running BIND9 and ISC-DHCP](https://blog.bigdinosaur.org/running-bind9-and-isc-dhcp/)
