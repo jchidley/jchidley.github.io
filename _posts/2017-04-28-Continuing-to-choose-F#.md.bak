@@ -39,7 +39,7 @@ I don't like other languages because:
 
 -   I understand things better by layout and not by {}; and other tokens.
 
-My first "real" program project was modifying a FORTRAN77 application for
+My first "real" program project was modifying a Fortran77 application for
 identifying crystal structures from X-ray diffraction photographs. I changed the
 source to move from global mutable shared state to passing data between
 functions. I did this because I couldn't work out what was going on. The

@@ -30,7 +30,7 @@ Here the property under test is that a list, when reversed and reversed again sh
 let revRevIsOrig (xs:list<int>) = List.rev(List.rev xs) = xs
 ```
 
-To make this really explicit, I'm going to turn it into a AAA (Arrange, Act, Assert) pattern.  *Arrange* means initialising things, in this case getting the data.  *Act* means running the function (program) with the data.  *Assert* means verifying that the expected result matches the actual result. 
+To make this really explicit, I'm going to turn it into a AAA (Arrange, Act, Assert) pattern.  *Arrange* means initializing things, in this case getting the data.  *Act* means running the function (program) with the data.  *Assert* means verifying that the expected result matches the actual result. 
 
 ```fsharp
 // Arrange - partial, note the restriction of the list to <int>
@@ -54,7 +54,7 @@ Which gives this result:
 Ok, passed 100 tests.
 ```
 
-The magical or hidden bit is that ```Check.Quick``` has inspected the function, in particular looked at the argument's type, ```xs:list<int>```, generated 100 random versions of the argument and then run the test for each version of the argument (i.e. 100 times).  To pass the test all 100 versions of this must have ended with true (i.e. expected  = actual).  More on the data generation later.
+The magical or hidden bit is that ```Check.Quick``` has inspected the function, in particular looked at the arguments's type, ```xs:list<int>```, generated 100 random versions of the argument and then run the test for each version of the argument (i.e. 100 times).  To pass the test all 100 versions of this must have ended with true (i.e. expected  = actual).  More on the data generation later.
 
 You can use the above arrangement in your programs and just inspect the results on the output.  No test runner required.
 
