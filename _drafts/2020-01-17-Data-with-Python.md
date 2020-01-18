@@ -6,6 +6,10 @@ title: "Data With Python"
 # Data With Python
 Factorio related stuff
 
+## Installation
+Install Anaconda from their website.  Install a suitable linter - pylint.
+
+From the Anaconda Navigator create a new environment (Pandas or whatever) and install Pandas into it and then SQLAlchemey
 
 
 
