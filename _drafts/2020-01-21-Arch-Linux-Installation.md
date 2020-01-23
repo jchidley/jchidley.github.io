@@ -1,12 +1,11 @@
-2020-01-21-Arch-Linux-Installation
-
 ---
-
 date: "2020-01-15"
 title: "Arch Linux Installation"
 ---
 
+<!-- markdownlint-disable MD025 -->
 # Arch Linux Installation
+<!-- markdownlint-enable MD025 -->
 
 ## Introduction
 
@@ -60,7 +59,7 @@ If it boots correctly, then...
 efibootmgr -o 4,1,2 # reorder the boot once it has worked
 ````
 
-As a fail safe, can create a ```startup.nsh``` file containing this single long line 
+As a fail safe, can create a ```startup.nsh``` file containing this single long line
 
 ````bash
 \vmlinuz-linux root=/dev/sda2 rw initrd=\initramfs-linux.img
@@ -122,7 +121,6 @@ pacman -S firefox
 
 ## Links
 
-
-https://wiki.archlinux.org/index.php/Install_Arch_Linux_from_existing_Linux 
-"Method B: Using the LiveCD image" files here, for example https://mirror.bytemark.co.uk/archlinux/iso/2020.01.01/arch/x86_64/
+* [Arch Installation](https://wiki.archlinux.org/index.php/Install_Arch_Linux_from_existing_Linux)
+"Method B: Using the LiveCD image" files [here](https://mirror.bytemark.co.uk/archlinux/iso/2020.01.01/arch/x86_64/), for example
 * [Arch Linux Instllation](https://wiki.archlinux.org/index.php/Installation_guide)

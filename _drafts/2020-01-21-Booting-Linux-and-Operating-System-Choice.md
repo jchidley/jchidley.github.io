@@ -1,12 +1,13 @@
-2020-01-21-Booting-Linux-and-Operating-System-Choice
-
 ---
 
 date: "2020-01-15"
 title: "Booting Linux and Operating System Choice"
+
 ---
 
+<!-- markdownlint-disable MD025 -->
 # Booting Linux and Operating System Choice
+<!-- markdownlint-enable MD025 -->
 
 ## Introduction
 
@@ -31,7 +32,7 @@ A modern computer uses EFI to boot.  In linux you can see what it's booting usin
 and use ```efibootmgr -n``` to tell the computer what to boot next.  A system that only uses efibootmgr (or
 the windows eqivalent  ```bcdedit```) would require the use of the command line and be entirely predictable.
 
-### efibootmgr 
+### efibootmgr
 
 This is how you can add an entry to the EFI nvram
 
@@ -39,26 +40,29 @@ This is how you can add an entry to the EFI nvram
 
 ## UEFI Shell
 
-https://efi.akeo.ie/ uefi drivers for various file systems
+[](https://efi.akeo.ie/) uefi drivers for various file systems
 
 ## Linux Boot
 
-https://www.linux.com/tutorials/kernel-newbie-corner-initrd-and-initramfs-whats/
-https://en.wikipedia.org/wiki/Linux_startup_process
-https://en.wikipedia.org/wiki/Initial_ramdisk
-https://wiki.archlinux.org/index.php/Arch_boot_process 
-https://wiki.archlinux.org/index.php/EFISTUB
-https://wiki.archlinux.org/index.php/Microcode#EFISTUB
+<!-- markdownlint-disable MD034 -->
+(https://www.linux.com/tutorials/kernel-newbie-corner-initrd-and-initramfs-whats/)
+(https://en.wikipedia.org/wiki/Linux_startup_process)
+(https://en.wikipedia.org/wiki/Initial_ramdisk)
+(https://wiki.archlinux.org/index.php/Arch_boot_process)
+(https://wiki.archlinux.org/index.php/EFISTUB)
+(https://wiki.archlinux.org/index.php/Microcode#EFISTUB)
 
 ## Links
-https://github.com/tianocore/edk2/releases 
-* https://uefi.org/sites/default/files/resources/Insyde_Using_the_UEFI_Shell.pdf
-* https://sourceforge.net/projects/refind/files/0.11.4/
-* https://glowingthumb.com/uefi-shell-scripts-3-of-3/
-* https://wiki.archlinux.org/index.php/EFISTUB#Using_a_startup.nsh_script 
-https://wiki.archlinux.org/index.php/Unified_Extensible_Firmware_Interface#UEFI_Shell 
-https://wiki.archlinux.org/index.php/Systemd-boot 
-https://www.freedesktop.org/wiki/Software/systemd/systemd-boot/ 
+
+* (https://github.com/tianocore/edk2/releases)
+* (https://uefi.org/sites/default/files/resources/Insyde_Using_the_UEFI_Shell.pdf)
+* (https://sourceforge.net/projects/refind/files/0.11.4/)
+* (https://glowingthumb.com/uefi-shell-scripts-3-of-3/)
+* (https://wiki.archlinux.org/index.php/EFISTUB#Using_a_startup.nsh_script)
+* (https://wiki.archlinux.org/index.php/Unified_Extensible_Firmware_Interface#UEFI_Shell)
+* (https://wiki.archlinux.org/index.php/Systemd-boot)
+* (https://www.freedesktop.org/wiki/Software/systemd/systemd-boot/)
+<!-- markdownlint-enable MD034 -->
 
 * [Arch boot process](https://wiki.archlinux.org/index.php/Arch_boot_process)
 * [Early Userspace in Arch Linux](https://web.archive.org/web/20150430223035/http://archlinux.me/brain0/2010/02/13/early-userspace-in-arch-linux/)
