@@ -5,6 +5,8 @@ title: "Booting Linux and Operating System Choice"
 
 ---
 
+minor change
+
 <!-- markdownlint-disable MD025 -->
 # Booting Linux and Operating System Choice
 <!-- markdownlint-enable MD025 -->
