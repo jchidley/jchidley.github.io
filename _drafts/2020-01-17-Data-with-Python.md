@@ -3,15 +3,14 @@ date: "2020-01-17"
 title: "Data With Python"
 ---
 
+<!-- markdownlint-disable MD025 -->
 # Data With Python
+<!-- markdownlint-enable MD025 -->
+
 Factorio related stuff
 
-
-
-
-
-
 ## Links
+
 * [Pandas](https://pandas.pydata.org/)
 * [Pandas DataFrame to SQL (with examples)](https://datatofish.com/pandas-dataframe-to-sql/)
 * [Working with SQLite Databases using Python and Pandas](https://www.dataquest.io/blog/python-pandas-databases/)
