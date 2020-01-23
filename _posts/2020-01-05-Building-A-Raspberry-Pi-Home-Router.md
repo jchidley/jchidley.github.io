@@ -4,42 +4,39 @@ title: "Building A Raspberry Pi Home Router"
 ---
 
 # Building A Raspberry Pi Home Router
-**TL;DR** Replacing a home router with a Raspberry Pi - better performance and easy customisation.  Inspired by [bigdinousaur](https://blog.bigdinosaur.org/running-bind9-and-isc-dhcp/) and [Ars Technica](https://arstechnica.com/gadgets/2016/04/the-ars-guide-to-building-a-linux-router-from-scratch/).
+Replacing a home router with a Raspberry Pi - better performance and full linux customisation.  Inspired by [bigdinousaur](https://blog.bigdinosaur.org/running-bind9-and-isc-dhcp/) and [Ars Technica](https://arstechnica.com/gadgets/2016/04/the-ars-guide-to-building-a-linux-router-from-scratch/).
 
 ## Introduction
 
-I've bought and used a number of 'home' routers over the years and they've all worked OK but the WiFi has left a lot to be desired, they're very limited in function and configuration.  I wanted to build myself something that I had complete control over and, as a bonus, would teach me somthing about how to setup a proper linux router.    I stumbled across a blog by Ars Techica blog where they did that.  I wanted a minimal build as this helps with both performance and secuirty and with a low power consumption.  Arch linux seemed like a good choice.
+I've used a number of home routers over the years and they've worked OK but the performance has been lacklustre, and the configuration options limited.  I wanted to build myself something that I had complete control over and, as a bonus, would teach me more about linux routing.  I stumbled across an [Ars Technica article](https://arstechnica.com/gadgets/2016/04/the-ars-guide-to-building-a-linux-router-from-scratch/) where they did that.  I wanted a minimal build to help with performance, security and power consumption.  Arch linux seemed like a good choice.
 
-I had orginally wanted to use a Raspberry Pi 3 (the latest available) as they are dirt cheap, low power a very small.  But my local Internet ISP is Vigin media and the Pi wouldn't be able to support a throughput of up to 200MBs over an extra USB wired Ethernet interface.  So I looked for the lowest power, lowest cost all-in-one, silent Intel devices.  I found 2 idential Shuttle boxes cheaply on ebay as I wanted to be able to swap them in an out without roblems - nothing is more mission critical for a family these days than an internet connection.  In the end I only setup one with dual wired Ethernet and that has been running without issues ever since.
+I had originally wanted to use a Raspberry Pi 3 (the latest available) as they are dirt cheap, low power a very small.  But my local Internet ISP is Virgin media and the Pi wouldn't be able to support a throughput of up to 200Mbs.  So I looked for cheap low power, low cost, all-in-one, silent Intel devices.  I found a pair identical Shuttle boxes cheaply on eBay; then I would have a swap in backup - nothing is more mission critical for a family than an internet connection.  In the end I only set up one because it was more involved than expected.
 
-Recently however the Raspberry Pi foundation has released a Pi 4.  This is a cracking bit of kit - I use a 4GB version as a desktop.  This Pi has up to 400Mb capable USB ports, easily good enough for the 100MB connection that I need.  Now is my chance to revisit the work that I did earlier and clean it up a bit.  Then I will probably install it on a 1 or 2GB version of the Pi 4.  It is trivial to make a copy of the SD card.  So if something terrible happens to my router I can run the internet on another older Pi lying around until a new Pi 4 (or 5!) arrives.
+With the release of the Raspberry Pi 4 it was time to revisit my solution.  I use a 4GB Pi 4 as a desktop and it will support up to about [900Mbps](https://www.jeffgeerling.com/blogs/jeff-geerling/getting-gigabit-networking).  Changing to a DIY server and good WiFi has demonstrated that a 100Mbps ISP link is good enough, even for a family of 5.  Now is a good time to revisit my work, learn how to setup my router reliably and quickly.  Given Jeff's performance numbers, I expect that my Pi 3 B+ should be good enough, certainly a Pi 4 should do the trick.  I have quite a few old Pis lying around (I love that they maintain compatibility with the old hardware) so if my router goes down I can run the router on an old Pi until a new Pi 4 (or 5!) arrives.
 
-[Getting Gigabit Networking on a Raspberry Pi 2, 3 and B+](https://www.jeffgeerling.com/blogs/jeff-geerling/getting-gigabit-networking).  
-"You can get Gigabit networking working on any current Raspberry Pi (A+, B+, Pi 2 model B, Pi 3 model B), and you can increase the throughput to at least 300+ Mbps (up from the standard 100 Mbps connection via built-in Ethernet).  Note about model 3 B+: The Raspberry Pi 3 model B+ includes a Gigabit wired LAN adapter onboard—though it's still hampered by the USB 2.0 bus speed (so in real world use you get ~224 Mbps instead of ~950 Mbps). So if you have a 3 B+, there's no need to buy an external USB Gigabit adapter if you want to max out the wired networking speed!  Note about model 4: The Raspberry Pi 4 model B finally has true Gigabit wired LAN, owing to it's new I/O architecture. If you're taxing the CPU and USB device bandwidth on the new USB 3.0 ports, you might not get consistent Gbps-range performance, but in my testing so far, the Pi 4 can sustain over 900 Mbps"
+From Jeff Geerling's blog [Getting Gigabit Networking on a Raspberry Pi 2, 3 and B+](https://www.jeffgeerling.com/blogs/jeff-geerling/getting-gigabit-networking).  "You can get Gigabit networking working on any current Raspberry Pi (A+, B+, Pi 2 model B, Pi 3 model B), and you can increase the throughput to at least 300+ Mbps [...] The Raspberry Pi 3 model B+ includes a Gigabit wired LAN adaptor onboard—though it's still hampered by the USB 2.0 bus speed (so in real world use you get ~224 Mbps instead of ~950 Mbps). [...] The Raspberry Pi 4 model B finally has true Gigabit wired LAN, owing to it's new I/O architecture [...] the Pi 4 can sustain over 900 Mbps"
 
 ## Instructions
 
 Install Arch Linux on ARM for Raspberry Pis using [these instructions](https://archlinuxarm.org/platforms/armv7/broadcom/raspberry-pi-2).
 
-It is possible to configure a simple router based on the [Arch Linux Router](https://wiki.archlinux.org/index.php/Router) instructions.  But will will be going further and installing the software that runs the internet, including the newer firewall nftable.
+It is possible to configure a simple router based on the [Arch Linux Router](https://wiki.archlinux.org/index.php/Router) instructions.  I will be going further and installing the software that runs the internet, including the newer firewall nftable.
 
 install the packages
 ````bash
-sudo pacman -S nftables dhcp bind usbutils 
+sudo pacman -S nftables dhcp bind
 ````
 
 ## Setup The Network Connections
 
-We're going to do a little extra work here to give our Ethernet (or other network) interfaces known names.  These saves a lot of time troubleshooting later.
-
-I am using a USB3 Gigabit Ethernet device for the best performance.  Here's how I identify the driver and check that it has been loaded.
+This is how identified my USB device.
 ````bash
-lsusb # find out what USB ethernet device is, can do before and after plus diff 
-dmesg | grep AX88179 # ax88179 is from above, check to see if driver loaded 
-ip addr # to see current interface names and MAC addresses 
+lsusb #USB ethernet device name, can compare before and after insertion using diff
+dmesg | grep AX88179 #AX88179 from above to check that device loaded correctly
+ip addr #interface names and MAC addresses
 ````
 
-I gave the  [network interfaces a known and consistent-desptite-booting name](https://wiki.archlinux.org/index.php/Systemd-networkd#Renaming_an_interface), using the MAC addresses from above.
+I gave my Ethernet devices [known-and-consistent-despite-booting name](https://wiki.archlinux.org/index.php/Systemd-networkd#Renaming_an_interface) to save time troubleshooting, using the MAC addresses from above.
 
 /etc/systemd/network/10-ethusb0.link
 ````
@@ -47,12 +44,10 @@ I gave the  [network interfaces a known and consistent-desptite-booting name](ht
 MACAddress=12:34:56:78:90:ab
 
 [Link]
-Description=USB to Ethernet Adapter
+Description=USB to Ethernet Adaptor
 Name=ethusb0
 ````
-The other link file will need to be called ```11-wan0.link``` or something memorable. Each interface will need an associated profile. This one is for the "public" or ISP facing interface.
-
-/etc/netctl/wan0-profile
+I called the other one ```11-wan0.link```. Each interface has an associated profile. The one for the "public" or ISP facing interface is ```/etc/netctl/wan0-profile```
 ````
 Description='Public Interface.'
 Interface=wan0
@@ -60,9 +55,9 @@ Connection=ethernet
 IP='dhcp
 ````
 
-and this one for the home network.  I have chosen ```10.1.0.0``` for my private network and ```/16``` gives me enough device addresses.
+and ```/etc/netctl/ethusb0-profile``` for the home network.  I chose ```10.1.0.0``` for my private network and ```/16``` gives enough device addresses.
 
-/etc/netctl/ethusb0-profile
+
 ````
 Description='Private Interface'
 Interface=ethusb0
@@ -71,17 +66,15 @@ IP='static'
 Address=('10.1.0.1/16')
 ````
 
-These interfaces are enabled with ```netctl enable wan0-profile``` commands.  A reboot is the quickest way to reset things and an ```ip addr``` should show that both interfaces are up and have assigned addresses.
+These interfaces are enabled with ```netctl enable wan0-profile``` commands.  A reboot is the quickest way to reset things and ensure that they starts correctly at power on.  ```ip addr``` shows that both interfaces are up and have assigned addresses.
 
 ## Routing Between networks
 
-Run these commands to temporaily enable forwarding between networks:
+To test, this command starts forwarding between ip4 networks:
 ````
 sysctl net.ipv4.ip_forward=1
-sysctl sysctl net.ipv6.conf.default.forwarding=1
-net.ipv6.conf.all.forwarding=1
 ````
-Then add the following lines to ```/etc/sysctl.d/30-ipforward.conf``` to make it permanent.
+Adding these lines to ```/etc/sysctl.d/30-ipforward.conf``` makes it permanent.
 ````
 net.ipv4.ip_forward=1
 net.ipv6.conf.default.forwarding=1
@@ -89,7 +82,7 @@ net.ipv6.conf.all.forwarding=1
 ````
 ## Setting up nftables
 
-We are on a private network with a single globally visible IP address provided by the ISP.  To allow that address to be shared by all of the devices internally we will need to ```masquerade``` it.  For this, we're going to use ```nftables```, which is the new replacement for ```iptables``` (and similar). 
+I have a private network with a single globally visible IP address provided by the ISP.  I need to share that address with all of my devices internally using ```masquerade```.  ```nftables```, which is the new replacement for ```iptables``` (and similar) does this.
 
 [/etc/nftables.conf](https://wiki.archlinux.org/index.php/nftables)
 ```bash
@@ -112,14 +105,14 @@ systemctl start nftables
 ````
 and bingo!  A fully functioning Internet router.
 
-I implemeted a simple ["firewall"](/2020/01/07/Traffic-Manager-Not-Firewall.html).
+I implemented a simple ["firewall"](2020-01-07-Traffic-Manager-Not-Firewall).
 
 ## Serving IP Addresses
 
 It is possible to enter every single device's IP settings manually but that is tiresome. 
 [Dhcpd](https://wiki.archlinux.org/index.php/Dhcpd) to the rescue.  
 
-Nothing clever here: just following the instructions.  I'm using Google's DNS servers but there are many alternativeslike the ISP's.
+Nothing clever here: just following the instructions.  I'm using Google's DNS servers but there are many alternatives like the ISP's.
 
 /etc/dhcpd.conf
 ````
@@ -131,9 +124,9 @@ subnet 10.1.0.0 netmask 255.255.0.0 {
 }
 ````
 
-## The end of the Beginning
+## The End of the Beginning
 
-This is enough to replace the current [pretty-good-for-a-consumer-grade](https://www.asus.com/Networking/RTN66U/) router.  It has been regulated to WiFi WAP duties.  To exerise more control over the home network requires implemeting a DNS server.  That's another post.
+This is enough to replace the original [pretty-good-for-a-consumer-grade](https://www.asus.com/Networking/RTN66U/) which has been repurposed as a [WAP](https://en.wikipedia.org/wiki/Wireless_access_point).  To exercise more control over the home network requires [implementing a DNS server](2020-01-08-DNS-Setup-For-DIY-Home-Router).
 
 ## Links
 * [BigDinosaur Blog on Running BIND9 and ISC-DHCP](https://blog.bigdinosaur.org/running-bind9-and-isc-dhcp/)

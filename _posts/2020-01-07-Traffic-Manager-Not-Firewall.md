@@ -1,4 +1,4 @@
-﻿---
+---
 date: "2020-01-07"
 title: "Traffic Manager Not Firewall"
 ---
