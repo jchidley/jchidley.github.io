@@ -3,16 +3,14 @@ date: "2020-01-17"
 title: "Data With Python"
 ---
 
+<!-- markdownlint-disable MD025 -->
 # Data With Python
+<!-- markdownlint-enable MD025 -->
+
 Factorio related stuff
 
-## Installation
-Install Anaconda from their website.  Install a suitable linter - pylint.
-
-From the Anaconda Navigator create a new environment (Pandas or whatever) and install Pandas into it and then SQLAlchemy.  [SQLAlchemy
-is for better peformance](https://pythondata.com/quick-tip-sqlalchemy-for-mysql-and-pandas/)
-
 ## Links
+
 * [Pandas](https://pandas.pydata.org/)
 * [Pandas DataFrame to SQL (with examples)](https://datatofish.com/pandas-dataframe-to-sql/)
 * [Working with SQLite Databases using Python and Pandas](https://www.dataquest.io/blog/python-pandas-databases/)
