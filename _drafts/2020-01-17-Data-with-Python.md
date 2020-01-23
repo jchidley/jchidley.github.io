@@ -9,11 +9,8 @@ Factorio related stuff
 ## Installation
 Install Anaconda from their website.  Install a suitable linter - pylint.
 
-From the Anaconda Navigator create a new environment (Pandas or whatever) and install Pandas into it and then SQLAlchemey
-
-
-
-
+From the Anaconda Navigator create a new environment (Pandas or whatever) and install Pandas into it and then SQLAlchemy.  [SQLAlchemy
+is for better peformance](https://pythondata.com/quick-tip-sqlalchemy-for-mysql-and-pandas/)
 
 ## Links
 * [Pandas](https://pandas.pydata.org/)
