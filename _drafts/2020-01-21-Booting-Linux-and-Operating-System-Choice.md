@@ -28,7 +28,19 @@ Things can get complicated.  This is what to do in order:
 1. Check Hardware is configured for EFI
 1. Make sure that you can boot your operating system directly from UEFI - see EFI Operating System Boot
 1. Install a command line shell so that you can repair anything that goes wrong, and boot things - see EFI Shell
-1. Try your luck with a friendlier method of booting - see Boot Managers 
+1. Try your luck with a friendlier method of booting - see Boot Managers
+
+## Perscriptive Advice
+
+The steps below will ensure that the computer will always boot and can resuce mistakes.  I does require manually copying files from each operating system's normal boot localion to the EFI system partition.  A small price to pay for predictability.
+
+1. Boot from a Linux live or installation USB of some sort
+1. Create a 1GB EFI system partition formatted to fat32
+1. Install the UEFI shell
+1. Install rEFInd
+1. Create a startup.nsh script that boots rEFInd
+1. Set the boot sequence to the shell first, rEFInd second
+1. Copy all operating systems boot files into the system partition
 
 ## Hardare UEFI Configuration
 
@@ -69,13 +81,15 @@ efibootmgr --disk /dev/sda --part 1 --create --label "TianoCore UEFI Shell" --lo
 Note that this is a single long line.
 
 Here are some useful shell commands:
+
 1. ```help -b``` the -b is for output pagination.
-2. ```mode``` to view and change the number of lines and columns displayed.
-3. ```map``` displays some of the devices available.  On my system there's a series of drives labelled ```FS0```, ```BLK1```, etc.
-4. ```FS0:``` to change to a drive
-5. ```ls``` to list files, directories.  ```cd``` change directories
+1. ```mode``` to view and change the number of lines and columns displayed.
+1. ```map``` displays some of the devices available.  On my system there's a series of drives labelled ```FS0```, ```BLK1```, etc.
+1. ```FS0:``` to change to a drive
+1. ```ls``` to list files, directories.  ```cd``` change directories
 
 To actually boot things requires that:
+
 1. You know the EFI command to run your operating system.  The command needs to be a single line e.g.  
 ```vmlinuz-linux root=/dev/sda5 rw initrd=/Arch3/intel-ucode.img initrd=/Arch3/initramfs-linux.img```.  
 The directories are relative the root of the EFI System Parition
@@ -95,7 +109,7 @@ Just like for the UEFI shell, you should get these direct from the original prov
 ### rEFInd
 
 [rEFInd](http://www.rodsbooks.com/refind/) can be downloaded [here](https://sourceforge.net/projects/refind/files/0.11.4/refind-bin-0.11.4.zip/download)
- 
+
 ````shell
 unzip refind-bin-0.11.4.zip
 rsync -r /home/jack/Downloads/refind-bin-0.11.4/refind/* refind

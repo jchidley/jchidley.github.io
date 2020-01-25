@@ -15,6 +15,22 @@ A set of instructions to get up and running with Arch Linux.
 
 Arch installation instructions are on the [Wiki](https://wiki.archlinux.org/index.php/Installation_guide).  This is my pithy guide to how I do it.
 
+````bash
+timedatectl set-ntp true
+````
+
+setup disks - I use a single disk for the whole operating system and a 1GB partition at the beginning of the desk as the EFI partition.  In my view, operating systems should be disposable, so the more self contained they are the better.  Data, and  possibly user settings, should be very carefully looked after.  I try to avoid using any swapfiles by installing lots of RAM in the first place.
+
+````bash
+mount /dev/sda2 /mnt # substitute /dev/sda2 as needed
+pacstrap /mnt base linux linux-firmware # plus any other required pacmages to get started
+pacstrap /mnt unzip # for unziping EFI Shell and rEFInd
+mkdir /mnt/boot/efi # needed for EFI
+mount /dev/sda1 /mnt/boot/efi # so that we can do EFI partition stuff later
+genfstab -U /mnt >> /mnt/etc/fstab # for the fstab.  Don't add EFI so that it's harder for the operating system to muck about with it
+arch-chroot /mnt
+````
+
 This command ```pacman -S arch-install-scripts``` will allow you run the standard installation scripts from a running Arch system.  May be availble from other distributions too.
 
 To get an ordered list of the fastest responding repositories:
@@ -25,10 +41,10 @@ sudo cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak # just in case
 sudo reflector --verbose --country 'United Kingdom' -l 5 --sort rate --save /etc/pacman.d/mirrorlist
 ````
 
-Some basic utilties.  Arch comes with almost nothing by default.
+Arch comes with almost nothing by default.
 
 ````bash
-pacman -S sudo nano vi dhcpcd efibootmgr openssh
+pacman -S sudo nano vi dhcpcd efibootmgr openssh # basic utilties  
 ````
 
 User management.  Change root password, create a new user and add it to the appropriate groups.
@@ -37,16 +53,46 @@ User management.  Change root password, create a new user and add it to the appr
 passwd # for root
 useradd -m -G wheel,audio jack -s /bin/bash
 passwd jack
-#using the command below, uncomment "%wheel ALL=(ALL) NOPASSWD: ALL" line
-EDITOR=nano visudo
+EDITOR=nano visudo # uncomment "%wheel ALL=(ALL) NOPASSWD: ALL"
+````
+
+````bash
+systemctl enable dhcpcd.service # so that we have networking on restart
+ln -sf /usr/share/zoneinfo/Europe/London /etc/localtime
+hwclock --systohc
+vi /etc/locale.gen # Uncomment en_GB.UTF-8 & en_US.UTF-8
+locale-gen
+vi /etc/locale.conf # LANG=en_GB.UTF-8
+vi /etc/hostname # add hostname
+# mkinitcpio -P # usually already done as part of pacstrap
 ````
 
 Getting the thing to boot the raw EFI way.
 
 ````bash
 pacman -S intel-ucode
-mkdir /Arch5 # In the EFI boot partition
-cp /boot/* /Arch5/* # copy all of the boot files across
+mkdir /boot/efi/Arch2Shuttle2 # In the EFI boot partition
+cp /boot/* /boot/efi/Arch2Shuttle2/* # copy all of the boot files across
+````
+
+Create an EFI shell script to boot the new opearting system.
+
+````bash
+lsblk -o NAME,UUID | grep /dev/sda2 >> /boot/efi/Arch2Shuttle2.nsh # assuming /dev/sda2 is operating system partition
+vi /boot/efi/Arch2Shuttle2.nsh
+````
+
+contents of /boot/efi/Arch2Shuttle2.nsh
+
+````bash
+FS0:
+cd Arch2Shuttle2
+vmlinuz-linux root=UUID=23aff7da-45d6-492d-9f9c-b71b531cebfb rw initrd=/Arch2Shuttle2/intel-ucode.img initrd=/Arch2Shuttle2/initramfs-linux.img
+````
+
+Only need to do this if you're direct booting Arch, otherwise do the EFI shell/rEFInd process.
+
+````bash
 lsblk -o NAME,UUID # use the right UUID below
 efibootmgr --disk /dev/sda --part 1 --create --label "Arch 5" --loader /Arch5/vmlinuz-linux --unicode 'root=UUID=23aff7da-45d6-492d-9f9c-b71b531cebfb rw initrd=/Arch5/intel-ucode.img initrd=/Arch5/initramfs-linux.img' --verbose
 efibootmgr -v # check to see what number it is, say 0004
@@ -101,7 +147,7 @@ If you don't load the correct drivers, you get an unhelpful set of errors includ
 Minimal display manager [tbsm](https://aur.archlinux.org/packages/tbsm/) from the AUR.  AUR installation instructions [here](https://wiki.archlinux.org/index.php/Arch_User_Repository).
 
 ````bash
-pacman -S base-devel # for AUR installation
+pacman -S base-devel git # for AUR installation
 git clone https://aur.archlinux.org/tbsm.git
 cd tbsm
 makepkg -si # as a normal user
