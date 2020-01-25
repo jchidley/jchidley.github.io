@@ -44,8 +44,19 @@ sudo reflector --verbose --country 'United Kingdom' -l 5 --sort rate --save /etc
 Arch comes with almost nothing by default.
 
 ````bash
-pacman -S sudo nano vi dhcpcd efibootmgr openssh # basic utilties  
+pacman -S sudo nano vi dhcpcd efibootmgr openssh tmux git # basic utilties
+git clone https://github.com/jchidley/jchidley.github.io.git # instructions
+tmux # to split windows and copy **stuff**
 ````
+
+### tmux commands
+
+Ctrl-b % # new window
+Ctrl-arrow keys # swap between windows
+Ctrl-b [ # copy mode
+Ctrl-space # begin mark
+Ctrl-w # end mark/copy command
+Ctrl-b ] # paste
 
 User management.  Change root password, create a new user and add it to the appropriate groups.
 
