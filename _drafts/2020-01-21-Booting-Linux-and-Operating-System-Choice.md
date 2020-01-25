@@ -120,30 +120,36 @@ efibootmgr -c -l \\refind\\refind_x64.efi -L rEFInd
 ````
 
 <!-- markdownlint-disable MD034 -->
-* (https://www.linux.com/tutorials/kernel-newbie-corner-initrd-and-initramfs-whats/)
 * (https://en.wikipedia.org/wiki/Linux_startup_process)
 * (https://en.wikipedia.org/wiki/Initial_ramdisk)
 * (https://wiki.archlinux.org/index.php/Arch_boot_process)
 * (https://wiki.archlinux.org/index.php/EFISTUB)
 * (https://wiki.archlinux.org/index.php/Microcode#EFISTUB)
+* (https://glowingthumb.com/uefi-shell-scripts-3-of-3/)
+<!-- markdownlint-enable MD034 -->
 
 ## Links
 
+* [The Kernel Newbie Corner: "Initrd" And "Initramfs"–What’s Up With That?](https://www.linux.com/tutorials/kernel-newbie-corner-initrd-and-initramfs-whats/)
+* [The BIOS/MBR Boot Process](https://neosmart.net/wiki/mbr-boot-process/)
+* [Shim and secure boot - fedora](https://docs.fedoraproject.org/en-US/Fedora/18/html/UEFI_Secure_Boot_Guide/sect-UEFI_Secure_Boot_Guide-Implementation_of_UEFI_Secure_Boot-Shim.html)
+* [Secure Boot - ubuntu](https://wiki.ubuntu.com/UEFI/SecureBoot)
 * [uefi drivers for various file systems](https://efi.akeo.ie/)
 * [tianocore releases](https://github.com/tianocore/edk2/releases)
-* (https://uefi.org/sites/default/files/resources/Insyde_Using_the_UEFI_Shell.pdf)
-* (https://sourceforge.net/projects/refind/files/0.11.4/)
-* (https://glowingthumb.com/uefi-shell-scripts-3-of-3/)
-* (https://wiki.archlinux.org/index.php/EFISTUB#Using_a_startup.nsh_script)
-* (https://wiki.archlinux.org/index.php/Unified_Extensible_Firmware_Interface#UEFI_Shell)
-* (https://wiki.archlinux.org/index.php/Systemd-boot)
-* (https://www.freedesktop.org/wiki/Software/systemd/systemd-boot/)
-<!-- markdownlint-enable MD034 -->
+* [Detecting EFI files and Booting them from GRUB](https://forum.manjaro.org/t/detecting-efi-files-and-booting-them-from-grub/38083)
+* [Official GNU GRUB Manual](https://www.gnu.org/software/grub/manual/grub/grub.html#Installation)
+* [GRUB - Arch](https://wiki.archlinux.org/index.php/GRUB)
+* [UEFI startup.nsh script - Arch](https://wiki.archlinux.org/index.php/EFISTUB#Using_a_startup.nsh_script)
+* [systemd boot - formerly Gummiboot](https://www.freedesktop.org/wiki/Software/systemd/systemd-boot/)
+* [Arch systemd-boot](https://wiki.archlinux.org/index.php/Systemd-boot)
 * [Arch boot process](https://wiki.archlinux.org/index.php/Arch_boot_process)
 * [Early Userspace in Arch Linux](https://web.archive.org/web/20150430223035/http://archlinux.me/brain0/2010/02/13/early-userspace-in-arch-linux/)
 * [Editing GRUB boot entries on startup - press e](https://www.cyberciti.biz/faq/grub-boot-into-single-user-mode/)
 * [BIOS/MBR Booting](https://neosmart.net/wiki/mbr-boot-process/)
-* [UEFI](https://wiki.archlinux.org/index.php/Unified_Extensible_Firmware_Interface)
-* [UEFI Shell](https://wiki.archlinux.org/index.php/Unified_Extensible_Firmware_Interface#UEFI_Shell)
+* [UEFI - Arch](https://wiki.archlinux.org/index.php/Unified_Extensible_Firmware_Interface)
+* [UEFI Shell - Arch](https://wiki.archlinux.org/index.php/Unified_Extensible_Firmware_Interface#UEFI_Shell)
+* [Official UEFI Specification, including commands](https://uefi.org/sites/default/files/resources/UEFI_Shell_2_2.pdf)
 * [Using the UEFI Shell - PDF](https://uefi.org/sites/default/files/resources/Insyde_Using_the_UEFI_Shell.pdf)
 * [Binary Release of the UEFI Shell](https://github.com/tianocore/edk2/releases)
+* [rEFInd - offical site including lots of useful UEFI, secure boot and related information](http://www.rodsbooks.com/refind/)
+* [rEFInd download](https://sourceforge.net/projects/refind/files/0.11.4/)
