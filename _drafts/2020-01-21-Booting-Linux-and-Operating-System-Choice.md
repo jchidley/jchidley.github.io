@@ -111,8 +111,9 @@ rsync -r /home/jack/Downloads/refind-bin-0.11.4/refind/* refind
 mv refind.conf-sample refind.conf
 nano refind.conf
 efibootmgr -c -l \\refind\\refind_x64.efi -L rEFInd
-# change the boot order back, boot refind next for testing
 ```
+
+Change the boot order back to the original state boot `efibootmgr -o` and refind on the next boot `efibootmgr -n` for testing
 
 <!-- markdownlint-disable MD034 -->
 * (https://en.wikipedia.org/wiki/Linux_startup_process)
