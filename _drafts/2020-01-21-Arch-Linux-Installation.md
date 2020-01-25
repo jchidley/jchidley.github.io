@@ -51,12 +51,14 @@ tmux # to split windows and copy **stuff**
 
 ### tmux commands
 
-Ctrl-b % # new window
-Ctrl-arrow keys # swap between windows
-Ctrl-b [ # copy mode
-Ctrl-space # begin mark
-Ctrl-w # end mark/copy command
-Ctrl-b ] # paste
+Command | output
+--- | ---
+Ctrl-b % | new window
+Ctrl-arrow keys | move between windows
+Ctrl-b [ | copy stuff
+Ctrl-space | begin mark
+Ctrl-w | end mark/copy command
+Ctrl-b ] | paste
 
 User management.  Change root password, create a new user and add it to the appropriate groups.
 
