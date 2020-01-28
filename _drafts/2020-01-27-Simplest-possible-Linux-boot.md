@@ -36,6 +36,7 @@ rm -rf airlock
 ## Links
 
 * [mkroot - simple linux system builder, bootable under qemu for multiple architectures.](https://github.com/landley/mkroot)
+* [rob's blog](http://landley.net/notes.html)
 * [J-Core Open Processor](https://j-core.org/)
 * [Dropbear SSH](https://matt.ucc.asn.au/dropbear/dropbear.html) & [github for it](https://github.com/mkj/dropbear)
 * [Bash scripting cheatsheet](https://devhints.io/bash)
@@ -46,6 +47,15 @@ rm -rf airlock
 * [Use " and not ' on Qemu on Windows](https://github.com/dhruvvyas90/qemu-rpi-kernel/issues/71)
 * [Using QEMU to emulate a Raspberry Pi](https://blog.agchapman.com/using-qemu-to-emulate-a-raspberry-pi/)
 * [The Rise and Fall of Copyleft](http://landley.net/talks/ohio-2013.txt)
+* [booting a fresh linux kernel on qemu](https://ops.tips/notes/booting-linux-on-qemu/)
+* [How to Build A Custom Linux Kernel For Qemu](https://mgalgs.github.io/2015/05/16/how-to-build-a-custom-linux-kernel-for-qemu-2015-edition.html)
+* [Fast linux kernel testing with qemu](http://ncmiller.github.io/2016/05/14/linux-and-qemu.html)
+* [arch linux BusyBox](https://wiki.archlinux.org/index.php/BusyBox)
+* [About Aboriginal Linux](http://landley.net/aboriginal/about.html#selfhost)
+* [musl libc](https://www.musl-libc.org/)
+* [Hello world for bare metal ARM using QEMU](https://balau82.wordpress.com/2010/02/28/hello-world-for-bare-metal-arm-using-qemu/)
+* [Write messages to stdout from anywhere, by modifying pl011_console_putchar](https://github.com/torvalds/linux/blob/master/drivers/tty/serial/amba-pl011.c)
+* [j-core mailing list](https://lists.j-core.org/mailman/listinfo/j-core)
 
 <!-- markdownlint-disable MD034 -->
 * (https://en.wikipedia.org/wiki/Linux_startup_process)
