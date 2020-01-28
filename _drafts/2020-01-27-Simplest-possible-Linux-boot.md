@@ -12,13 +12,23 @@ title: "Simplest possible Linux boot"
 
 need to install suitable packages on the starter system
 
+pacman -S qemu cpio bc # may not need base-devel musl
+
+download native compiler from https://mkroot.musl.cc/latest
+Extract the native compiler in a suitable directory
+
 ```bash
-pacman -S musl cpio base_devel
+mkdir mcm
+cd mcm
+wget https://mkroot.musl.cc/latest/x86_64-linux-musl-native.tgz
+tar xvaf x86_64-linux-musl-native.tgz
+ln -s ~/mkroot/mcm ~/mcm
 ```
 
 [if something's missing, like bc](https://github.com/landley/mkroot/issues/2)
 
 ```bash
+pacman -S bc
 rm -rf airlock
 ./cross.sh x86_64 ./mkroot.sh HOST_EXTRA='bc'
 ```
