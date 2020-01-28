@@ -34,7 +34,7 @@ The steps below will ensure that the computer will always boot and can resuce mi
 1. Create a startup.nsh script that boots rEFInd
 1. Set the boot sequence to the shell first, rEFInd second
 1. Copy all operating systems boot files into the system partition
-1. Create a UEFI script for the operating system and a startup.nsh for rEFInd.
+1. Create a UEFI script for the operating system and a startup.nsh for rEFInd
 
 ## Hardare UEFI Configuration
 
