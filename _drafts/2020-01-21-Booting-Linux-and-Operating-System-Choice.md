@@ -88,7 +88,6 @@ To actually boot things requires that:
 1. You know the EFI command to run your operating system.  The command needs to be a single line e.g.  
 `vmlinuz-linux root=/dev/sda5 rw initrd=/Arch3/intel-ucode.img initrd=/Arch3/initramfs-linux.img`.  
 The directories are relative the root of the EFI System Parition
-
 1. Create an `nsh` script file in the root directory, like `Arch5.nsh`, to select the right directory and run the boot command.  This can be created using your operating system or using `edit` from the shell itself.  
 It's best to do only minor editing in the EFI shell as this can be tedious and error prone.
 1. Run the script to boot your operating system.  It is possible to type the whole boot command at the EFI prompt.  Up to you.
@@ -123,6 +122,14 @@ Change the boot order back to the original state boot `efibootmgr -o` and refind
 * (https://wiki.archlinux.org/index.php/Microcode#EFISTUB)
 * (https://glowingthumb.com/uefi-shell-scripts-3-of-3/)
 <!-- markdownlint-enable MD034 -->
+
+## Operating Systems
+
+* [Arch Linux](https://www.archlinux.org/) - minimal initial install binary distribution with a good package manager
+* [Gentoo linux](https://wiki.gentoo.org/wiki/Main_Page) Source based minimal install
+* [Linux From Scratch LFS](http://www.linuxfromscratch.org/) Documentation only installation.  Requires a Linux system.
+* [PiLFS](https://intestinate.com/pilfs/guide.html) Pi Linux From Scratch
+* [Pi Gentoo](https://wiki.gentoo.org/wiki/Raspberry_Pi)
 
 ## Links
 

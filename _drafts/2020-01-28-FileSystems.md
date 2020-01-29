@@ -10,11 +10,8 @@ title: "File systems"
 
 ## Introduction
 
-
-```
-
 ## Links
-
+* [Creating and using squashed file systems](https://www.tldp.org/HOWTO/SquashFS-HOWTO/creatingandusing.html)
 * [Overlay filesystem](https://wiki.archlinux.org/index.php/Overlay_filesystem)
 * [Overlay Filesystes](https://www.kernel.org/doc/Documentation/filesystems/overlayfs.txt)
 * [Full system backup with SquashFS](https://wiki.archlinux.org/index.php/Full_system_backup_with_SquashFS)
