@@ -1,4 +1,4 @@
-﻿---
+---
 date: "2020-01-05"
 title: "Building A Raspberry Pi Home Router"
 ---
@@ -23,68 +23,81 @@ Install Arch Linux on ARM for Raspberry Pis using [these instructions](https://a
 It is possible to configure a simple router based on the [Arch Linux Router](https://wiki.archlinux.org/index.php/Router) instructions.  I will be going further and installing the software that runs the internet, including the newer firewall nftable.
 
 install the packages
-````bash
-sudo pacman -S nftables dhcp bind
-````
+
+```bash
+sudo pacman -S nftables dhcp bind usbutils
+```
 
 ## Setup The Network Connections
 
 This is how identified my USB device.
-````bash
+
+```bash
 lsusb #USB ethernet device name, can compare before and after insertion using diff
 dmesg | grep AX88179 #AX88179 from above to check that device loaded correctly
 ip addr #interface names and MAC addresses
-````
+```
 
 I gave my Ethernet devices [known-and-consistent-despite-booting name](https://wiki.archlinux.org/index.php/Systemd-networkd#Renaming_an_interface) to save time troubleshooting, using the MAC addresses from above.
 
 /etc/systemd/network/10-ethusb0.link
-````
+
+```bash
 [Match]
 MACAddress=12:34:56:78:90:ab
 
 [Link]
 Description=USB to Ethernet Adaptor
 Name=ethusb0
-````
-I called the other one ```11-wan0.link```. Each interface has an associated profile. The one for the "public" or ISP facing interface is ```/etc/netctl/wan0-profile```
-````
-Description='Public Interface.'
+```
+I called the other one `11-wan0.link`. Each interface has an associated profile. The one for the "public" or ISP facing interface is `/etc/netctl/wan0-profile`
+
+```bash
+Description=Public Interface
 Interface=wan0
 Connection=ethernet
-IP='dhcp
-````
+IP=dhcp
+```
 
-and ```/etc/netctl/ethusb0-profile``` for the home network.  I chose ```10.1.0.0``` for my private network and ```/16``` gives enough device addresses.
+and `/etc/netctl/ethusb0-profile` for the home network.  I chose `10.1.0.0` for my private network and `/16` gives enough device addresses.
 
 
-````
-Description='Private Interface'
+```bash
+Description=Private Interface
 Interface=ethusb0
 Connection=ethernet
-IP='static'
+IP=static
 Address=('10.1.0.1/16')
-````
+```
 
-These interfaces are enabled with ```netctl enable wan0-profile``` commands.  A reboot is the quickest way to reset things and ensure that they starts correctly at power on.  ```ip addr``` shows that both interfaces are up and have assigned addresses.
+These interfaces are enabled with `netctl enable wan0-profile` commands.  A reboot is the quickest way to reset things and ensure that they starts correctly at power on.  `ip addr` shows that both interfaces are up and have assigned addresses.
 
 ## Routing Between networks
 
 To test, this command starts forwarding between ip4 networks:
-````
+
+```bash
 sysctl net.ipv4.ip_forward=1
-````
-Adding these lines to ```/etc/sysctl.d/30-ipforward.conf``` makes it permanent.
-````
+```
+
+Adding these lines to `/etc/sysctl.d/30-ipforward.conf` makes it permanent.
+
+```bash
 net.ipv4.ip_forward=1
 net.ipv6.conf.default.forwarding=1
 net.ipv6.conf.all.forwarding=1
-````
+```
+
 ## Setting up nftables
 
-I have a private network with a single globally visible IP address provided by the ISP.  I need to share that address with all of my devices internally using ```masquerade```.  ```nftables```, which is the new replacement for ```iptables``` (and similar) does this.
+I have a private network with a single globally visible IP address provided by the ISP.  I need to share that address with all of my devices internally using `masquerade`.  `nftables`, which is the new replacement for `iptables` (and similar) does this.
+
+Don't forget to set a device the other side with a suitable static IP address (say `10.1.0.2`) and a router name of `10.1.0.1` to test the connection.
+
+`cp  /etc/nftables.conf /etc/nftables.conf.bak`
 
 [/etc/nftables.conf](https://wiki.archlinux.org/index.php/nftables)
+
 ```bash
 flush ruleset
 define wan_if = "wan0"
@@ -94,15 +107,15 @@ table ip nat_table {
                 oifname $wan_if masquerade
         }
 }
-````
+```
 
 Run these commands...
 
-````
+```bash
 nft -f /etc/nftables.conf
 systemctl enable nftables
 systemctl start nftables
-````
+```
 and bingo!  A fully functioning Internet router.
 
 I implemented a simple ["firewall"](2020-01-07-Traffic-Manager-Not-Firewall).
@@ -114,15 +127,44 @@ It is possible to enter every single device's IP settings manually but that is t
 
 Nothing clever here: just following the instructions.  I'm using Google's DNS servers but there are many alternatives like the ISP's.
 
+`cp /etc/dhcpd.conf /etc/dhcpd.conf.bak`
+
 /etc/dhcpd.conf
-````
+
+```bash
 option domain-name-servers 8.8.8.8, 8.8.4.4;
 option subnet-mask 255.255.0.0;
 option routers 10.1.0.1;
 subnet 10.1.0.0 netmask 255.255.0.0 {
   range 10.1.1.1 10.1.200.250;
 }
-````
+```
+
+enable dhcpd on a single interface
+
+`nano /etc/systemd/system/dhcpd4@.service`
+
+```bash
+[Unit]
+Description=IPv4 DHCP server on %I
+Wants=network.target
+After=network.target
+
+[Service]
+Type=forking
+PIDFile=/run/dhcpd4.pid
+ExecStart=/usr/bin/dhcpd -4 -q -pf /run/dhcpd4.pid %I
+KillSignal=SIGINT
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```bash
+systemctl enable dhcpd4@ethusb0.service
+systemctl start dhcpd4@ethusb0.service
+systemctl status dhcpd4@ethusb0.service # will also display the allocated addresses
+```
 
 ## The End of the Beginning
 
@@ -138,4 +180,3 @@ This is enough to replace the original [pretty-good-for-a-consumer-grade](https:
 * [Why nftables?](https://wiki.nftables.org/wiki-nftables/index.php/Why_nftables%3F)
 * [Arch Linux nftables](https://wiki.archlinux.org/index.php/nftables)
 * [Dhcpd](https://wiki.archlinux.org/index.php/Dhcpd)
-
