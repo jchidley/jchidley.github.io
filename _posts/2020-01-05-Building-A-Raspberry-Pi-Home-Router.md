@@ -50,27 +50,32 @@ MACAddress=12:34:56:78:90:ab
 Description=USB to Ethernet Adaptor
 Name=ethusb0
 ```
-I called the other one `11-wan0.link`. Each interface has an associated profile. The one for the "public" or ISP facing interface is `/etc/netctl/wan0-profile`
+I called the other one `11-wan0.link`. Each interface has an associated profile. The one for the "public" or ISP facing interface is ` /etc/systemd/network/wan0.network`
 
 ```bash
-Description=Public Interface
-Interface=wan0
-Connection=ethernet
-IP=dhcp
+[Match]
+Name=wan0
+
+[Network]
+DHCP=yes
+DNSSEC=no
 ```
 
-and `/etc/netctl/ethusb0-profile` for the home network.  I chose `10.1.0.0` for my private network and `/16` gives enough device addresses.
+and `/etc/systemd/network/ethusb0.network` for the home network.  I chose `10.1.0.0` for my private network and `/16` gives enough device addresses.
 
 
 ```bash
-Description=Private Interface
-Interface=ethusb0
-Connection=ethernet
-IP=static
-Address=('10.1.0.1/16')
+[Match]
+Name=ethusb0
+
+[Address]
+Address=10.1.0.1
+
+[Network]
+DNSSEC=no
 ```
 
-These interfaces are enabled with `netctl enable wan0-profile` commands.  A reboot is the quickest way to reset things and ensure that they starts correctly at power on.  `ip addr` shows that both interfaces are up and have assigned addresses.
+A reboot is the quickest way to reset things and ensure that they starts correctly at power on.  `ip addr` shows that both interfaces are up and have assigned addresses.
 
 ## Routing Between networks
 
@@ -132,6 +137,10 @@ Nothing clever here: just following the instructions.  I'm using Google's DNS se
 /etc/dhcpd.conf
 
 ```bash
+# No DHCP service in DMZ network (192.168.2.0/24)
+subnet 192.168.2.0 netmask 255.255.255.0 {
+}
+
 option domain-name-servers 8.8.8.8, 8.8.4.4;
 option subnet-mask 255.255.0.0;
 option routers 10.1.0.1;
@@ -147,8 +156,8 @@ enable dhcpd on a single interface
 ```bash
 [Unit]
 Description=IPv4 DHCP server on %I
-Wants=network.target
-After=network.target
+Wants=network-online.target
+After=network-online.target
 
 [Service]
 Type=forking
