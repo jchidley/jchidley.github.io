@@ -35,6 +35,7 @@ The steps below will ensure that the computer will always boot and can resuce mi
 1. Set the boot sequence to the shell first, rEFInd second
 1. Copy all operating systems boot files into the system partition
 1. Create a UEFI script for the operating system and a startup.nsh for rEFInd
+1. Make all copies of Windows UEFI bootable (not a simple process)
 
 ## Hardare UEFI Configuration
 
@@ -57,7 +58,9 @@ efibootmgr -o 0,1 # reset the boot order back to what it was orginally
 efibootmgr -n 2 # to run the newly added item at next boot
 ```
 
-#### bcdedit (Windows)
+#### EIF Booting Windows (bcdedit)
+
+[MBR2GPT command](https://docs.microsoft.com/en-us/windows/deployment/mbr-to-gpt) to convert system drive to EFI.  Move partition to EFI drives by using DD (Linux) or back tool for Windows.
 
 ```shell
 bcdedit /v
@@ -67,7 +70,7 @@ bcdedit /v
 
 I have found that shells, and other pre-opeating system utilties/enviroments like boot managers, need to be installed from the original sources.  Operating system providers tend to customise these things and hence they don't always work with other operating systems.
 
-[TianoCore](https://www.tianocore.org/) provides "an open source implementation of the Unified Extensible Firmware Interface" and a release can be downloaded [here](https://github.com/tianocore/edk2/releases).  I put mine in the root of my EFI partion in /UefiShell and ran this to add it to NVRAM, same process as to add an operating system, above.
+[TianoCore](https://www.tianocore.org/) provides "an open source implementation of the Unified Extensible Firmware Interface" and a release can be downloaded [here](https://github.com/tianocore/edk2/releases).  I put mine in the root of the EFI partion in /UefiShell and ran this to add it to NVRAM, same process as to add an operating system, above.
 
 ```shell
 efibootmgr --disk /dev/sda --part 1 --create --label "TianoCore UEFI Shell" --loader /UefiShell/X64/Shell.efi --verbose
@@ -79,8 +82,8 @@ Here are some useful EFI commands:
 
 1. `help -b` the -b is for output pagination.
 1. `mode` to view and change the number of lines and columns displayed.
-1. `map` displays some of the devices available.  On my system there's a series of drives labelled `FS0`, `BLK1`, etc.
-1. `FS0:` to change to a drive
+1. `map` displays some of the devices available.  On my system there's a series of drives labelled `FS0` (for UEFI known file systems), `BLK1` (block devices), etc.
+1. `FS0:` to change to a file system.
 1. `ls` to list files, directories.  `cd` change directories
 
 To actually boot things requires that:
