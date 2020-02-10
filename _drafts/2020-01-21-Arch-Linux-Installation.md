@@ -24,10 +24,9 @@ setup disks - I use a single disk for the whole operating system and a 1GB parti
 ```bash
 mount /dev/sda2 /mnt # substitute /dev/sda2 as needed
 pacstrap /mnt base linux linux-firmware # plus any other required pacmages to get started
-pacstrap /mnt unzip # for unziping EFI Shell and rEFInd
+genfstab -U /mnt >> /mnt/etc/fstab # for the fstab.  Don't add EFI so that it's harder for the operating system to muck about with it
 mkdir /mnt/boot/efi # needed for EFI
 mount /dev/sda1 /mnt/boot/efi # so that we can do EFI partition stuff later
-genfstab -U /mnt >> /mnt/etc/fstab # for the fstab.  Don't add EFI so that it's harder for the operating system to muck about with it
 arch-chroot /mnt
 ```
 
@@ -36,16 +35,32 @@ This command ```pacman -S arch-install-scripts``` will allow you run the standar
 To get an ordered list of the fastest responding repositories:
 
 ```bash
-sudo pacman -S reflector rsync curl
-sudo cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak # just in case
-sudo reflector --verbose --country 'United Kingdom' -l 5 --sort rate --save /etc/pacman.d/mirrorlist
+pacman -S reflector rsync curl
+cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak # just in case
+reflector --verbose --country 'United Kingdom' -l 10 --sort rate --save /etc/pacman.d/mirrorlist
 ```
 
 Arch comes with almost nothing by default.
 
 ```bash
-pacman -S sudo nano vi dhcpcd efibootmgr openssh tmux git # basic utilties
+pacsman -S unzip # for unziping EFI Shell and rEFInd
+pacman -S sudo nano vim dhcpcd efibootmgr openssh tmux git # basic utilties
+```
+
+User management.  Change root password, create a new user and add it to the appropriate groups.
+
+```bash
+passwd # for root
+useradd -m -G wheel,audio jack -s /bin/bash
+passwd jack
+visudo # uncomment "%wheel ALL=(ALL) NOPASSWD: ALL"
+```
+
+```bash
+su jack
+cd /home/jack
 git clone https://github.com/jchidley/jchidley.github.io.git # instructions
+exit
 tmux # to split windows and copy **stuff**
 ```
 
@@ -60,18 +75,11 @@ Ctrl-space | begin mark
 Ctrl-w | end mark/copy command
 Ctrl-b ] | paste
 
-User management.  Change root password, create a new user and add it to the appropriate groups.
 
-```bash
-passwd # for root
-useradd -m -G wheel,audio jack -s /bin/bash
-passwd jack
-EDITOR=nano visudo # uncomment "%wheel ALL=(ALL) NOPASSWD: ALL"
-```
 
 ```bash
 systemctl enable dhcpcd.service # so that we have networking on restart
-ln -sf /usr/share/zoneinfo/Europe/London /etc/localtime
+ln -sf /usr/share/zoneinfo/Europe/London /etc/localtime #not working?
 hwclock --systohc
 vi /etc/locale.gen # Uncomment en_GB.UTF-8 & en_US.UTF-8
 locale-gen
