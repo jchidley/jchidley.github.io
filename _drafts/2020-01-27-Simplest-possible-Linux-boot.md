@@ -10,9 +10,18 @@ title: "Simplest possible Linux boot"
 
 ## Introduction
 
+## Get mkroot
+
+```bash
+git clone https://github.com/landley/mkroot
+less mkroot/README # instructions
+```
+
 need to install suitable packages on the starter system
 
+```bash
 pacman -S qemu cpio bc # may not need base-devel musl
+```
 
 download native compiler from https://mkroot.musl.cc/latest
 Extract the native compiler in a suitable directory
@@ -21,8 +30,44 @@ Extract the native compiler in a suitable directory
 mkdir mcm
 cd mcm
 wget https://mkroot.musl.cc/latest/x86_64-linux-musl-native.tgz
-tar xvaf x86_64-linux-musl-native.tgz
+bsdtar xvf x86_64-linux-musl-native.tgz
 ln -s ~/mkroot/mcm ~/mcm
+```
+
+Some native and cross compilers:
+
+```bash
+https://mkroot.musl.cc/latest/aarch64-linux-musl-cross.tgz
+
+aarch64-linux-musl-cross.tgz
+aarch64-linux-musl-native.tgz
+aarch64_be-linux-musl-cross.tgz
+aarch64_be-linux-musl-native.tgz
+arm-linux-musleabi-cross.tgz
+arm-linux-musleabi-native.tgz
+arm-linux-musleabihf-cross.tgz
+arm-linux-musleabihf-native.tgz
+armeb-linux-musleabi-cross.tgz
+armeb-linux-musleabi-native.tgz
+armeb-linux-musleabihf-cross.tgz
+armeb-linux-musleabihf-native.tgz
+armel-linux-musleabi-cross.tgz
+armel-linux-musleabi-native.tgz
+armel-linux-musleabihf-cross.tgz
+armel-linux-musleabihf-native.tgz
+armv5l-linux-musleabihf-cross.tgz
+armv5l-linux-musleabihf-native.tgz
+armv7l-linux-musleabihf-cross.tgz
+armv7l-linux-musleabihf-native.tgz
+armv7m-linux-musleabi-cross.tgz
+armv7m-linux-musleabi-native.tgz
+armv7r-linux-musleabihf-cross.tgz
+armv7r-linux-musleabihf-native.tgz 
+
+x86_64-linux-musl-cross.tgz
+x86_64-linux-musl-native.tgz
+x86_64-linux-muslx32-cross.tgz
+x86_64-linux-muslx32-native.tgz
 ```
 
 [if something's missing, like bc](https://github.com/landley/mkroot/issues/2)
