@@ -20,6 +20,29 @@ From Jeff Geerling's blog [Getting Gigabit Networking on a Raspberry Pi 2, 3 and
 
 Install Arch Linux on ARM for Raspberry Pis using [these instructions](https://archlinuxarm.org/platforms/armv7/broadcom/raspberry-pi-2).
 
+DOS partition a disk, 100M boot, everything else root
+mount both, extract archive to root.  Move boot/* to the root of boot partition.
+
+```bash
+mkfs.vfat /dev/sdX1
+mkdir boot
+mount /dev/sdX1 boot
+mkfs.ext4 /dev/sdX2
+mkdir root
+mount /dev/sdX2 root
+wget http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-4-latest.tar.gz
+bsdtar -xpf ArchLinuxARM-rpi-4-latest.tar.gz -C root
+sync
+mv root/boot/* boot
+```
+
+boot
+
+```bash
+pacman-key --init
+pacman-key --populate archlinuxarm
+```
+
 It is possible to configure a simple router based on the [Arch Linux Router](https://wiki.archlinux.org/index.php/Router) instructions.  I will be going further and installing the software that runs the internet, including the newer firewall nftable.
 
 install the packages
