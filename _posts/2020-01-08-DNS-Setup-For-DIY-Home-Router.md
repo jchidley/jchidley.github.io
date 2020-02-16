@@ -8,17 +8,20 @@ Modifying my DIY router to support my own DNS.  Now I can build the [Upside-Down
 
 ## Introduction
 
-[Previously](2020-01-05-Building-A-Raspberry-Pi-Home-Router) I built my own DIY router on a Raspberry Pi.  Now I am building my own DNS server using [BigDinosaur's notes.](https://blog.bigdinosaur.org/running-bind9-and-isc-dhcp/) and the [Arch Linux specific bind instructions](https://wiki.archlinux.org/index.php/BIND).  The aims are to implement DNS for my own domain and link DHCP to DNS.
+[Previously](2020-01-05-Building-A-Raspberry-Pi-Home-Router) I built my own DIY router on a Raspberry Pi. Now I am building my own DNS server using [BigDinosaur's notes.](https://blog.bigdinosaur.org/running-bind9-and-isc-dhcp/) and the [Arch Linux specific bind instructions](https://wiki.archlinux.org/index.php/BIND). The aims are to implement DNS for my own domain and link DHCP to DNS.
 
 ## Installation
 For installation and configuration I just followed Arch Linux's instructions modified by BigDinosuar's article.
-````
+
+```bash
 pacman -S wget bind #wget for the root.hint update
+```
 
-Executing ```/usr/sbin/rndc-confgen -a``` generates the ```/etc/rndc.key``` that is needed for secure updating of DHCP/DNS.  There are references to this key in both the DHCP and DNS configuration files.
+Executing `/usr/sbin/rndc-confgen -a` generates the `/etc/rndc.key` that is needed for secure updating of DHCP/DNS.  There are references to this key in both the DHCP and DNS configuration files.
 
-This is the revised ```/etc/dhcpd.conf``` file, fuller explanations are in [BigDinosaur's notes.](https://blog.bigdinosaur.org/running-bind9-and-isc-dhcp/):
-````
+This is the revised `/etc/dhcpd.conf` file, fuller explanations are in [BigDinosaur's notes.](https://blog.bigdinosaur.org/running-bind9-and-isc-dhcp/):
+
+```bash
 ddns-updates on;
 ddns-update-style interim;
 update-static-leases on;
@@ -55,10 +58,11 @@ subnet 10.1.0.0 netmask 255.255.0.0 {
 # No DHCP here
 subnet 10.0.0.0 netmask 255.255.0.0 {
 }
-````
+```
 
-The ```named.conf``` is modified in the light of [the ISC recommendations](https://kb.isc.org/docs/aa-00269):
-````
+The `named.conf` is modified in the light of [the ISC recommendations](https://kb.isc.org/docs/aa-00269):
+
+```bash
 acl "trusted" {
 	10.1.0.0/16;
     localhost;
@@ -117,10 +121,11 @@ zone "." IN {
     type hint;
     file "root.hint";
 };
-````
+```
 
-```chidley.net.hosts```:
-````
+`chidley.net.hosts`:
+
+```bash
 $ORIGIN .
 $TTL 907200 ; 1 week 3 days 12 hours
 ; chidley.net.
@@ -134,10 +139,11 @@ NS      alarmpi1.chidley.net.
 
 $ORIGIN chidley.net.
 $TTL 3600       ; 1 hour for testing
-````
+```
 
-An almost identical one for ```1.10.rev```:
-````
+An almost identical one for `1.10.rev`:
+
+```bash
 $ORIGIN .
 $TTL 907200 ; 1 week 3 days 12 hours
 ; 1.10.in-addr.arpa
@@ -151,11 +157,12 @@ NS      alarmpi1.chidley.net.
 
 $ORIGIN 1.10.in-addr.arpa
 $TTL 3600       ; 1 hour for testing
-````
+```
 
 
-I created [```roothintupdate.sh```](https://wiki.archlinux.org/index.php/Talk:BIND) helper file for updating root.hint
-````
+I created [`roothintupdate.sh`](https://wiki.archlinux.org/index.php/Talk:BIND) helper file for updating root.hint
+
+```bash
 #!/bin/bash
 
 DATE=`date -u +%Y%m%d`
@@ -165,7 +172,7 @@ wget https://www.internic.net/domain/named.root -O /var/named/root.hint
 chown named:named /var/named/root.hint
 chmod 644 /var/named/root.hint
 systemctl restart named
-````
+```
 
 
 ## Links
