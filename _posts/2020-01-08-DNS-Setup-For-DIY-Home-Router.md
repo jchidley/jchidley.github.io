@@ -24,9 +24,24 @@ pacman -S wget bind #wget for the root.hint update
 
 Executing `/usr/sbin/rndc-confgen -a` generates the `/etc/rndc.key` that is needed for secure updating of DHCP/DNS.  There are references to this key in both the DHCP and DNS configuration files.
 
+```bash
+chown named:named /etc/rndc.key
+```
+
 This is the revised `/etc/dhcpd.conf` file, fuller explanations are in [BigDinosaur's notes.](https://blog.bigdinosaur.org/running-bind9-and-isc-dhcp/):
 
 ```bash
+# No DHCP service in DMZ network (192.168.2.0/24)
+subnet 192.168.2.0 netmask 255.255.255.0 {
+}
+
+option domain-name-servers 10.1.0.1, 8.8.8.8;
+option subnet-mask 255.255.0.0;
+option routers 10.1.0.1;
+subnet 10.1.0.0 netmask 255.255.0.0 {
+  range 10.1.1.1 10.1.200.250;
+}
+
 ddns-updates on;
 ddns-update-style interim;
 update-static-leases on;
@@ -34,14 +49,7 @@ authoritative;
 include "/etc/rndc.key";
 allow unknown-clients;
 use-host-decl-names on;
-default-lease-time 1814400;
-max-lease-time 1814400;
-log-facility local7;
 
-option domain-name-servers 8.8.8.8, 8.8.4.4;
-option subnet-mask 255.255.0.0;
-option routers 10.1.0.1;
-option domain-name-servers 10.1.0.1;
 option domain-name "chidley.net";
 ddns-domainname "chidley.net.";
 ddns-rev-domainname "in-addr.arpa.";
@@ -55,17 +63,9 @@ zone 1.10.in-addr.arpa. {
     primary localhost;
     key rndc-key; 
     }
-
-subnet 10.1.0.0 netmask 255.255.0.0 {
-    range 10.1.100.1 10.1.200.250;
-}
-
-# No DHCP here
-subnet 10.0.0.0 netmask 255.255.0.0 {
-}
 ```
 
-The `named.conf` is modified in the light of [the ISC recommendations](https://kb.isc.org/docs/aa-00269):
+The `/etc/named.conf` is modified in the light of [the ISC recommendations](https://kb.isc.org/docs/aa-00269):
 
 ```bash
 acl "trusted" {
@@ -80,16 +80,15 @@ options {
     directory "/var/named";
     pid-file "/run/named/named.pid";
 
-    listen-on-v6 { any; };
     listen-on { any; };
-    forwarders { 8.8.8.8; 8.8.4.4; };
+    forwarders { 10.1.0.1; 8.8.8.8; };
 
     allow-query { trusted; };
     allow-recursion { trusted; };
     allow-query-cache { trusted; };
     allow-transfer { trusted; };
     allow-update { none; };
-
+m
     version none;
     hostname none;
     server-id none;
@@ -128,25 +127,25 @@ zone "." IN {
 };
 ```
 
-`chidley.net.hosts`:
+`/var/named/chidley.net.hosts`:
 
 ```bash
 $ORIGIN .
 $TTL 907200 ; 1 week 3 days 12 hours
 ; chidley.net.
-chidley.net  IN  SOA  alarmpi1.chidley.net. postmaster.chidley.net. (
+chidley.net  IN  SOA  alarmpi.chidley.net. postmaster.chidley.net. (
                                         20200107 ; Serial
                                         28800      ; Refresh
                                         1800       ; Retry
                                         604800     ; Expire - 1 week
                                         86400 )    ; Minimum
-NS      alarmpi1.chidley.net.
+NS      alarmpi.chidley.net.
 
 $ORIGIN chidley.net.
 $TTL 3600       ; 1 hour for testing
 ```
 
-An almost identical one for `1.10.rev`:
+An almost identical one for `/var/named/1.10.rev`:
 
 ```bash
 $ORIGIN .
