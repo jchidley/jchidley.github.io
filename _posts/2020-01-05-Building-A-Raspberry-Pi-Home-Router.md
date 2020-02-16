@@ -98,7 +98,13 @@ Address=10.1.0.1
 DNSSEC=no
 ```
 
-A reboot is the quickest way to reset things and ensure that they starts correctly at power on.  `ip addr` shows that both interfaces are up and have assigned addresses.
+enable systemd network service
+
+```bash
+systemctl enable systemd-networkd.service
+```
+
+A reboot is the quickest way to reset things and ensure that they start correctly at power on.  `ip addr` shows that both interfaces are up and have assigned addresses.
 
 ## Routing Between networks
 
@@ -164,7 +170,7 @@ Nothing clever here: just following the instructions.  I'm using Google's DNS se
 subnet 192.168.2.0 netmask 255.255.255.0 {
 }
 
-option domain-name-servers 8.8.8.8, 8.8.4.4;
+option domain-name-servers 8.8.8.8;
 option subnet-mask 255.255.0.0;
 option routers 10.1.0.1;
 subnet 10.1.0.0 netmask 255.255.0.0 {
