@@ -3,7 +3,10 @@ date: "2020-01-08"
 title: "DNS Setup For DIY Home Router"
 ---
 
+<!-- markdownlint-disable MD025 -->
 # DNS Setup For DIY Home Router
+<!-- markdownlint-enable MD025 -->
+
 Modifying my DIY router to support my own DNS.  Now I can build the [Upside-Down-Ternet](http://www.ex-parrot.com/~pete/upside-down-ternet.html)
 
 ## Introduction
@@ -11,7 +14,9 @@ Modifying my DIY router to support my own DNS.  Now I can build the [Upside-Down
 [Previously](2020-01-05-Building-A-Raspberry-Pi-Home-Router) I built my own DIY router on a Raspberry Pi. Now I am building my own DNS server using [BigDinosaur's notes.](https://blog.bigdinosaur.org/running-bind9-and-isc-dhcp/) and the [Arch Linux specific bind instructions](https://wiki.archlinux.org/index.php/BIND). The aims are to implement DNS for my own domain and link DHCP to DNS.
 
 ## Installation
+
 For installation and configuration I just followed Arch Linux's instructions modified by BigDinosuar's article.
+
 
 ```bash
 pacman -S wget bind #wget for the root.hint update
@@ -159,7 +164,6 @@ $ORIGIN 1.10.in-addr.arpa
 $TTL 3600       ; 1 hour for testing
 ```
 
-
 I created [`roothintupdate.sh`](https://wiki.archlinux.org/index.php/Talk:BIND) helper file for updating root.hint
 
 ```bash
@@ -174,8 +178,12 @@ chmod 644 /var/named/root.hint
 systemctl restart named
 ```
 
-
 ## Links
+
 * [Upside-Down-Ternet](http://www.ex-parrot.com/~pete/upside-down-ternet.html)
 * [Arch linux bind](https://wiki.archlinux.org/index.php/BIND)
 * [Talk:BIND](https://wiki.archlinux.org/index.php/Talk:BIND)
+
+<!-- markdownlint-disable MD034 -->
+
+<!-- markdownlint-enable MD034 -->
