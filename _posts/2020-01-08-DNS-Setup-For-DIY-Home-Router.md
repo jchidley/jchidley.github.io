@@ -33,7 +33,7 @@ This is the revised `/etc/dhcpd.conf` file, fuller explanations are in [BigDinos
 ```bash
 ddns-updates on;
 ddns-update-style interim;
-ddns-domainname "chidley.net.";
+ddns-domainname "chidley.test.";
 ddns-rev-domainname "in-addr.arpa.";
 
 update-static-leases on;
@@ -41,12 +41,12 @@ authoritative;
 include "/etc/rndc.key";
 allow unknown-clients;
 
-option domain-name "chidley.net";
+option domain-name "chidley.test";
 option domain-name-servers 10.1.0.1, 8.8.8.8;
 option subnet-mask 255.255.0.0;
 option routers 10.1.0.1;
 
-zone chidley.net. {
+zone chidley.test. {
     primary localhost; 
     key rndc-key; 
     }
@@ -94,24 +94,14 @@ options {
 	server-id none;
 };
 
-zone "chidley.net" {
+zone "chidley.test" {
 	type master;
-	file "chidley.net.hosts";
+	file "chidley.test.zone";
 };
 
 zone "1.10.in-addr.arpa" {
 	type master;
 	file "1.10.rev";
-};
-
-zone "localhost" IN {
-	type master;
-	file "localhost.zone";
-};
-
-zone "0.0.127.in-addr.arpa" IN {
-	type master;
-	file "127.0.0.zone";
 };
 
 zone "." IN {
@@ -120,41 +110,40 @@ zone "." IN {
 };
 ```
 
-`/var/named/chidley.net.hosts`:
+`/var/named/chidley.test.zone` based on [Arch Linux example zone file](https://wiki.archlinux.org/index.php/BIND#Creating_a_zonefile):
 
 ```bash
-$ORIGIN .
-$TTL 907200 ; 1 week 3 days 12 hours
-; chidley.net.
-chidley.net  IN  SOA  alarmpi.chidley.net. postmaster.chidley.net. (
-                                        20200107 ; Serial
-                                        28800      ; Refresh
-                                        1800       ; Retry
-                                        604800     ; Expire - 1 week
-                                        86400 )    ; Minimum
-NS      alarmpi.chidley.net.
-
-$ORIGIN chidley.net.
-$TTL 3600       ; 1 hour for testing
+$TTL 300	; 5 mins for testing
+; chidley.test
+@	IN	SOA	alampi.chidley.test. postmaster.chidley.test. (
+			1	; Serial
+			28800	; Refresh
+			1800	; Retry
+			604800	; Expire - 1 week
+			38400	; minimum (10 hours 40 minutes)
+			)
+		IN	NS	alarmpi
+alarmpi		IN	A	0.0.0.0
+localhost	IN	A	127.0.0.1
 ```
 
 An almost identical one for `/var/named/1.10.rev`:
 
 ```bash
 $ORIGIN .
-$TTL 907200 ; 1 week 3 days 12 hours
-; 1.10.in-addr.arpa
-1.10.in-addr.arpa  IN  SOA  alarmpi1.chidley.net. postmaster.chidley.net. (
-                                        20200107 ; Serial
-                                        28800      ; Refresh
-                                        1800       ; Retry
-                                        604800     ; Expire - 1 week
-                                        86400 )    ; Minimum
-NS      alarmpi1.chidley.net.
-
-$ORIGIN 1.10.in-addr.arpa
-$TTL 3600       ; 1 hour for testing
+$TTL 300	; 5 mins for testing
+; 1.10.rev
+1.10.in-addr.arpa	IN SOA	alarmpi.chidley.test. webmaster.chidley.test. (
+			1	; serial
+			10800	; refresh (3 hours)
+			3600	; retry (1 hour)
+			604800	; expire (1 week)
+			38400	; minimum (10 hours 40 minutes)
+        	        )
+		NS	alarmpi.chidley.test.
 ```
+
+`chown named:named /var/named/*`
 
 I created [`roothintupdate.sh`](https://wiki.archlinux.org/index.php/Talk:BIND) helper file for updating root.hint
 
@@ -168,9 +157,18 @@ wget https://www.internic.net/domain/named.root -O /var/named/root.hint
 chown named:named /var/named/root.hint
 chmod 644 /var/named/root.hint
 systemctl restart named
-```
+```udo dhclient -r
 
-`journalctl -f` to view the log as you request DHCP addresses.
+For testing: 
+
+```baah
+ournalctl -f #to view the log as you request DHCP addresses.
+named-checkzone 1.10.in-addr.arpa 1.10.rev #for the zone file
+named-checkzone chidley.test. chidley.test.zone #for the zone file
+named-checkconf /etc/named.conf #for the configuration file
+systemctl status dhcpd4@ethusb0 # dhcpd status
+systemctl status named # name daemon status
+```
 
 ## Links
 
@@ -178,6 +176,7 @@ systemctl restart named
 * [Arch linux bind](https://wiki.archlinux.org/index.php/BIND)
 * [Talk:BIND](https://wiki.archlinux.org/index.php/Talk:BIND)
 * [investigate issues with nsupdate](https://www.semicomplete.com/articles/dynamic-dns-with-dhcp/)
+* [BIND from Arch Linux Wiki](https://wiki.archlinux.org/index.php/BIND)
 
 <!-- markdownlint-disable MD034 -->
 
