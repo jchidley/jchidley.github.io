@@ -87,7 +87,6 @@ options {
 	allow-recursion { trusted; };
 	allow-query-cache { trusted; };
 	allow-transfer { trusted; };
-	allow-update { key rndc-key; };
 
 	version none;
 	hostname none;
@@ -97,11 +96,13 @@ options {
 zone "chidley.test" {
 	type master;
 	file "chidley.test.zone";
+	allow-update { key rndc-key; };
 };
 
 zone "1.10.in-addr.arpa" {
 	type master;
 	file "1.10.rev";
+	allow-update { key rndc-key; };
 };
 
 zone "." IN {
@@ -157,17 +158,17 @@ wget https://www.internic.net/domain/named.root -O /var/named/root.hint
 chown named:named /var/named/root.hint
 chmod 644 /var/named/root.hint
 systemctl restart named
-```udo dhclient -r
+```
 
 For testing: 
 
-```baah
-ournalctl -f #to view the log as you request DHCP addresses.
-named-checkzone 1.10.in-addr.arpa 1.10.rev #for the zone file
-named-checkzone chidley.test. chidley.test.zone #for the zone file
-named-checkconf /etc/named.conf #for the configuration file
-systemctl status dhcpd4@ethusb0 # dhcpd status
-systemctl status named # name daemon status
+```bash
+journalctl -f #to view the log as you request DHCP addresses
+named-checkzone 1.10.in-addr.arpa 1.10.rev
+named-checkzone chidley.test. chidley.test.zone
+named-checkconf /etc/named.conf
+systemctl status dhcpd4@ethusb0
+systemctl status named
 ```
 
 ## Links
