@@ -1,4 +1,4 @@
-﻿---
+---
 date: "2020-01-08"
 title: "DNS Setup For DIY Home Router"
 ---
@@ -31,28 +31,20 @@ chown named:named /etc/rndc.key
 This is the revised `/etc/dhcpd.conf` file, fuller explanations are in [BigDinosaur's notes.](https://blog.bigdinosaur.org/running-bind9-and-isc-dhcp/):
 
 ```bash
-# No DHCP service in DMZ network (192.168.2.0/24)
-subnet 192.168.2.0 netmask 255.255.255.0 {
-}
-
-option domain-name-servers 10.1.0.1, 8.8.8.8;
-option subnet-mask 255.255.0.0;
-option routers 10.1.0.1;
-subnet 10.1.0.0 netmask 255.255.0.0 {
-  range 10.1.1.1 10.1.200.250;
-}
-
 ddns-updates on;
 ddns-update-style interim;
+ddns-domainname "chidley.net.";
+ddns-rev-domainname "in-addr.arpa.";
+
 update-static-leases on;
 authoritative;
 include "/etc/rndc.key";
 allow unknown-clients;
-use-host-decl-names on;
 
 option domain-name "chidley.net";
-ddns-domainname "chidley.net.";
-ddns-rev-domainname "in-addr.arpa.";
+option domain-name-servers 10.1.0.1, 8.8.8.8;
+option subnet-mask 255.255.0.0;
+option routers 10.1.0.1;
 
 zone chidley.net. {
     primary localhost; 
@@ -63,6 +55,14 @@ zone 1.10.in-addr.arpa. {
     primary localhost;
     key rndc-key; 
     }
+
+subnet 10.1.0.0 netmask 255.255.0.0 {
+  range 10.1.1.1 10.1.200.250;
+}
+
+# No DHCP service in DMZ network (192.168.2.0/24)
+subnet 192.168.2.0 netmask 255.255.255.0 {
+}
 ```
 
 The `/etc/named.conf` is modified in the light of [the ISC recommendations](https://kb.isc.org/docs/aa-00269):
@@ -70,60 +70,53 @@ The `/etc/named.conf` is modified in the light of [the ISC recommendations](http
 ```bash
 acl "trusted" {
 	10.1.0.0/16;
-    localhost;
-    localnets;
- };
+	localhost;
+	localnets;
+	};
 
 include "/etc/rndc.key";
 
 options {
-    directory "/var/named";
-    pid-file "/run/named/named.pid";
+	directory "/var/named";
+	pid-file "/run/named/named.pid";
+	
+	listen-on { any; };
+	forwarders { 10.1.0.1; 8.8.8.8; };
 
-    listen-on { any; };
-    forwarders { 10.1.0.1; 8.8.8.8; };
+	allow-query { any; };
+	allow-recursion { trusted; };
+	allow-query-cache { trusted; };
+	allow-transfer { trusted; };
+	allow-update { key rndc-key; };
 
-    allow-query { trusted; };
-    allow-recursion { trusted; };
-    allow-query-cache { trusted; };
-    allow-transfer { trusted; };
-    allow-update { none; };
-m
-    version none;
-    hostname none;
-    server-id none;
+	version none;
+	hostname none;
+	server-id none;
 };
 
 zone "chidley.net" {
-    type master;
-    file "chidley.net.hosts";
-    allow-update { key rndc-key; };
+	type master;
+	file "chidley.net.hosts";
 };
 
 zone "1.10.in-addr.arpa" {
-    type master;
-    file "1.10.rev";
-    allow-update { key rndc-key; };
+	type master;
+	file "1.10.rev";
 };
 
 zone "localhost" IN {
-    type master;
-    file "localhost.zone";
+	type master;
+	file "localhost.zone";
 };
 
 zone "0.0.127.in-addr.arpa" IN {
-    type master;
-    file "127.0.0.zone";
-};
-
-zone "1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.ip6.arpa" {
-    type master;
-    file "localhost.ip6.zone";
+	type master;
+	file "127.0.0.zone";
 };
 
 zone "." IN {
-    type hint;
-    file "root.hint";
+	type hint;
+	file "root.hint";
 };
 ```
 
@@ -177,11 +170,14 @@ chmod 644 /var/named/root.hint
 systemctl restart named
 ```
 
+`journalctl -f` to view the log as you request DHCP addresses.
+
 ## Links
 
 * [Upside-Down-Ternet](http://www.ex-parrot.com/~pete/upside-down-ternet.html)
 * [Arch linux bind](https://wiki.archlinux.org/index.php/BIND)
 * [Talk:BIND](https://wiki.archlinux.org/index.php/Talk:BIND)
+* [investigate issues with nsupdate](https://www.semicomplete.com/articles/dynamic-dns-with-dhcp/)
 
 <!-- markdownlint-disable MD034 -->
 
