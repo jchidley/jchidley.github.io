@@ -13,22 +13,30 @@ Modifying my DIY router to support my own DNS.  Now I can build the [Upside-Down
 
 [Previously](2020-01-05-Building-A-Raspberry-Pi-Home-Router) I built my own DIY router on a Raspberry Pi. Now I am building my own DNS server using [BigDinosaur's notes.](https://blog.bigdinosaur.org/running-bind9-and-isc-dhcp/) and the [Arch Linux specific bind instructions](https://wiki.archlinux.org/index.php/BIND). The aims are to implement DNS for my own domain and link DHCP to DNS.
 
+## Private Domains
+
+There are 2 sets of top level domains (tlds) that can be used in private networks:
+
+* [The IETF](https://www.ietf.org/) [reserved](https://tools.ietf.org/html/rfc2606) `.test .example .invalid .localhost`
+* [ICAN](https://www.icann.org/) [will never allocate](https://features.icann.org/addressing-new-gtld-program-applications-corp-home-and-mail) `.corp .home .mail`
+
+I am using chidley.test as the domain name here.
+
 ## Installation
 
 For installation and configuration I just followed Arch Linux's instructions modified by BigDinosuar's article.
-
 
 ```bash
 pacman -S wget bind #wget for the root.hint update
 ```
 
-Executing `/usr/sbin/rndc-confgen -a` generates the `/etc/rndc.key` that is needed for secure updating of DHCP/DNS.  There are references to this key in both the DHCP and DNS configuration files.
+Executing `/usr/sbin/rndc-confgen -a` generates the `/etc/rndc.key` that is needed for secure updating of DHCP/DNS.  `named` needs to be able to read the key file.
 
 ```bash
 chown named:named /etc/rndc.key
 ```
 
-This is the revised `/etc/dhcpd.conf` file, fuller explanations are in [BigDinosaur's notes.](https://blog.bigdinosaur.org/running-bind9-and-isc-dhcp/):
+Here is the `/etc/dhcpd.conf` file that has been adjusted from the [most basic one](https://wiki.archlinux.org/index.php/Dhcpd) for dynamic updates of DNS.  See [BigDinosaur's](https://blog.bigdinosaur.org/running-bind9-and-isc-dhcp/) and [semicomplete's](https://www.semicomplete.com/articles/dynamic-dns-with-dhcp/) notes for more explanations.
 
 ```bash
 ddns-updates on;
@@ -64,8 +72,7 @@ subnet 10.1.0.0 netmask 255.255.0.0 {
 subnet 192.168.2.0 netmask 255.255.255.0 {
 }
 ```
-
-The `/etc/named.conf` is modified in the light of [the ISC recommendations](https://kb.isc.org/docs/aa-00269):
+The Arch Linx Wiki has [concise information on BIND](https://wiki.archlinux.org/index.php/BIND) with the simplest of examples, this has been extended follwing [the ISC recommendations](https://kb.isc.org/docs/aa-00269).  I used BigDinosaur and semicomplete to adjust it for dynamic updates of DHCP and DNS
 
 ```bash
 acl "trusted" {
@@ -111,7 +118,7 @@ zone "." IN {
 };
 ```
 
-`/var/named/chidley.test.zone` based on [Arch Linux example zone file](https://wiki.archlinux.org/index.php/BIND#Creating_a_zonefile):
+`/var/named/chidley.test.zone` is based on [Arch Linux example zone file](https://wiki.archlinux.org/index.php/BIND#Creating_a_zonefile):
 
 ```bash
 $TTL 300	; 5 mins for testing
@@ -144,7 +151,7 @@ $TTL 300	; 5 mins for testing
 		NS	alarmpi.chidley.test.
 ```
 
-`chown named:named /var/named/*`
+BIND (named) needs read and write access to all of the files in `/var/named`: `chown named:named /var/named/*`
 
 I created [`roothintupdate.sh`](https://wiki.archlinux.org/index.php/Talk:BIND) helper file for updating root.hint
 
@@ -160,7 +167,9 @@ chmod 644 /var/named/root.hint
 systemctl restart named
 ```
 
-For testing: 
+## Testing, testing, testing
+
+These configuration files are very hard to get right, so testing is essential.  Here are some commands that I used for this:
 
 ```bash
 journalctl -f #to view the log as you request DHCP addresses
@@ -171,13 +180,31 @@ systemctl status dhcpd4@ethusb0
 systemctl status named
 ```
 
+```bash
+% nsupdate
+> server 10.1.0.1
+> key rndc-key N8Hk2RUFO84bEVl3uGTD2A==
+> zone test
+> update add 20.20.1.10.in-addr.arpa 600 IN PTR deleteme.chidley.test.
+> send
+> update add deleteme.chidley.test. 600 IN A 10.1.20.20
+> send
+```
+
 ## Links
 
 * [Upside-Down-Ternet](http://www.ex-parrot.com/~pete/upside-down-ternet.html)
+* [BigDinosaur's notes](https://blog.bigdinosaur.org/running-bind9-and-isc-dhcp/)
+* [The IETF](https://www.ietf.org/) 
+* [test example invalid and localhost reserved tlds](https://tools.ietf.org/html/rfc2606) `.test .example .invalid .localhost`
+* [ICAN](https://www.icann.org/) 
+* [Non allocation of corp home and mail tlds](https://features.icann.org/addressing-new-gtld-program-applications-corp-home-and-mail)
+* [Arch Linux DHCPD instructions](https://wiki.archlinux.org/index.php/Dhcpd)
+* [semicomplete's notes on dynamic update of DNS via DHCP](https://www.semicomplete.com/articles/dynamic-dns-with-dhcp/)
 * [Arch linux bind](https://wiki.archlinux.org/index.php/BIND)
 * [Talk:BIND](https://wiki.archlinux.org/index.php/Talk:BIND)
-* [investigate issues with nsupdate](https://www.semicomplete.com/articles/dynamic-dns-with-dhcp/)
-* [BIND from Arch Linux Wiki](https://wiki.archlinux.org/index.php/BIND)
+* [Arch Linux example zone file](https://wiki.archlinux.org/index.php/BIND#Creating_a_zonefile)
+* [ISC recommendations for trust](https://kb.isc.org/docs/aa-00269)
 
 <!-- markdownlint-disable MD034 -->
 
