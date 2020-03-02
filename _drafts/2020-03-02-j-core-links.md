@@ -31,9 +31,30 @@ https://landley.net/notes.html#22-01-2020
 https://landley.net/talks/lca-2017.txt
 https://lists.j-core.org/pipermail/j-core/
 
-
+https://j-core.org/index.html
 
 https://www.coresemi.io/about-us/why-core-semiconductor
 
+### FPGA
+
+https://www.fpga4fun.com/
+https://github.com/tgingold/ghdlsynth-beta 
+https://github.com/ghdl/ghdl
+https://github.com/YosysHQ/yosys
+
+https://github.com/ldoolitt/vhd2vl
+
+https://blog.idorobots.org/entries/upduino-fpga-tutorial.html
+
+https://pingu98.wordpress.com/2019/04/08/how-to-build-your-own-cpu-from-scratch-inside-an-fpga/
+
+https://folknologylabs.wordpress.com/2016/08/17/the-lull-before-the-storm/
+
+http://www.clifford.at/icestorm/
+https://github.com/FPGAwars/apio 
+
+### Other
+
+https://opensource.org/licenses/0BSD
 
 <!-- markdownlint-enable MD034 -->
