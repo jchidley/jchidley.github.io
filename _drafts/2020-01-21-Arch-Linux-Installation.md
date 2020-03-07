@@ -43,8 +43,8 @@ reflector --verbose --country 'United Kingdom' -l 10 --sort rate --save /etc/pac
 Arch comes with almost nothing by default.
 
 ```bash
-pacsman -S unzip # for unziping EFI Shell and rEFInd
-pacman -S sudo nano vim dhcpcd efibootmgr openssh tmux git # basic utilties
+pacman -S unzip # for unziping EFI Shell and rEFInd
+pacman -S sudo nano vi vim dhcpcd efibootmgr openssh tmux git # basic utilties
 ```
 
 User management.  Change root password, create a new user and add it to the appropriate groups.
@@ -79,7 +79,7 @@ Ctrl-b ] | paste
 
 ```bash
 systemctl enable dhcpcd.service # so that we have networking on restart
-ln -sf /usr/share/zoneinfo/Europe/London /etc/localtime #not working?
+ln -sf /usr/share/zoneinfo/Europe/London /etc/localtime
 hwclock --systohc
 vi /etc/locale.gen # Uncomment en_GB.UTF-8 & en_US.UTF-8
 locale-gen
@@ -99,7 +99,7 @@ cp /boot/* /boot/efi/Arch2Shuttle2/* # copy all of the boot files across
 Create an EFI shell script to boot the new opearting system.
 
 ```bash
-lsblk -o NAME,UUID | grep /dev/sda2 >> /boot/efi/Arch2Shuttle2.nsh # assuming /dev/sda2 is operating system partition
+lsblk -o NAME,UUID | grep sda2 >> /boot/efi/Arch2Shuttle2.nsh # assuming /dev/sda2 is operating system partition
 vi /boot/efi/Arch2Shuttle2.nsh
 ```
 
@@ -108,7 +108,6 @@ FS0: is the first disk as the firmware detects and orders them.
 contents of /boot/efi/Arch2Shuttle2.nsh
 
 ```bash
-FS0:
 cd Arch2Shuttle2
 vmlinuz-linux root=UUID=23aff7da-45d6-492d-9f9c-b71b531cebfb rw initrd=/Arch2Shuttle2/intel-ucode.img initrd=/Arch2Shuttle2/initramfs-linux.img
 ```
