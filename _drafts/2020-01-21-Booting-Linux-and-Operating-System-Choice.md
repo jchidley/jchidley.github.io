@@ -105,11 +105,13 @@ Just like for the UEFI shell, you should get these direct from the original prov
 
 ### rEFInd
 
-[rEFInd](http://www.rodsbooks.com/refind/) can be downloaded [here](https://sourceforge.net/projects/refind/files/0.11.4/refind-bin-0.11.4.zip/download)
+[rEFInd](http://www.rodsbooks.com/refind/) can be downloaded [here](https://sourceforge.net/projects/refind/files/0.11.5/refind-bin-0.11.5.zip/download).  The `download` file needs to be unzipped.
 
 ```shell
-unzip refind-bin-0.11.4.zip
-rsync -r /home/jack/Downloads/refind-bin-0.11.4/refind/* refind
+cd ~
+wget https://sourceforge.net/projects/refind/files/0.11.5/refind-bin-0.11.5.zip/download
+unzip download # this is actually the refind-bin-0.11.5.zip file
+sudo rsync -r ~/refind-bin-0.11.5/refind/* /boot/efi/refind
 mv refind.conf-sample refind.conf
 nano refind.conf
 efibootmgr -c -l \\refind\\refind_x64.efi -L rEFInd
