@@ -147,6 +147,7 @@ Run these commands...
 
 ```bash
 nft -f /etc/nftables.conf
+nft -s list ruleset # check rules have been loaded correctly
 systemctl enable nftables
 systemctl start nftables
 ```
