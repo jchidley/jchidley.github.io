@@ -16,6 +16,7 @@ So a private network isn't any safer than the Internet.  It is exactly as safe a
 ## Simple Traffic Manager
 I know that I said that it wasn't a firewall but here's a simple traffic manager copied from [Gentoo's firewall example](https://wiki.gentoo.org/wiki/Nftables/Examples).
 
+Note: this is an addition to the `nat_table` routing.  The line for `wan_if` might duplicate or conflict with the `nat_table` defintion.
 
 ````
 define wan_if = "wan0"
