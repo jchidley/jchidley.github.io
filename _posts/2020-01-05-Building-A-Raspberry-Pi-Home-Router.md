@@ -56,7 +56,8 @@ sudo pacman -S nftables dhcp bind usbutils
 This is how identified my USB device.
 
 ```bash
-lsusb #USB ethernet device name, can compare before and after insertion using diff
+lsusb > lsusb.out # then insert the USB ethernet
+lsusb | diff lsusb.out - # will display USB ethernet, say AX88179. "-" is for standard input
 dmesg | grep AX88179 #AX88179 from above to check that device loaded correctly
 ip addr #interface names and MAC addresses
 ```
