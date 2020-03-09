@@ -20,7 +20,9 @@ From Jeff Geerling's blog [Getting Gigabit Networking on a Raspberry Pi 2, 3 and
 
 Install Arch Linux on ARM for Raspberry Pis using [these instructions](https://archlinuxarm.org/platforms/armv7/broadcom/raspberry-pi-2).
 
-DOS partition a disk, 100M boot, everything else root
+To get the block size of disks `blockdev --getsz /dev/sda`.  The smallest 2GB SD Card that I own is 3840000 512 byte blocks in size.  This should be the aim for an ARM installation so that it easily fits into a 2GB card.
+
+DOS partition a disk, +100M boot, `last sector` 3840000 for root.
 mount both, extract archive to root.  Move boot/* to the root of boot partition.
 
 ```bash
@@ -36,6 +38,8 @@ sync
 mv root/boot/* boot
 ```
 
+To get progress of sync run `watch -d grep -e Dirty: -e Writeback: /proc/meminfo`
+
 boot
 
 ```bash
@@ -48,7 +52,14 @@ It is possible to configure a simple router based on the [Arch Linux Router](htt
 install the packages
 
 ```bash
-sudo pacman -S nftables dhcp bind usbutils
+pacman -S nftables dhcp usbutils
+```
+
+```bash
+useradd -m -G wheel,audio jack -s /bin/bash
+passwd jack
+visudo # uncomment "%wheel ALL=(ALL) NOPASSWD: ALL"
+userdel -r alarm # after reboot
 ```
 
 ## Setup The Network Connections
@@ -67,60 +78,69 @@ I gave my Ethernet devices [known-and-consistent-despite-booting name](https://w
 /etc/systemd/network/10-ethusb0.link
 
 ```bash
+cat > /etc/systemd/network/10-ethusb0.link << "EOF"
 [Match]
 MACAddress=12:34:56:78:90:ab
 
 [Link]
 Description=USB to Ethernet Adaptor
 Name=ethusb0
+EOF
 ```
-I called the other one `11-wan0.link`. Each interface has an associated profile. The one for the "public" or ISP facing interface is ` /etc/systemd/network/wan0.network`
 
 ```bash
+cat > /etc/systemd/network/11-wan0.link << "EOF"
+[Match]
+MACAddress=12:34:56:78:90:ab
+
+[Link]
+Description=On Board Ethernet
+Name=wan0
+EOF
+```
+
+I called the other one `11-wan0.link`. Each interface has an associated profile.
+
+```bash
+cat > /etc/systemd/network/wan0.network << "EOF"
 [Match]
 Name=wan0
 
 [Network]
 DHCP=yes
 DNSSEC=no
+EOF
 ```
 
-and `/etc/systemd/network/ethusb0.network` for the home network.  I chose `10.1.0.0` for my private network and `/16` gives enough device addresses.
-
+I chose `10.2.0.0` for my private network and `/16` gives enough device addresses.
 
 ```bash
+cat > /etc/systemd/network/ethusb0.network << "EOF"
 [Match]
 Name=ethusb0
 
 [Address]
-Address=10.1.0.1
+Address=10.2.0.1
 
 [Network]
 DNSSEC=no
+EOF
 ```
 
-enable systemd network service
+enable systemd network service with `systemctl enable systemd-networkd.service`.
 
-```bash
-systemctl enable systemd-networkd.service
-```
-
-A reboot is the quickest way to reset things and ensure that they start correctly at power on.  `ip addr` shows that both interfaces are up and have assigned addresses.
+A reboot (not forgeting `userdel -r alarm` to remove this well known user) is the quickest way to reset things and ensure that they start correctly at power on.  `ip addr` shows that both interfaces are up and have assigned addresses.
 
 ## Routing Between networks
 
-To test, this command starts forwarding between ip4 networks:
+Test forwarding between ip4 networks with `sysctl net.ipv4.ip_forward=1` and then make it permanent with:
 
 ```bash
-sysctl net.ipv4.ip_forward=1
-```
-
-Adding these lines to `/etc/sysctl.d/30-ipforward.conf` makes it permanent.
-
-```bash
+cat > /etc/sysctl.d/30-ipforward.conf << "EOF"
 net.ipv4.ip_forward=1
 net.ipv6.conf.default.forwarding=1
 net.ipv6.conf.all.forwarding=1
+EOF
 ```
 
 ## Setting up nftables
@@ -129,11 +149,10 @@ I have a private network with a single globally visible IP address provided by t
 
 Don't forget to set a device the other side with a suitable static IP address (say `10.1.0.2`) and a router name of `10.1.0.1` to test the connection.
 
-`cp  /etc/nftables.conf /etc/nftables.conf.bak`
-
-[/etc/nftables.conf](https://wiki.archlinux.org/index.php/nftables)
+`mv  /etc/nftables.conf /etc/nftables.conf.bak` and follow the instructions on the Arch Wiki for [nftables.conf](https://wiki.archlinux.org/index.php/nftables) for simple sharing of a public internet address.
 
 ```bash
+cat > /etc/nftables.conf << "EOF"
 flush ruleset
 define wan_if = "wan0"
 table ip nat_table {
@@ -142,6 +161,7 @@ table ip nat_table {
                 oifname $wan_if masquerade
         }
 }
+EOF
 ```
 
 Run these commands...
@@ -151,6 +171,7 @@ nft -f /etc/nftables.conf
 systemctl enable nftables
 systemctl start nftables
 ```
+
 and bingo!  A fully functioning Internet router.
 
 I implemented a simple ["firewall"](2020-01-07-Traffic-Manager-Not-Firewall).
@@ -162,28 +183,27 @@ It is possible to enter every single device's IP settings manually but that is t
 
 Nothing clever here: just following the instructions.  I'm using Google's DNS servers but there are many alternatives like the ISP's.
 
-`cp /etc/dhcpd.conf /etc/dhcpd.conf.bak`
-
-/etc/dhcpd.conf
+`mv /etc/dhcpd.conf /etc/dhcpd.conf.bak`
 
 ```bash
+cat > /etc/dhcpd.conf << "EOF"
 # No DHCP service in DMZ network (192.168.2.0/24)
 subnet 192.168.2.0 netmask 255.255.255.0 {
 }
 
 option domain-name-servers 8.8.8.8;
 option subnet-mask 255.255.0.0;
-option routers 10.1.0.1;
-subnet 10.1.0.0 netmask 255.255.0.0 {
-  range 10.1.1.1 10.1.200.250;
+option routers 10.2.0.1;
+subnet 10.2.0.0 netmask 255.255.0.0 {
+  range 10.2.1.1 10.2.200.250;
 }
+EOF
 ```
 
 enable dhcpd on a single interface
 
-`nano /etc/systemd/system/dhcpd4@.service`
-
 ```bash
+cat > /etc/systemd/system/dhcpd4@.service << "EOF"
 [Unit]
 Description=IPv4 DHCP server on %I
 Wants=network-online.target
@@ -197,6 +217,7 @@ KillSignal=SIGINT
 
 [Install]
 WantedBy=multi-user.target
+EOF
 ```
 
 ```bash
