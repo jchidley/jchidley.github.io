@@ -19,7 +19,15 @@ Arch installation instructions are on the [Wiki](https://wiki.archlinux.org/inde
 timedatectl set-ntp true
 ```
 
-setup disks - I use a single disk for the whole operating system and a 1GB partition at the beginning of the desk as the EFI partition.  In my view, operating systems should be disposable, so the more self contained they are the better.  Data, and  possibly user settings, should be very carefully looked after.  I try to avoid using any swapfiles by installing lots of RAM in the first place.
+## Disk sizing and setup
+
+To get the block size of disks `blockdev --getsz /dev/sda`
+
+Smallest 2GB SD Card that I own: `3840000` 512 byte blocks
+
+To get progress of `sync` run `watch -d grep -e Dirty: -e Writeback: /proc/meminfo`
+
+setup disks - I use a single disk for the whole operating system and a 1GB partition at the beginning of the desk as the EFI partition.  In my view, operating systems should be disposable, so the more self contained they are the better.  Data, and  possibly user settings, should be very carefully looked after.  I try to avoid using any swapfiles by installing lots of RAM in the first place and building a minimal system.
 
 ```bash
 mount /dev/sda2 /mnt # substitute /dev/sda2 as needed
@@ -29,6 +37,8 @@ mkdir /mnt/boot/efi # needed for EFI
 mount /dev/sda1 /mnt/boot/efi # so that we can do EFI partition stuff later
 arch-chroot /mnt
 ```
+
+## Setup
 
 This command ```pacman -S arch-install-scripts``` will allow you run the standard installation scripts from a running Arch system.  May be availble from other distributions too.
 
