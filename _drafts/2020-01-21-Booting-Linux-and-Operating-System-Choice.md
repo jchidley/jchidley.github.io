@@ -73,7 +73,10 @@ I have found that shells, and other pre-opeating system utilties/enviroments lik
 [TianoCore](https://www.tianocore.org/) provides "an open source implementation of the Unified Extensible Firmware Interface" and a release can be downloaded [here](https://github.com/tianocore/edk2/releases).  I put mine in the root of the EFI partion in /UefiShell and ran this to add it to NVRAM, same process as to add an operating system, above.
 
 ```shell
-efibootmgr --disk /dev/sda --part 1 --create --label "TianoCore UEFI Shell" --loader /UefiShell/X64/Shell.efi --verbose
+rsync -r /mnt/ShellBinPkg/UefiShell /boot/efi/
+cd /boot/efi
+efibootmgr -c -l -v UefiShell/X64/Shell.efi -L "TianoCore UEFI Shell" # works if relative 
+efibootmgr --disk /dev/sda --part 1 --create --label "TianoCore UEFI Shell" --loader  --verbose
 ```
 
 Note: this is a single long line.
@@ -109,10 +112,11 @@ Just like for the UEFI shell, you should get these direct from the original prov
 
 ```shell
 unzip refind-bin-0.11.4.zip
-rsync -r /home/jack/Downloads/refind-bin-0.11.4/refind/* refind
+rsync -r /home/jack/Downloads/refind-bin-0.11.4/refind /boot/efi/
 mv refind.conf-sample refind.conf
 nano refind.conf
-efibootmgr -c -l \\refind\\refind_x64.efi -L rEFInd
+cd /boot/efi
+efibootmgr -c -l -v refind/refind_x64.efi -L rEFInd
 ```
 
 Change the boot order back to the original state boot `efibootmgr -o` and refind on the next boot `efibootmgr -n` for testing
