@@ -169,7 +169,7 @@ pacman -S firefox # web browser
 
 ## Extras
 
-Visual Studio Code (AUR), Gitlens, markdownlint, python
+Visual Studio Code (AUR), Gitlens, markdownlint, python, Git History
 [Anaconda](https://www.anaconda.com/)
 nMigen
 
