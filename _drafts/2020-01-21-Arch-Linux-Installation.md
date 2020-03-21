@@ -173,6 +173,57 @@ Visual Studio Code (AUR), Gitlens, markdownlint, python, Git History
 [Anaconda](https://www.anaconda.com/)
 nMigen
 
+## Installed Packages
+
+[pacman/Tips and tricks](https://wiki.archlinux.org/index.php/Pacman/Tips_and_tricks)
+
+List explicitly installed packages not in the base meta package, base-devel, qt5, xfce4 package groups:
+
+```bash
+pacman -S expac
+comm -23 <(pacman -Qeq | sort) <({ pacman -Qqg base-devel qt5 xfce4; expac -l '\n' '%E' base; cat pacman_install.txt; } | sort | uniq)
+```
+
+```bash
+cat << EOF > pacman_install.txt
+arch-install-scripts
+base
+curl
+dhcpcd
+dosfstools
+efibootmgr
+eigen
+expac
+firefox
+git
+intel-ucode
+libftdi
+linux
+linux-firmware
+nano
+ntfs-3g
+nvidia-390xx
+openssh
+python-pip
+reflector
+rsync
+sudo
+tbsm
+tmux
+unzip
+usbutils
+vi
+vim
+visual-studio-code-bin
+wget
+xf86-video-intel
+xorg-server
+zip
+EOF
+```
+
+`cat pacman_install.txt | sort | uniq`
+
 ### tmux commands
 
 Command | output
