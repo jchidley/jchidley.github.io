@@ -9,13 +9,11 @@ title: "Arch Linux Installation"
 
 ## Introduction
 
-A set of instructions to get up and running with Arch Linux.
-
-Arch installation instructions are on the [Wiki](https://wiki.archlinux.org/index.php/Installation_guide).  This is my pithy guide to how I do it.
+A set of instructions to get up and running with Arch Linux.  Arch installation instructions are on the [Wiki](https://wiki.archlinux.org/index.php/Installation_guide).  This is my pithy guide to how I do it.
 
 ## Booting
 
-Either boot from a USB media or run `pacman -S arch-install-scripts` (or similar) to get the standard installation scripts from a running Linux system.
+Boot from a USB media or run `pacman -S arch-install-scripts` (or similar) to get the standard installation scripts from a running Linux system.
 
 ```bash
 timedatectl set-ntp true
@@ -23,9 +21,7 @@ timedatectl set-ntp true
 
 ## Disk sizing and setup
 
-To get the block size of disks `blockdev --getsz /dev/sda`
-
-Smallest 2GB SD Card that I own: `3840000` 512 byte blocks
+To get the block size of disks `blockdev --getsz /dev/sda`: the smallest 2GB SD Card that I own has 3840000 512 byte blocks.
 
 To get progress of `sync` run `watch -d grep -e Dirty: -e Writeback: /proc/meminfo`
 
@@ -38,11 +34,22 @@ Mount the correct drives and install a minimal system.  Enough to chroot and set
 ```bash
 mount /dev/sda2 /mnt # substitute /dev/sda2 as needed
 dhcpcd # ethernet
-pacstrap /mnt base linux linux-firmware # plus any other required pacmages to get started
+pacstrap /mnt base linux linux-firmware vi # vi for editing, plus any other required pacmages to get started
 genfstab -U /mnt >> /mnt/etc/fstab # for the fstab.  Don't add EFI so that it's harder for the operating system to muck about with it
 mkdir /mnt/boot/efi # needed for EFI
 mount /dev/sda1 /mnt/boot/efi # so that we can do EFI partition stuff later
 arch-chroot /mnt
+```
+
+## Language
+
+```bash
+vi /etc/locale.gen
+# uncomment the line "en_GB.UTF-8 UTF-8"
+locale-gen
+localectl set-locale LANG=en_GB.UTF-8
+localectl set-keymap uk
+localectl # check
 ```
 
 ## Adjust pacman to run faster
@@ -56,9 +63,18 @@ reflector --verbose --country 'United Kingdom' -l 10 --sort rate --save /etc/pac
 Arch comes with almost nothing by default.
 
 ```bash
-pacman -S unzip # for unziping EFI Shell and rEFInd
-pacman -S sudo nano vi vim dhcpcd efibootmgr openssh tmux git # basic utilties
+pacman -S unzip sudo nano vi dhcpcd efibootmgr openssh git ntp
 ```
+
+* unzip - unziping EFI Shell and rEFInd
+* sudo - run commands as superuser
+* nano - minimal visual editor
+* vi - keystroke driven editor
+* dhcpcd - request IP address from servers 
+* efibootmgr - manage system boot
+* openssh - allow ssh into this machine
+* git - for software management
+* ntp - syncronise time
 
 ## Users  
 
@@ -79,15 +95,10 @@ exit # back to root
 ## Minimal Setup
 
 ```bash
+localectl # check language
 systemctl enable dhcpcd.service # so that we have networking on restart
 ln -sf /usr/share/zoneinfo/Europe/London /etc/localtime
 hwclock --systohc
-vi /etc/locale.gen
-# uncomment the line "en_GB.UTF-8 UTF-8"
-locale-gen
-localectl set-locale LANG=en_GB.UTF-8
-vi /etc/vconsole.conf
-# add this line "KEYMAP=uk"
 vi /etc/hostname # add hostname
 systemctl enable sshd
 ```
@@ -131,7 +142,12 @@ lsblk -o NAME,UUID # use the right UUID below
 efibootmgr --disk /dev/sda --part 1 --create --label "Arch 5" --loader /Arch5/vmlinuz-linux --unicode 'root=UUID=23aff7da-45d6-492d-9f9c-b71b531cebfb rw initrd=/Arch5/intel-ucode.img initrd=/Arch5/initramfs-linux.img' --verbose
 efibootmgr -v # check to see what number it is, say 0004
 efibootmgr -n 4 # try the next boot without commiting to it
-```\\e boot once it has worked
+```
+
+If it boots correctly, then...
+
+```bash
+efibootmgr -o 4,1,2 # reorder the boot once it has worked
 ```
 
 As a fail safe, can create a ```startup.nsh``` file containing this single long line
@@ -146,6 +162,7 @@ As a fail safe, can create a ```startup.nsh``` file containing this single long 
 pacman -S xorg-server xfce4
 pacman -S xf86-video-intel # card specific video drivers
 pacman -S nvidia-390xx # legacy driver front room
+localectl --no-convert set-x11-keymap gb # UK keyboard layout
 ```
 
 If you don't load the correct drivers, you get an unhelpful set of errors including ```xinit: unable to connect to X server: Connection refused```.
@@ -160,7 +177,7 @@ cd tbsm
 makepkg -si # as a normal user
 ```
 
-Run the display manager and pick the display environment.
+Run the display manager and pick the display environment.  
 
 ```bash
 tbsm
@@ -169,9 +186,24 @@ pacman -S firefox # web browser
 
 ## Extras
 
+Create a Python environment `python3 -m venv ~/basic-env` and enable it `source ~/basic-env/bin/activate`
 Visual Studio Code (AUR), Gitlens, markdownlint, python, Git History
 [Anaconda](https://www.anaconda.com/)
 nMigen
+
+## bash config
+
+Things to add to `~/.bash_profile`, which ones on first login:
+
+```bash
+tbsm # needs to be last
+```
+
+`~/.bashrc` which runs on every interactive shell
+
+```bash
+source ~/basic-env/bin/activate # enable a default Python environment to avoid polluting everything
+```
 
 ## Installed Packages
 
@@ -202,6 +234,7 @@ linux
 linux-firmware
 nano
 ntfs-3g
+ntp
 nvidia-390xx
 openssh
 python-pip
@@ -213,7 +246,6 @@ tmux
 unzip
 usbutils
 vi
-vim
 visual-studio-code-bin
 wget
 xf86-video-intel
