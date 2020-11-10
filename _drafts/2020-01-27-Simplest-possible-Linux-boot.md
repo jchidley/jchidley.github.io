@@ -10,6 +10,40 @@ title: "Simplest possible Linux boot"
 
 ## Introduction
 
+[Tutorial: Building the Simplest Possible Linux System - Rob Landley, se-instruments.com - YouTube](https://www.youtube.com/watch?v=Sk9TatW9ino)
+
+https://youtu.be/Sk9TatW9ino?t=857 Writing to serial output at any moment, even during boot, from Linux
+Defconfig is default configuration 
+[kbuild - What exactly does Linux kernel’s `make defconfig` do? - Stack Overflow](https://stackoverflow.com/questions/41885015/what-exactly-does-linux-kernels-make-defconfig-do)
+
+Repackage a cpio as squashfs or ext2 https://youtu.be/Sk9TatW9ino?t=3519 
+Loop back device https://youtu.be/Sk9TatW9ino?t=3529 usb flash file systems have problems and need special treatment to do with erase block size
+https://youtu.be/Sk9TatW9ino?t=4380 mkroot walkthrough 
+https://youtu.be/Sk9TatW9ino?t=4837 Standard Linux directories
+https://youtu.be/Sk9TatW9ino?t=5047 Init 
+https://youtu.be/Sk9TatW9ino?t=5308 “One it” Rob’s init 
+
+https://youtu.be/Sk9TatW9ino?t=6453 Miniconfig 
+https://www.kernel.org/doc/Documentation/kbuild/kconfig.txt KCONFIG_ALLCONFIG=mini.conf
+https://youtu.be/Sk9TatW9ino?t=6820 Kernel building
+https://github.com/landley/aboriginal/blob/master/sources/baseconfig-linux Linux kernel config
+https://github.com/landley/aboriginal/blob/master/sources/targets/armv6l Minimal config for kernel (e.g. ARM)
+
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/Documentation?h=v5.9.6 www.kernel.org, stable, Documentation 
+https://www.kernel.org/doc/html/v4.14/admin-guide/kernel-parameters.html 
+https://youtu.be/Sk9TatW9ino?t=1461 what happens during Kernel booting
+Boot, mount Linux root file system, can use CPIO archive that is extracted to, say, initramfs or boot from a block device (root= option), run a program called “init”
+https://youtu.be/Sk9TatW9ino?t=1800 running init from top level directory, Linux initial/main.c function “start kernel” has a list of places to look
+vmLinux is an ELF format
+Block backed (Like on a disk), pipe backed (it’s a program providing data over a protocol like NFS, SAMBA), RAM backed file system (ramfs, tmpfs), synthetic file system (proc). A RAM disk is a block backed file system stored in RAM so this also needs a page cache - less efficient than ramfs.
+
+For the simplest system required to build itself, 4 things are required:
+
+* Kernel - e.g, Linux
+* C library - musl libc 
+* Toolchain - compiler, linker, etc
+* Command-Line utilities - busybox, toybox
+
 ## Get mkroot
 
 ```bash
