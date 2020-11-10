@@ -64,22 +64,23 @@ gzip blah.img
 # gives a gzip'd image
 ```
 
-https://youtu.be/Sk9TatW9ino?t=3746 usb flash file systems have problems and need special treatment to do with erase block size
-https://youtu.be/Sk9TatW9ino?t=4115 start of intro to mkroot
-https://youtu.be/Sk9TatW9ino?t=4380 mkroot walkthrough 
-https://youtu.be/Sk9TatW9ino?t=4837 Standard Linux directories
-https://youtu.be/Sk9TatW9ino?t=5047 Start of discussion about `init` 
-https://youtu.be/Sk9TatW9ino?t=5155 PID 1 and `init`, why it's special 
-https://youtu.be/Sk9TatW9ino?t=5308 “One it” Rob [oneit](https://github.com/landley/toybox/blob/master/toys/other/oneit.c)
-https://youtu.be/Sk9TatW9ino?t=5415 devtmpfs and devpts to populate the `/dev` directory with the devices and `/dev/pts` with psuedo terminals (don't need udev or systemd as the kernel does it)
-https://youtu.be/Sk9TatW9ino?t=5555 more stuff about consoles, contolling ttys, signals and `oneit`
-https://youtu.be/Sk9TatW9ino?t=5700 QEMU and inputting enviromental variables from the its command line
-https://youtu.be/Sk9TatW9ino?t=5770 `/etc/passwd` & `/etc/group` discussion
-https://youtu.be/Sk9TatW9ino?t=6453 Miniconfig 
-https://www.kernel.org/doc/Documentation/kbuild/kconfig.txt KCONFIG_ALLCONFIG=mini.conf
-https://youtu.be/Sk9TatW9ino?t=6820 Kernel building
-https://github.com/landley/aboriginal/blob/master/sources/baseconfig-linux Linux kernel config
-https://github.com/landley/aboriginal/blob/master/sources/targets/armv6l Minimal config for kernel (e.g. ARM)
+
+* https://youtu.be/Sk9TatW9ino?t=3746 usb flash file systems have problems and need special treatment to do with erase block size
+* https://youtu.be/Sk9TatW9ino?t=4115 start of intro to mkroot
+* https://youtu.be/Sk9TatW9ino?t=4380 mkroot walkthrough 
+* https://youtu.be/Sk9TatW9ino?t=4837 Standard Linux directories
+* https://youtu.be/Sk9TatW9ino?t=5047 Start of discussion about `init` 
+* https://youtu.be/Sk9TatW9ino?t=5155 PID 1 and `init`, why it's special 
+* https://youtu.be/Sk9TatW9ino?t=5308 “One it” Rob [oneit](https://github.com/landley/toybox/blob/master/toys/other/oneit.c)
+* https://youtu.be/Sk9TatW9ino?t=5415 devtmpfs and devpts to populate the `/dev` directory with the devices and `/dev/pts` with psuedo terminals (don't need udev or systemd as the kernel does it)
+* https://youtu.be/Sk9TatW9ino?t=5555 more stuff about consoles, contolling ttys, signals and `oneit`
+* https://youtu.be/Sk9TatW9ino?t=5700 QEMU and inputting enviromental variables from the its command line
+* https://youtu.be/Sk9TatW9ino?t=5770 `/etc/passwd` & `/etc/group` discussion
+* https://youtu.be/Sk9TatW9ino?t=6453 Miniconfig 
+* https://www.kernel.org/doc/Documentation/kbuild/kconfig.txt KCONFIG_ALLCONFIG=mini.conf
+* https://youtu.be/Sk9TatW9ino?t=6820 Kernel building
+* https://github.com/landley/aboriginal/blob/master/sources/baseconfig-linux Linux kernel config
+* https://github.com/landley/aboriginal/blob/master/sources/targets/armv6l Minimal config for kernel (e.g. ARM)
 
 ## Get mkroot
 
