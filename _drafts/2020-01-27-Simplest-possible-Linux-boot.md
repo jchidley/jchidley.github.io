@@ -10,39 +10,76 @@ title: "Simplest possible Linux boot"
 
 ## Introduction
 
-[Tutorial: Building the Simplest Possible Linux System - Rob Landley, se-instruments.com - YouTube](https://www.youtube.com/watch?v=Sk9TatW9ino)
+All of this comes from Rob Landley's talk at the Linux Foundation [Tutorial: Building the Simplest Possible Linux System - Rob Landley, se-instruments.com - YouTube](https://www.youtube.com/watch?v=Sk9TatW9ino)
 
-https://youtu.be/Sk9TatW9ino?t=857 Writing to serial output at any moment, even during boot, from Linux
-Defconfig is default configuration 
-[kbuild - What exactly does Linux kernel’s `make defconfig` do? - Stack Overflow](https://stackoverflow.com/questions/41885015/what-exactly-does-linux-kernels-make-defconfig-do)
+For the simplest system required to build itself, [there are 4 conceptual components required](https://youtu.be/Sk9TatW9ino?t=160):
 
-Repackage a cpio as squashfs or ext2 https://youtu.be/Sk9TatW9ino?t=3519 
-Loop back device https://youtu.be/Sk9TatW9ino?t=3529 usb flash file systems have problems and need special treatment to do with erase block size
-https://youtu.be/Sk9TatW9ino?t=4380 mkroot walkthrough 
-https://youtu.be/Sk9TatW9ino?t=4837 Standard Linux directories
-https://youtu.be/Sk9TatW9ino?t=5047 Init 
-https://youtu.be/Sk9TatW9ino?t=5308 “One it” Rob’s init 
-
-https://youtu.be/Sk9TatW9ino?t=6453 Miniconfig 
-https://www.kernel.org/doc/Documentation/kbuild/kconfig.txt KCONFIG_ALLCONFIG=mini.conf
-https://youtu.be/Sk9TatW9ino?t=6820 Kernel building
-https://github.com/landley/aboriginal/blob/master/sources/baseconfig-linux Linux kernel config
-https://github.com/landley/aboriginal/blob/master/sources/targets/armv6l Minimal config for kernel (e.g. ARM)
-
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/Documentation?h=v5.9.6 www.kernel.org, stable, Documentation 
-https://www.kernel.org/doc/html/v4.14/admin-guide/kernel-parameters.html 
-https://youtu.be/Sk9TatW9ino?t=1461 what happens during Kernel booting
-Boot, mount Linux root file system, can use CPIO archive that is extracted to, say, initramfs or boot from a block device (root= option), run a program called “init”
-https://youtu.be/Sk9TatW9ino?t=1800 running init from top level directory, Linux initial/main.c function “start kernel” has a list of places to look
-vmLinux is an ELF format
-Block backed (Like on a disk), pipe backed (it’s a program providing data over a protocol like NFS, SAMBA), RAM backed file system (ramfs, tmpfs), synthetic file system (proc). A RAM disk is a block backed file system stored in RAM so this also needs a page cache - less efficient than ramfs.
-
-For the simplest system required to build itself, 4 things are required:
+t=160 
 
 * Kernel - e.g, Linux
 * C library - musl libc 
 * Toolchain - compiler, linker, etc
 * Command-Line utilities - busybox, toybox
+
+[Aboringinal Linux, and the actual 7 packages required](https://www.youtube.com/watch?v=Sk9TatW9ino&feature=youtu.be&t=225) [GitHub source](https://github.com/landley/aboriginal)
+
+[Linux print statements, from anywhere at any time](https://youtu.be/Sk9TatW9ino?t=857) Writing to a real serial device (pl011 console putchar) anytime, even during boot, from Linux
+[Cross compiling](https://youtu.be/Sk9TatW9ino?t=1095)
+[Simple main.c hello world as init](https://youtu.be/Sk9TatW9ino?t=1203)
+
+
+
+[Hello World, bare metal](https://youtu.be/Sk9TatW9ino?t=408) [Freedom Embedded: Hello world for bare metal ARM using QEMU ](https://balau82.wordpress.com/2010/02/28/hello-world-for-bare-metal-arm-using-qemu/)
+[QEMU Explanation](https://youtu.be/Sk9TatW9ino?t=580)
+[Linux Kernel booting](https://youtu.be/Sk9TatW9ino?t=1461) mounting a root file system, cpio archive extracted into initramfs (ramfs/tmpfs) and looks for `init` (previously `linuxrc`)
+
+[Linux File Systems Explanations](https://youtu.be/Sk9TatW9ino?t=1535) Block backed (as used on a disk, like ext2), pipe backed (it’s a program providing data over a protocol like NFS and SAMBA do over a network), RAM backed file system (using a system like the disk cache e.g. ramfs, tmpfs), synthetic file system (proc, sys). `initrd` is a RAM disk is a block backed file system stored in RAM so this also needs a page cache - less efficient than ramfs.
+
+https://youtu.be/Sk9TatW9ino?t=1800 running `init` from top level directory, [linux/init/main.c `start_kernel` function](https://www.youtube.com/watch?v=Sk9TatW9ino&feature=youtu.be&t=1840) and [`kernel_init` function](https://github.com/torvalds/linux/blob/master/init/main.c) has a list of backup places to look fir init, including `/bin/sh`.
+
+
+
+https://youtu.be/Sk9TatW9ino?t=1461 what happens during Kernel booting
+Boot, mount Linux root file system, can use CPIO archive that is extracted to, say, initramfs or boot from a block device (root= option), run a program called “init”
+vmLinux is an ELF format and then some transformation (binary?) to get bzImage
+[`initrd` kernel parameter](https://youtu.be/Sk9TatW9ino?t=2040) is designed for block devices but will use `cpio` and extract to `initramfs`.  Also `rdinit` has been used in the past
+[Linux kernel command line](https://youtu.be/Sk9TatW9ino?t=2125) required `console=` serial console
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/Documentation?h=v5.9.6 www.kernel.org, stable, Documentation 
+https://www.kernel.org/doc/html/v4.14/admin-guide/kernel-parameters.html 
+(busybox addition to init and configuration of)[https://youtu.be/Sk9TatW9ino?t=2400] 
+Defconfig is default configuration, `make help` will often tell you the various targets 
+[kbuild - What exactly does Linux kernel’s `make defconfig` do? - Stack Overflow](https://stackoverflow.com/questions/41885015/what-exactly-does-linux-kernels-make-defconfig-do)
+
+https://youtu.be/Sk9TatW9ino?t=3496 Repackage a cpio as squashfs or ext2 using [mksquashfs](https://manpages.debian.org/jessie/squashfs-tools/mksquashfs.1.en.html) or [mkfs.ext2](https://linux.die.net/man/8/mkfs.ext2) respectively
+Loop back device https://youtu.be/Sk9TatW9ino?t=3529 will create a file that looks like a block device (i.e. a whole file system)
+
+```
+dd if=/dev/zero of=blah.img bs=1M count=256
+mke2fs blah.img
+mkdir blah_subdir
+mount -o loop blah.img blah_subdir # can't verifiy this on Windows 10 WSL
+# will show up as `/dev/loop` something
+# add files etc
+gzip blah.img 
+# gives a gzip'd image
+```
+
+https://youtu.be/Sk9TatW9ino?t=3746 usb flash file systems have problems and need special treatment to do with erase block size
+https://youtu.be/Sk9TatW9ino?t=4115 start of intro to mkroot
+https://youtu.be/Sk9TatW9ino?t=4380 mkroot walkthrough 
+https://youtu.be/Sk9TatW9ino?t=4837 Standard Linux directories
+https://youtu.be/Sk9TatW9ino?t=5047 Start of discussion about `init` 
+https://youtu.be/Sk9TatW9ino?t=5155 PID 1 and `init`, why it's special 
+https://youtu.be/Sk9TatW9ino?t=5308 “One it” Rob [oneit](https://github.com/landley/toybox/blob/master/toys/other/oneit.c)
+https://youtu.be/Sk9TatW9ino?t=5415 devtmpfs and devpts to populate the `/dev` directory with the devices and `/dev/pts` with psuedo terminals (don't need udev or systemd as the kernel does it)
+https://youtu.be/Sk9TatW9ino?t=5555 more stuff about consoles, contolling ttys, signals and `oneit`
+https://youtu.be/Sk9TatW9ino?t=5700 QEMU and inputting enviromental variables from the its command line
+https://youtu.be/Sk9TatW9ino?t=5770 `/etc/passwd` & `/etc/group` discussion
+https://youtu.be/Sk9TatW9ino?t=6453 Miniconfig 
+https://www.kernel.org/doc/Documentation/kbuild/kconfig.txt KCONFIG_ALLCONFIG=mini.conf
+https://youtu.be/Sk9TatW9ino?t=6820 Kernel building
+https://github.com/landley/aboriginal/blob/master/sources/baseconfig-linux Linux kernel config
+https://github.com/landley/aboriginal/blob/master/sources/targets/armv6l Minimal config for kernel (e.g. ARM)
 
 ## Get mkroot
 
@@ -142,6 +179,8 @@ rm -rf airlock
 * [Hello world for bare metal ARM using QEMU](https://balau82.wordpress.com/2010/02/28/hello-world-for-bare-metal-arm-using-qemu/)
 * [Write messages to stdout from anywhere, by modifying pl011_console_putchar](https://github.com/torvalds/linux/blob/master/drivers/tty/serial/amba-pl011.c)
 * [j-core mailing list](https://lists.j-core.org/mailman/listinfo/j-core)
+* [glaucus Linux - someone building a whole minimal distribution based on Toolbox and the ideas of LFS]https://github.com/glaucuslinux/glaucus
+* [Toybox vs BusyBox - Rob Landley, hobbyist](https://www.youtube.com/watch?v=MkJkyMuBm3g)
 
 <!-- markdownlint-disable MD034 -->
 * (https://en.wikipedia.org/wiki/Linux_startup_process)
