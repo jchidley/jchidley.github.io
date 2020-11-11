@@ -209,6 +209,18 @@ qemu-system-aarch64 -m 1024 -M raspi3 -kernel kernel8.img -dtb bcm2710-rpi-3-b-p
 * [Using QEMU to emulate a Raspberry Pi](https://blog.agchapman.com/using-qemu-to-emulate-a-raspberry-pi/)
 
 
+### distcc 
+
+* [GitHub - distcc/distcc: distributed builds for C, C++ and Objective C](https://github.com/distcc/distcc) [distcc: a fast, free distributed C/C++ compiler](https://distcc.github.io) 
+* [Raspberry Pi Toolchain](https://github.com/raspberrypi/tools) needed on the various host computers
+* [Distributed Compiling with distcc » Raspberry Pi Geek](https://www.raspberry-pi-geek.com/Archive/2016/17/Distributed-software-compilation-for-the-Raspberry-Pi)
+* [Building for Raspberry Pi using distcc - Kvaser](https://www.kvaser.com/developer-blog/building-raspberry-pi-using-distcc/)
+* [Raspberry Pi/Cross building - Gentoo Wiki](https://wiki.gentoo.org/wiki/Raspberry_Pi/Cross_building)
+* [raspberry pi and distcc | openFrameworks](https://openframeworks.cc/setup/raspberrypi/raspberry-pi-distcc-guide/)
+* [Using a Raspberry Pi as a distcc node · Random kit](https://jtanx.github.io/2019/04/19/rpi-distcc-node/) using a Pi as a node for x86 compilation 
+* [Using distcc for faster builds - Raspberry Pi Forums](https://www.raspberrypi.org/forums/viewtopic.php?t=60908)
+
+
 ## Links
 
 * [Introducing initramfs](http://landley.net/writing/rootfs-intro.html)
