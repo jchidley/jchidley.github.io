@@ -27,8 +27,6 @@ t=160
 [Cross compiling](https://youtu.be/Sk9TatW9ino?t=1095)
 [Simple main.c hello world as init](https://youtu.be/Sk9TatW9ino?t=1203)
 
-
-
 [Hello World, bare metal](https://youtu.be/Sk9TatW9ino?t=408) [Freedom Embedded: Hello world for bare metal ARM using QEMU ](https://balau82.wordpress.com/2010/02/28/hello-world-for-bare-metal-arm-using-qemu/)
 [QEMU Explanation](https://youtu.be/Sk9TatW9ino?t=580)
 [Linux Kernel booting](https://youtu.be/Sk9TatW9ino?t=1461) mounting a root file system, cpio archive extracted into initramfs (ramfs/tmpfs) and looks for `init` (previously `linuxrc`)
@@ -36,8 +34,6 @@ t=160
 [Linux File Systems Explanations](https://youtu.be/Sk9TatW9ino?t=1535) Block backed (as used on a disk, like ext2), pipe backed (it’s a program providing data over a protocol like NFS and SAMBA do over a network), RAM backed file system (using a system like the disk cache e.g. ramfs, tmpfs), synthetic file system (proc, sys). `initrd` is a RAM disk is a block backed file system stored in RAM so this also needs a page cache - less efficient than ramfs.
 
 https://youtu.be/Sk9TatW9ino?t=1800 running `init` from top level directory, [linux/init/main.c `start_kernel` function](https://www.youtube.com/watch?v=Sk9TatW9ino&feature=youtu.be&t=1840) and [`kernel_init` function](https://github.com/torvalds/linux/blob/master/init/main.c) has a list of backup places to look fir init, including `/bin/sh`.
-
-
 
 https://youtu.be/Sk9TatW9ino?t=1461 what happens during Kernel booting
 Boot, mount Linux root file system, can use CPIO archive that is extracted to, say, initramfs or boot from a block device (root= option), run a program called “init”
@@ -159,14 +155,19 @@ https://blog.sleeplessbeastie.eu/2017/07/03/how-to-use-loop-devices/ useful exam
 https://landley.net/aboriginal/presentation.html for extra qemu options
 in addition to the `qemu` package also needed `qemu-arch-extra` on Arch Linux
 
+For Arch, packages `qemu` and `qemu-arch-extra` are required. The first steps are to download the standard Raspbian images and unzip them.
+
+After unzipping the Raspbian download to a img file, I needed to use 
 
 ```
-#extract img from zip, using unzip
-mkdir /mnt/rpi
 fdisk -u sectors -l ../Downloads/2020-08-20-raspios-buster-armhf-lite.img
-# Start and Sectors for offset and sizelimit, time 512 sector size
-losetup -f --show -P --offset $((8192 * 512)) --sizelimit $((524288 * 512))  ../Downloads/2020-08-20-raspios-buster-armhf-lite.img
-losetup -a # see what has attached as a loop device
+```
+
+to work out the correct options to setup a loop device.  This showed that the first partitions *Start* (in sectors) was 8192 and *Sectors* was 524288.  So the *offset* in bytes will be 8192 * 512 and the *sizelimit* 524288 * 512
+
+```
+losetup -f —show -P —offset $((8192 * 512)) —sizelimit $((524288 * 512))  ../Downloads/2020-08-20-raspios-buster-armhf-lite.img
+mkdir /mnt/rpi
 mount /dev/loop0 /mnt/rpi
 mkdir rpi_qemu
 cd rpi_qemu
@@ -174,23 +175,9 @@ cp /mnt/rpi/kernel* .
 cp /mnt/rpi/*.dtb .
 umount /mnt/rpi
 losetup -d /dev/loop0 # or the correct loop
-qemu-img convert -f raw -O qcow2 ../Downloads/2020-08-20-raspios-buster-armhf-lite.img rpi.qcow2
-# qemu kept complaining abou the raw image and there appeared to be no way to specifiy the format for the -sd option.
-qemu-system-aarch64 -M raspi3 -append "rw earlyprintk loglevel=8 console=ttyAMA0,115200 dwc_otg.lpm_enable=0 root=/dev/mmcblk0p2 rootdelay=1" -dtb ./dtbs/bcm2710-rpi-3-b-plus.dtb -sd rpi.qcow2 -kernel kernel8.img -m 1G -smp 4 -serial stdio -usb -device usb-mouse -device usb-kbd
-# can probably disable the graphics display for the lite image
 ```
 
-Thanks for doing this.  I had to make some adjustments to get the native emulation to work on Arch Linux.
-
-For Arch, packages `qemu` and `qemu-arch-extra` are required.
-
-After unzipping the Raspbian download to a img file, I needed to use `fdisk -u sectors -l ../Downloads/2020-08-20-raspios-buster-armhf-lite.img` to work out the correct options to setup a loop device.  This showed that the first partitions *Start* (in sectors) was 8192 and *Sectors* was 524288.  So the *offset* in bytes will be 8192 * 512 and the *sizelimit* 524288 * 512
-
-```
-losetup -f --show -P --offset $((8192 * 512)) --sizelimit $((524288 * 512))  ../Downloads/2020-08-20-raspios-buster-armhf-lite.img
-```
-
-Because `qemu-system-aarch64` kept complaining that the image was in the raw format, and I couldn't work how to specify the format for the `-sd` option, I converted the raspbian image from a *raw* format to the *qcow2* one using 
+`qemu-system-aarch64` kept complaining that the image was in the raw format, and I couldn't work how to specify the format for the `-sd` option, I converted the raspbian image from a *raw* format to the *qcow2* one using 
 
 ```
 qemu-img convert -f raw -O qcow2 ../Downloads/2020-08-20-raspios-buster-armhf-lite.img rpi.qcow2
@@ -204,36 +191,62 @@ qemu-system-aarch64 -M raspi3 -append "rw earlyprintk loglevel=8 console=ttyAMA0
 
 I don't need a graphics terminal so `-nographic` and adjusting `-serial mon:stdio` which also allows scripting and cut and paste to the terminal, apparently.  Currently on shutdown the kernel panics leading to a hang requiring me to manually kill the qemu command. Adding `-no-reboot` and `panic=1` to "-append 'OPTIONS'" is supposed to fix this.
 
+https://stackoverflow.com/questions/61562014/qemu-kernel-for-raspberry-pi-3-with-networking-and-virtio-support 
+“The latest versions of QEMU (5.1.0 and 5.0.1) have USB emulation for the raspi3 machine (qemu-system-aarch64 -M raspi3).
+
+You can emulate networking and access to SSH if you use: -device usb-net,netdev=net0 -netdev user,id=net0,hostfwd=tcp::5555-:22 in QEMU”
+
+```
+qemu-system-aarch64 -m 1024 -M raspi3 -kernel kernel8.img -dtb bcm2710-rpi-3-b-plus.dtb -sd 2020-08-20-raspios-buster-armhf.img -append “console=ttyAMA0 root=/dev/mmcblk0p2 rw rootwait rootfstype=ext4” -nographic -device usb-net,netdev=net0 -netdev user,id=net0,hostfwd=tcp::5555-:22
+```
+
+* [Bare metal Raspberry Pi 3 tutorials](https://github.com/bztsrc/raspi3-tutorial) this guy submitted the patch to qemu to get raspi3 working (raspi2 is apparently from Microsoft)
+* [Raspberry Pi ARM based bare metal examples](https://github.com/dwelch67/raspberrypi)
+* [Learning operating system development using Linux kernel and Raspberry Pi](https://github.com/s-matyukevich/raspberry-pi-os)
+* [RPI3 QEMU - Raspberry Pi Forums](https://www.raspberrypi.org/forums/viewtopic.php?f=72&t=195565&sid=030b9410f3f3172af333d2eea90a2646) more information and extra patches
+* [Raspberry Pi 4 and QEMU (x86/x64) - Raspberry Pi Forums](https://www.raspberrypi.org/forums/viewtopic.php?t=246886) running emu on the pi and emulating x86/x64.  Note that we I compiled from source and cross compiling
+* [Run another OS on your RPi3 as a virtualized QEMU guest under KVM (64-bit) - Raspberry Pi Forums](https://www.raspberrypi.org/forums/viewtopic.php?t=224057)
+* [Using QEMU to emulate a Raspberry Pi](https://blog.agchapman.com/using-qemu-to-emulate-a-raspberry-pi/)
+
+
 ## Links
 
-* [mkroot - simple linux system builder, bootable under qemu for multiple architectures.](https://github.com/landley/mkroot)
-* [rob's blog](http://landley.net/notes.html)
-* [J-Core Open Processor](https://j-core.org/)
-* [Dropbear SSH](https://matt.ucc.asn.au/dropbear/dropbear.html) & [github for it](https://github.com/mkj/dropbear)
+* [Introducing initramfs](http://landley.net/writing/rootfs-intro.html)
+* [Tech Tip: How to use initramfs](http://landley.net/writing/rootfs-howto.html)
+* [Programming for Initramfs](http://landley.net/writing/rootfs-programming.html)
+* [LinuxCommand.org: Learn The Linux Command Line. Write Shell Scripts.](http://linuxcommand.org/index.php)
 * [Bash scripting cheatsheet](https://devhints.io/bash)
-* [Developing using QEMU](http://www.landley.net/aboriginal/presentation.html)
+
+* [rob’s blog](http://landley.net/notes.html)
+* [Stuff I’ve written.](http://landley.net/writing/)
+
+* [J-Core Open Processor](https://j-core.org/)
+* [j-core mailing list](https://lists.j-core.org/mailman/listinfo/j-core)
+* [Dropbear SSH](https://matt.ucc.asn.au/dropbear/dropbear.html) & [github for it](https://github.com/mkj/dropbear)
+
+* [mkroot - simple linux system builder, bootable under qemu for multiple architectures.](https://github.com/landley/mkroot)
+* [Blog about successor to Aboriginal Linux](https://landley.net/notes-2016.html#17-05-2016)
+* [beginnings of mkroot](http://lists.landley.net/pipermail/mkroot-landley.net/2017-May/000000.html)
+
+* [Firmware Linux history, predecessor to Aboriginal Linux, lots of useful stuff](http://www.landley.net/aboriginal/history.html)
+
 * [Using and internal workings of Aboriginal Linux](http://www.landley.net/aboriginal/README)
 * [About Aboriginal Linux](http://www.landley.net/aboriginal/about.html)
 * [Aboriginal Linux build stages](http://www.landley.net/aboriginal/build-stages.html)
-* [Firmware Linux history, predecessor to Aboriginal Linux, lots of useful stuff](http://www.landley.net/aboriginal/history.html)
+
 * [Linux bootdisk howto](http://tldp.org/HOWTO/Bootdisk-HOWTO/index.html)
 * [User Mode Linux, run linux inside linux](http://landley.net/writing/docs/UML.html)
-* [Aboriginal Linux](https://landley.net/aboriginal/about.html)
-* [Blog about successor to Aboriginal Linux](https://landley.net/notes-2016.html#17-05-2016)
-* [beginnings of mkroot](http://lists.landley.net/pipermail/mkroot-landley.net/2017-May/000000.html)
-* [Institutional memory and reverse smuggling](https://web.archive.org/web/20120111055334/http://wrttn.in/04af1a)
-* [Use " and not ' on Qemu on Windows](https://github.com/dhruvvyas90/qemu-rpi-kernel/issues/71)
-* [Using QEMU to emulate a Raspberry Pi](https://blog.agchapman.com/using-qemu-to-emulate-a-raspberry-pi/)
-* [The Rise and Fall of Copyleft](http://landley.net/talks/ohio-2013.txt)
+
+* [Developing using QEMU](http://www.landley.net/aboriginal/presentation.html)
 * [booting a fresh linux kernel on qemu](https://ops.tips/notes/booting-linux-on-qemu/)
 * [How to Build A Custom Linux Kernel For Qemu](https://mgalgs.github.io/2015/05/16/how-to-build-a-custom-linux-kernel-for-qemu-2015-edition.html)
 * [Fast linux kernel testing with qemu](http://ncmiller.github.io/2016/05/14/linux-and-qemu.html)
-* [arch linux BusyBox](https://wiki.archlinux.org/index.php/BusyBox)
-* [About Aboriginal Linux](http://landley.net/aboriginal/about.html#selfhost)
-* [musl libc](https://www.musl-libc.org/)
+* [Use “ and not ‘ on Qemu on Windows](https://github.com/dhruvvyas90/qemu-rpi-kernel/issues/71)
 * [Hello world for bare metal ARM using QEMU](https://balau82.wordpress.com/2010/02/28/hello-world-for-bare-metal-arm-using-qemu/)
+
+* [arch linux BusyBox](https://wiki.archlinux.org/index.php/BusyBox)
+* [musl libc](https://www.musl-libc.org/)
 * [Write messages to stdout from anywhere, by modifying pl011_console_putchar](https://github.com/torvalds/linux/blob/master/drivers/tty/serial/amba-pl011.c)
-* [j-core mailing list](https://lists.j-core.org/mailman/listinfo/j-core)
 * [glaucus Linux - someone building a whole minimal distribution based on Toolbox and the ideas of LFS]https://github.com/glaucuslinux/glaucus
 * [Toybox vs BusyBox - Rob Landley, hobbyist](https://www.youtube.com/watch?v=MkJkyMuBm3g)
 
