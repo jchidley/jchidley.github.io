@@ -150,6 +150,60 @@ rm -rf airlock
 ./cross.sh x86_64 ./mkroot.sh HOST_EXTRA='bc'
 ```
 
+### QEMU Booting Raspberry Pi
+
+https://github.com/dhruvvyas90/qemu-rpi-kernel/tree/master/native-emuation Recent specific instructions for a Raspberry Pi
+https://azeria-labs.com/emulate-raspberry-pi-with-qemu/ older but still helpful instructions, especially about mounting partitions
+https://stackoverflow.com/questions/1419489/how-to-mount-one-partition-from-an-image-file-that-contains-multiple-partitions how to mount a partition within an image file that contains several
+https://blog.sleeplessbeastie.eu/2017/07/03/how-to-use-loop-devices/ useful examples of how to use loop devices
+https://landley.net/aboriginal/presentation.html for extra qemu options
+in addition to the `qemu` package also needed `qemu-arch-extra` on Arch Linux
+
+
+```
+#extract img from zip, using unzip
+mkdir /mnt/rpi
+fdisk -u sectors -l ../Downloads/2020-08-20-raspios-buster-armhf-lite.img
+# Start and Sectors for offset and sizelimit, time 512 sector size
+losetup -f --show -P --offset $((8192 * 512)) --sizelimit $((524288 * 512))  ../Downloads/2020-08-20-raspios-buster-armhf-lite.img
+losetup -a # see what has attached as a loop device
+mount /dev/loop0 /mnt/rpi
+mkdir rpi_qemu
+cd rpi_qemu
+cp /mnt/rpi/kernel* .
+cp /mnt/rpi/*.dtb .
+umount /mnt/rpi
+losetup -d /dev/loop0 # or the correct loop
+qemu-img convert -f raw -O qcow2 ../Downloads/2020-08-20-raspios-buster-armhf-lite.img rpi.qcow2
+# qemu kept complaining abou the raw image and there appeared to be no way to specifiy the format for the -sd option.
+qemu-system-aarch64 -M raspi3 -append "rw earlyprintk loglevel=8 console=ttyAMA0,115200 dwc_otg.lpm_enable=0 root=/dev/mmcblk0p2 rootdelay=1" -dtb ./dtbs/bcm2710-rpi-3-b-plus.dtb -sd rpi.qcow2 -kernel kernel8.img -m 1G -smp 4 -serial stdio -usb -device usb-mouse -device usb-kbd
+# can probably disable the graphics display for the lite image
+```
+
+Thanks for doing this.  I had to make some adjustments to get the native emulation to work on Arch Linux.
+
+For Arch, packages `qemu` and `qemu-arch-extra` are required.
+
+After unzipping the Raspbian download to a img file, I needed to use `fdisk -u sectors -l ../Downloads/2020-08-20-raspios-buster-armhf-lite.img` to work out the correct options to setup a loop device.  This showed that the first partitions *Start* (in sectors) was 8192 and *Sectors* was 524288.  So the *offset* in bytes will be 8192 * 512 and the *sizelimit* 524288 * 512
+
+```
+losetup -f --show -P --offset $((8192 * 512)) --sizelimit $((524288 * 512))  ../Downloads/2020-08-20-raspios-buster-armhf-lite.img
+```
+
+Because `qemu-system-aarch64` kept complaining that the image was in the raw format, and I couldn't work how to specify the format for the `-sd` option, I converted the raspbian image from a *raw* format to the *qcow2* one using 
+
+```
+qemu-img convert -f raw -O qcow2 ../Downloads/2020-08-20-raspios-buster-armhf-lite.img rpi.qcow2
+```
+
+Finally, my modified command to start the image was:
+
+```
+qemu-system-aarch64 -M raspi3 -append "rw earlyprintk loglevel=8 console=ttyAMA0,115200 dwc_otg.lpm_enable=0 root=/dev/mmcblk0p2 rootdelay=1" -dtb ./bcm2710-rpi-3-b-plus.dtb -sd rpi.qcow2 -kernel kernel8.img -m 1G -smp 4 -serial stdio -usb -device usb-mouse -device usb-kbd
+```
+
+I don't need a graphics terminal so `-nographic` and adjusting `-serial mon:stdio` which also allows scripting and cut and paste to the terminal, apparently.  Currently on shutdown the kernel panics leading to a hang requiring me to manually kill the qemu command. Adding `-no-reboot` and `panic=1` to "-append 'OPTIONS'" is supposed to fix this.
+
 ## Links
 
 * [mkroot - simple linux system builder, bootable under qemu for multiple architectures.](https://github.com/landley/mkroot)
