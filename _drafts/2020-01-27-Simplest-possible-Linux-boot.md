@@ -99,11 +99,26 @@ rm -rf airlock
 ./cross.sh x86_64 ./mkroot.sh HOST_EXTRA='bc'
 ```
 
+### Skinny Distributions
+
+#### Probably Working
+
+* [Alpine Linux](https://alpinelinux.org)
+* [Welcome to Adélie Linux](https://www.adelielinux.org)
+* [KISS - home](https://k1ss.org)
+* [Compare Adélie Linux to other distros](https://www.adelielinux.org/about/compare.html)
+
+#### Experimental 
+
+* [glaucus Linux - someone building a whole minimal distribution based on Toolbox and the ideas of LFS](https://github.com/glaucuslinux/glaucus)
+* [Musl-LFS: Linux From Scratch using Musl as Libc](https://github.com/dslm4515/Musl-LFS)
+
 ## Links
 
 * [Introducing initramfs](http://landley.net/writing/rootfs-intro.html)
 * [Tech Tip: How to use initramfs](http://landley.net/writing/rootfs-howto.html)
 * [Programming for Initramfs](http://landley.net/writing/rootfs-programming.html)
+
 * [LinuxCommand.org: Learn The Linux Command Line. Write Shell Scripts.](http://linuxcommand.org/index.php)
 * [Bash scripting cheatsheet](https://devhints.io/bash)
 
@@ -127,17 +142,9 @@ rm -rf airlock
 * [Linux bootdisk howto](http://tldp.org/HOWTO/Bootdisk-HOWTO/index.html)
 * [User Mode Linux, run linux inside linux](http://landley.net/writing/docs/UML.html)
 
-* [Developing using QEMU](http://www.landley.net/aboriginal/presentation.html)
-* [booting a fresh linux kernel on qemu](https://ops.tips/notes/booting-linux-on-qemu/)
-* [How to Build A Custom Linux Kernel For Qemu](https://mgalgs.github.io/2015/05/16/how-to-build-a-custom-linux-kernel-for-qemu-2015-edition.html)
-* [Fast linux kernel testing with qemu](http://ncmiller.github.io/2016/05/14/linux-and-qemu.html)
-* [Use “ and not ‘ on Qemu on Windows](https://github.com/dhruvvyas90/qemu-rpi-kernel/issues/71)
-* [Hello world for bare metal ARM using QEMU](https://balau82.wordpress.com/2010/02/28/hello-world-for-bare-metal-arm-using-qemu/)
-
 * [arch linux BusyBox](https://wiki.archlinux.org/index.php/BusyBox)
 * [musl libc](https://www.musl-libc.org/)
 * [Write messages to stdout from anywhere, by modifying pl011_console_putchar](https://github.com/torvalds/linux/blob/master/drivers/tty/serial/amba-pl011.c)
-* [glaucus Linux - someone building a whole minimal distribution based on Toolbox and the ideas of LFS](https://github.com/glaucuslinux/glaucus)
 * [Toybox vs BusyBox - Rob Landley, hobbyist](https://www.youtube.com/watch?v=MkJkyMuBm3g)
 
 <!-- markdownlint-disable MD034 -->
