@@ -30,7 +30,12 @@ fdisk -u sectors -l ../Downloads/2020-08-20-raspios-buster-armhf-lite.img
 to work out the correct options to setup a loop device.  This showed that the first partitions *Start* (in sectors) was 8192 and *Sectors* was 524288.  So the *offset* in bytes will be 8192 * 512 and the *sizelimit* 524288 * 512
 
 ```bash
-losetup -f —show -P —offset $((8192 * 512)) —sizelimit $((524288 ** [QEMU Documentation/Platforms/ARM](https://wiki.qemu.org/Documentation/Platforms/ARM#Generic_ARM_system_emulation_with_the_virt_machine)
+losetup -f —show -P —offset $((8192 * 512)) —sizelimit $((524288 *
+```
+
+Note: I have chopped this up somehow - this was correct in simplest file a few updates back
+
+* [QEMU Documentation/Platforms/ARM](https://wiki.qemu.org/Documentation/Platforms/ARM#Generic_ARM_system_emulation_with_the_virt_machine)
 * [Virtual 32 bit QEMU](https://translatedcode.wordpress.com/2016/11/03/installing-debian-on-qemus-32-bit-arm-virt-board/)
 * [Installing Debian on QEMU’s 64-bit ARM "virt" board](https://translatedcode.wordpress.com/2017/07/24/installing-debian-on-qemus-64-bit-arm-virt-board/* )
 * [Debian on QEMU’s Raspberry Pi 3 model - flaky](https://translatedcode.wordpress.com/2018/04/25/debian-on-qemus-raspberry-pi-3-model/)
@@ -41,6 +46,9 @@ losetup -f —show -P —offset $((8192 * 512)) —sizelimit $((524288 ** [QEMU 
 * [How to emulate Ubuntu Core for Raspberry Pi 3 using QEMU? - March 2018](https://stackoverflow.com/questions/49134948/how-to-emulate-ubuntu-core-for-raspberry-pi-3-using-qemu)
 * [How to emulate the Raspberry Pi 2 on QEMU?- March 2015](https://stackoverflow.com/questions/28880833/how-to-emulate-the-raspberry-pi-2-on-qemu)
 * [Emulate Rapberry Pi 2 in QEMU - November 2015](https://blog.3mdeb.com/2015/2015-12-30-emulate-rapberry-pi-2-in-qemu/)
+
+
+```bash
 mkdir rpi_qemu
 cd rpi_qemu
 cp /mnt/rpi/kernel* .
@@ -103,6 +111,13 @@ qemu-system-aarch64 -m 1024 -M raspi3 -kernel kernel8.img -dtb bcm2710-rpi-3-b-p
 
 ### Links
 <!-- markdownlint-disable MD034 -->
+
+* [Developing using QEMU](http://www.landley.net/aboriginal/presentation.html)
+* [booting a fresh linux kernel on qemu](https://ops.tips/notes/booting-linux-on-qemu/)
+* [How to Build A Custom Linux Kernel For Qemu](https://mgalgs.github.io/2015/05/16/how-to-build-a-custom-linux-kernel-for-qemu-2015-edition.html)
+* [Fast linux kernel testing with qemu](http://ncmiller.github.io/2016/05/14/linux-and-qemu.html)
+* [Use “ and not ‘ on Qemu on Windows](https://github.com/dhruvvyas90/qemu-rpi-kernel/issues/71)
+* [Hello world for bare metal ARM using QEMU](https://balau82.wordpress.com/2010/02/28/hello-world-for-bare-metal-arm-using-qemu/)
 
 * [Pi Linux From Scratch - PiLFS - QEMU](https://intestinate.com/pilfs/beyond.html#qemuuser)
 
