@@ -82,7 +82,7 @@ efibootmgr --disk /dev/sda --part 1 --create --label "TianoCore UEFI Shell" --lo
 Note: this is a single long line.
 
 Here are some useful EFI commands:
-
+Merge 20200312
 1. `help -b` the -b is for output pagination.
 1. `mode` to view and change the number of lines and columns displayed.
 1. `map` displays some of the devices available.  On my system there's a series of drives labelled `FS0` (for UEFI known file systems), `BLK1` (block devices), etc.
@@ -92,7 +92,7 @@ Here are some useful EFI commands:
 To actually boot things requires that:
 
 1. You know the EFI command to run your operating system.  The command needs to be a single line e.g.  
-`vmlinuz-linux root=/dev/sda5 rw initrd=/Arch3/intel-ucode.img initrd=/Arch3/initramfs-linux.img`.  
+`vmlinuz-linux root=/dev/sda5 rw inMerge 20200312itrd=/Arch3/intel-ucode.img initrd=/Arch3/initramfs-linux.img`.  
 The directories are relative the root of the EFI System Parition
 1. Create an `nsh` script file in the root directory, like `Arch5.nsh`, to select the right directory and run the boot command.  This can be created using your operating system or using `edit` from the shell itself.  
 It's best to do only minor editing in the EFI shell as this can be tedious and error prone.
@@ -108,11 +108,13 @@ Just like for the UEFI shell, you should get these direct from the original prov
 
 ### rEFInd
 
-[rEFInd](http://www.rodsbooks.com/refind/) can be downloaded [here](https://sourceforge.net/projects/refind/files/0.11.4/refind-bin-0.11.4.zip/download)
+[rEFInd](http://www.rodsbooks.com/refind/) can be downloaded [here](https://sourceforge.net/projects/refind/files/0.11.5/refind-bin-0.11.5.zip/download).  The `download` file needs to be unzipped.
 
 ```shell
-unzip refind-bin-0.11.4.zip
-rsync -r /home/jack/Downloads/refind-bin-0.11.4/refind /boot/efi/
+cd ~
+wget https://sourceforge.net/projects/refind/files/0.11.5/refind-bin-0.11.5.zip/download
+unzip download # this is actually the refind-bin-0.11.5.zip file
+sudo rsync -r ~/refind-bin-0.11.5/refind/* /boot/efi/refind
 mv refind.conf-sample refind.conf
 nano refind.conf
 cd /boot/efi
