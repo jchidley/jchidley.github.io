@@ -80,3 +80,6 @@ nft list ruleset # view result
 
 * [nftables wiki](https://wiki.nftables.org/wiki-nftables/index.php/Main_Page)
 * [nftables Wiki - Classic perimetral firewall example](https://wiki.nftables.org/wiki-nftables/index.php/Classic_perimetral_firewall_example)
+* [Quick reference-nftables in 10 minutes](https://wiki.nftables.org/wiki-nftables/index.php/Quick_reference-nftables_in_10_minutes)
+* [Recognize Martian Addresses for Routing - TechLibrary - Juniper Networks](https://www.juniper.net/documentation/en_US/junos/topics/topic-map/recognize-martian-addr-routing.html)
+* [Alpine Linux Stateful Firewall - deadnull](https://ronvalente.net/posts/alpine-firewall/)
