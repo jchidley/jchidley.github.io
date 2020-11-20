@@ -150,7 +150,26 @@ net.ipv4.ip_forward = 1
 EOF
 ```
 
+[The HWRNG on the BCM2838 is compatible to iproc-rng200](https://github.com/raspberrypi/linux/commit/577a2fa60481a0563b86cfd5a0237c0582fb66e0)
+[Arch Linux Arm: Raspberry Pi](https://archlinuxarm.org/wiki/Raspberry_Pi)
 
+```
+# This competes with the broadcom provided random number generator, now `iproc-rng200` (previously bcm2835_rng and bcm2708-rng)
+cat /proc/sys/kernel/random/entropy_avail
+# about 1000
+service haveged stop
+rc-update del haveged boot
+apk del haveged
+apk add rng-tools
+RNGD_OPTS="-x1 -o /dev/random -r /dev/hwrng"
+service rngd start
+rc-update add rngd default
+cat /proc/sys/kernel/random/entropy_avail
+# should be more than 3000
+rngd -l
+# The "Hardware RNG Device (hwrng)" should an "Available and enabled entropy source"
+lbu ci -d
+```
 
 ## Links
 * [Nftables/Examples - Gentoo Wiki](https://wiki.gentoo.org/wiki/Nftables/Examples)
