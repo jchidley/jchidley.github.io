@@ -171,7 +171,21 @@ rngd -l
 lbu ci -d
 ```
 
+## Dnsmasq and Unbound Links
+
+* [Unbound with Dnsmasq on OpenWrt - Kevin Locke’s Homepage](https://kevinlocke.name/bits/2017/03/09/unbound-with-dnsmasq-on-openwrt/)
+* [Combining Dnsmasq and Unbound – Simon Josefsson’s blog](https://blog.josefsson.org/2015/10/26/combining-dnsmasq-and-unbound/)
+* [dnsmasq + unbound](http://blog.alanporter.com/2014-03-09/dnsmasq-unbound/)
+* [Unbound DNS Server Tutorial @ Calomel.org](https://calomel.org/unbound_dns.html)
+* [Unbound, an Easy, Fast and Small DNS Resolver](http://troubleshooters.com/linux/unbound_nsd/unbound.htm#authoritative)
+* [Use dnsmasq to provide DNS & DHCP services - Fedora Magazine](https://fedoramagazine.org/dnsmasq-provide-dns-dhcp-services/)
+* [dnsmasq - Debian Wiki](https://wiki.debian.org/dnsmasq)
+* [dnsmasq/dnsmasq.conf.example at master · imp/dnsmasq · GitHub](https://github.com/imp/dnsmasq/blob/master/dnsmasq.conf.example)
+* [Lightweight ad-blocking with dnsmasq and Raspberry Pi](https://alexellisuk.medium.com/lightweight-ad-blocking-with-dnsmasq-and-raspberry-pi-665dbb3242e3)
+* [Easy Mapping » Linux Magazine](https://www.linux-magazine.com/Issues/2009/101/Dnsmasq)
+
 ## Links
+
 * [Nftables/Examples - Gentoo Wiki](https://wiki.gentoo.org/wiki/Nftables/Examples)
 * [Scripting - nftables wiki](https://wiki.nftables.org/wiki-nftables/index.php/Scripting)
 * [How do I see what iptables is doing?](https://www.opsist.com/blog/2015/08/11/how-do-i-see-what-iptables-is-doing.html)
