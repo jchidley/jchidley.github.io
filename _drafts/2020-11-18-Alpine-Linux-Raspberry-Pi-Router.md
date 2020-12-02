@@ -13,15 +13,12 @@ This is a follow up to my earlier posts about building cheap, high performance a
 
 ## Instructions
 
-
-
 ### On the Build machine
 
 I am using a raspberry pi running Raspbian OS
 
 [Install Alpine on a Raspberry Pi](https://wiki.alpinelinux.org/wiki/Raspberry_Pi)
 https://wiki.alpinelinux.org/wiki/Classic_install_or_sys_mode_on_Raspberry_Pi
-
 
 We're going to install Alpine in "diskless" mode and use overlay files.  Prepare an SD card with 500MB DOS bootable partition with the remainder as ext4
 [Create suitable partitions programatically](https://superuser.com/questions/332252/how-to-create-and-format-a-partition-using-a-bash-script)
@@ -69,6 +66,8 @@ mkfs.vfat ${PIDEVICE}1
 mkfs.ext2 ${PIDEVICE}2
 mkdir /mnt/piboot
 mount ${PIDEVICE}1 /mnt/piboot
+# download the correct alpine linux from the web site
+tar -xvf /home/pi/Downloads/alpine-rpi-3.12.1-aarch64.tar.gz -C /mnt/piboot --no-same-owner
 ```
 
 To find out the correct options, run `setup-alpine -c answerfile.txt` on a newly booted Alpine system.
@@ -79,7 +78,7 @@ cat > /mnt/piboot/answerfile.txt << "EOF"
 KEYMAPOPTS="gb gb"
 
 # Set hostname to alpine-router
-HOSTNAMEOPTS="-n alpine-router.home"
+HOSTNAMEOPTS="-n alpine-router-1"
 
 # Contents of /etc/network/interfaces
 INTERFACESOPTS="auto lo
@@ -94,13 +93,13 @@ iface eth0 inet dhcp
 auto eth1
 iface eth1 inet static
     hostname alpine-router.home
-    address 192.168.10.1
+    address 10.0.0.1
     netmask 255.255.255.0
 "
 
 # `home` is the local domain name and 8.8.8.8 Google public nameserver
 # This will be replaced with custom DNS setup
-DNSOPTS="-d home -n 8.8.8.8"
+DNSOPTS="-d chidley.home -n 8.8.8.8"
 
 # Set timezone to UTC
 TIMEZONEOPTS="-z UTC"
@@ -123,9 +122,7 @@ APKCACHEOPTS="/media/mmcblk0p1/cache"
 EOF
 ```
 
-```bash
-tar -xvf /home/pi/Downloads/alpine-rpi-3.12.1-aarch64.tar.gz -C /mnt/piboot --no-same-owner
-```
+For the reatime clock
 
 ```bash
 cat > /mnt/piboot/usercfg.txt << "EOF"
@@ -136,7 +133,7 @@ EOF
 ```
 
 ```bash
-sync
+sync # make sure all the files are written to the SD card
 umount ${PIDEVICE}1
 umount ${PIDEVICE}2
 ```
@@ -144,8 +141,8 @@ umount ${PIDEVICE}2
 boot
 
 ```bash
-date -s 2012011342 # set date to approprite value, e.g. 2020 November 27 13:47
 rc-service hwclock start # if you have a RTC with the date already set
+date -s 2012011342 # set date to approprite value, e.g. 2020 November 27 13:47
 setup-alpine -f /media/mmcblk0p1/answerfile.txt
 apk update
 apk upgrade
@@ -154,6 +151,15 @@ rc-update add hwclock # if you have added an RTC
 lbu commit -d # delete any previous commits
 ip add # get ip address
 reboot # belt and braces
+```
+
+Dropbear installation is a little buggy, so need to login locally again and check all is OK.
+
+```bash
+apk add dropbear
+rc-update add dropbear
+rc-service dropbear start
+lbu ci -d
 ```
 
 ```bash
@@ -186,37 +192,6 @@ su
 [WireGuard on Alpine Linux with nftables](https://alextsang.net/articles/20191012-080947/index.html)
 
 
-### Basic Firewall and Routing
-
-This router configuration will forward all traffic between all interfaces.
-
-```bash
-cat > /etc/sysctl.d/local.conf << "EOF"
-# Controls IP packet forwarding
-net.ipv4.ip_forward = 1
-EOF
-```
-
-```bash
-apk add nftables
-```
-
-This `nftables` does masquerading so that you can use your internet connection with multiple clients, there is no filtering or traffic management.
-
-```bash
-cat > /etc/nftables.nft << "EOF"
-flush ruleset
-table ip nat {
-	chain POSTROUTING {
-		type nat hook postrouting priority srcnat; policy accept;
-		ip saddr 192.168.10.0/24 oifname "eth0" masquerade
-	}
-}
-EOF
-rc-update add nftables
-lbu ci -d
-rc-service nftables list # after reboot to see that it's working
-```
 
 ### Dnsmasq
 
@@ -227,15 +202,10 @@ lbu ci -d
 # rc-service dnsmasq start
 mv /etc/dnsmasq.conf /etc/dnsmasq.conf.example
 cat > /etc/dnsmasq.conf << "EOF"
-# --- DNS
-# Never forward plain names (without a dot or domain part)
-domain-needed
-# Never forward addresses in the non-routed address spaces.
-bogus-priv
-
+# --- DNS ---
 # Listen on this specific port instead of the standard DNS port
 # (53) as DNS service is provied by unbound. 
-port=5353
+port=35353
 
 # Add local-only domains here, queries in these domains are answered
 # from /etc/hosts or DHCP only.
@@ -253,48 +223,35 @@ expand-hosts
 # 1) Allows DHCP hosts to have fully qualified domain names, as long
 #     as the domain part matches this setting.
 # 2) Sets the "domain" DHCP option thereby potentially setting the
-#    domain of all systems configured by DHCP
+#    domain of all systems configured by list of ports in use on linuxDHCP
 # 3) Provides the domain part for "expand-hosts"
 domain=chidley.home
 
 # This only needs to be small as we're only doing local DNS
 cache-size=1000
 
-# --- DHCP
-
+# --- DHCP ---
 dhcp-authoritative
 interface=eth1 # only listen on LAN port
 
 # DHCP range with netmask
-dhcp-range=192.168.10.50,192.168.10.150,255.255.255.0,12h
+#dhcp-range=10.0.0.100,10.0.0.255,255.255.0.0,12h
+# some odd thing happening with routing.
+dhcp-range=10.0.0.100,10.0.0.255,12h
 
-# dhcp-leasefile=/var/lib/dnsmasq.leases
-
-# reserved names and addressesserver:
-	do-not-query-localhost: no
-	domain-insecure: "0.168.192.in-addr.arpa"
-	domain-insecure: "example.local"
-	local-zone: "168.192.in-addr.arpa." nodefault
-	private-address: 10.0.0.0/8
-	private-address: 169.254.0.0/16
-	private-address: 172.16.0.0/12
-	private-address: 192.168.0.0/16
-	private-address: fd00::/8
-	private-address: fe80::/10
-	private-domain: "example.local"
-forward-zone:
-	name: "example.local"
-	forward-addr: 127.0.0.1@53535
-forward-zone:
-	name: "0.168.192.in-addr.arpa"
-	forward-addr: 127.0.0.1@53535
-dhcp-host=dc:a6:32:dd:4c:72,pi400-1,192.168.10.20,10m
+# dhcp-leasefile=/var/lib/misc/dnsmasq.leases
 
 # Set the NTP time server address to be the same machine as
 # is running dnsmasq
-dhcp-option=42,0.0.0.0
+dhcp-option=option:ntp-server,0.0.0.0
 
-# --- PXE
+# Set the DNS server address to be the same machine as
+# is running dnsmasq
+dhcp-option=option:dns-server,0.0.0.0
+
+dhcp-option=option:domain-name,chidley.home
+
+# --- PXE ---
 EOF
 ```
 
@@ -303,6 +260,7 @@ EOF
 ```bash
 apk add unbound
 rc-update add unbound
+wget https://www.internic.net/domain/named.root -O /etc/unbound/root.hints
 lbu ci -d
 ```
 
@@ -310,10 +268,15 @@ lbu ci -d
 #https://kevinlocke.name/bits/2017/03/09/unbound-with-dnsmasq-on-openwrt/
 cat > /etc/unbound/unbound.conf << "EOF"
 server:
+	interface: 0.0.0.0
+	interface: ::0
+	root-hints: "/etc/unbound/root.hints"
+	access-control: 127.0.0.0/8 allow
+	access-control: 10.0.0.0/16 allow
 	do-not-query-localhost: no
-	domain-insecure: "10.168.192.in-addr.arpa"
+	domain-insecure: "0.10.in-addr.arpa"
 	domain-insecure: "chidley.home"
-	local-zone: "168.192.in-addr.arpa." nodefault
+	local-zone: "0.10.in-addr.arpa." nodefault
 	private-address: 10.0.0.0/8
 	private-address: 169.254.0.0/16
 	private-address: 172.16.0.0/12
@@ -321,52 +284,74 @@ server:
 	private-address: fd00::/8
 	private-address: fe80::/10
 	private-domain: "chidley.home"
+
 forward-zone:
 	name: "chidley.home"
-	forward-addr: 127.0.0.1@5353
-forward-zone:
-	name: "10.168.192.in-addr.arpa"
-	forward-addr: 127.0.0.1@5353
+	forward-addr: 127.0.0.1@35353
+	forward-zone:
+
+name: "0.10.in-addr.arpa"
+	forward-addr: 127.0.0.1@35353
 EOF
+unbound-checkconf
+rc-service unbound start
+# use unbound and not google for DNS resolution
+sed -i s/8.8.8.8/127.0.0.1/ /etc/resolv.conf 
 lbu ci -d
 ```
 
 
-### hardware random number generator
 
-[The HWRNG on the BCM2838 is compatible to iproc-rng200](https://github.com/raspberrypi/linux/commit/577a2fa60481a0563b86cfd5a0237c0582fb66e0)
-[Arch Linux Arm: Raspberry Pi](https://archlinuxarm.org/wiki/Raspberry_Pi)
-
-`haveged` competes with the broadcom provided random number generator, now `iproc-rng200` (previously bcm2835_rng and bcm2708-rng) and so it needs to be disabled
-
+### Basic Firewall and Routing
+  
+```bash
+# helpful tools for diagnosis and testing
+apk add bind-tools
 ```
-cat /proc/sys/kernel/random/entropy_avail
-# typically less than 1000
-apk add rng-tools
-RNGD_OPTS="-x1 -o /dev/random -r /dev/hwrng"
-rc-service rngd start
-rc-update add rngd
-cat /proc/sys/kernel/random/entropy_avail
-# should be more than 3000
-rngd -l
-# The "Hardware RNG Device (hwrng)" should be an "Available and enabled entropy source"
+
+This router configuration will forward all traffic between all interfaces.
+
+```bash
+cat > /etc/sysctl.d/local.conf << "EOF"
+# Controls IP packet forwarding
+net.ipv4.ip_forward = 1
+EOF
+```
+
+```bash
+apk add nftables
+```
+
+This `nftables` does masquerading so that you can use your internet connection with multiple clients, there is no filtering or traffic management.
+
+
+```bash
+cat > /etc/nftables.nft << "EOF"
+flush ruleset
+define wan = eth0
+table ip nat {
+  chain postrouting {
+    type nat hook postrouting priority srcnat;
+
+    oif $wan masquerade persistent
+  }
+}
+EOF
+rc-update add nftables
 lbu ci -d
+rc-service nftables start
+rc-service nftables list # should be as entered above
+reboot
 ```
+
+Once the above works, then see [Traffic Manager for a better "firewall"](2020-01-07-Traffic-Manager-Not-Firewall.html).
 
 ### i2c for RTC
 
-[Saving time with Hardware Clock](https://wiki.alpinelinux.org/wiki/Saving_time_with_Hardware_Clock)
-
-[How to activate Raspberry-pi’s i2c bus](https://openest.io/en/2020/01/18/activate-raspberry-pi-4-i2c-bus/)
-
-[Adafruit - Adding a Real Time Clock to Raspberry Pi](https://learn.adafruit.com/adding-a-real-time-clock-to-raspberry-pi/set-up-and-test-i2c)
-
-[Raspberry Pi Device Trees, overlays, and parameters](https://www.raspberrypi.org/documentation/configuration/device-tree.md#part4.6)
-
-
-[Enable Community Repository](https://wiki.alpinelinux.org/wiki/Enable_Community_Repository) by uncommenting the correct line in `/etc/apk/repositories` and then `apk update`. Then you can install `apk i2c-tools` and run the various i2c utilities.
-
-
+* [Saving time with Hardware Clock](https://wiki.alpinelinux.org/wiki/Saving_time_with_Hardware_Clock)
+* [How to activate Raspberry-pi’s i2c bus](https://openest.io/en/2020/01/18/activate-raspberry-pi-4-i2c-bus/)
+* [Adafruit - Adding a Real Time Clock to Raspberry Pi](https://learn.adafruit.com/adding-a-real-time-clock-to-raspberry-pi/set-up-and-test-i2c)
+* [Raspberry Pi Device Trees, overlays, and parameters](https://www.raspberrypi.org/documentation/configuration/device-tree.md#part4.6)
 
 ## Dnsmasq and Unbound Links
 
