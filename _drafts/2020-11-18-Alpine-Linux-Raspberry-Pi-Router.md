@@ -78,23 +78,23 @@ cat > /mnt/piboot/answerfile.txt << "EOF"
 KEYMAPOPTS="gb gb"
 
 # Set hostname to alpine-router
-HOSTNAMEOPTS="-n alpine-router-1"
+HOSTNAMEOPTS="-n alpine-router”
 
 # Contents of /etc/network/interfaces
 INTERFACESOPTS="auto lo
 iface lo inet loopback
 
-# Internal Ethernet
+# Internal Ethernet - WAN
 auto eth0
 iface eth0 inet dhcp
     hostname alpine-router
 
-# USB Ethernet adapter
+# USB Ethernet adapter - LAN
 auto eth1
 iface eth1 inet static
-    hostname alpine-router.home
+    hostname alpine-router
     address 10.0.0.1
-    netmask 255.255.255.0
+    netmask 255.255.0.0
 "
 
 # `home` is the local domain name and 8.8.8.8 Google public nameserver
@@ -147,6 +147,7 @@ setup-alpine -f /media/mmcblk0p1/answerfile.txt
 apk update
 apk upgrade
 apk add dropbear # dropbear not installed
+apk add dropbear-dbclient
 rc-update add hwclock # if you have added an RTC
 lbu commit -d # delete any previous commits
 ip add # get ip address
@@ -204,7 +205,7 @@ mv /etc/dnsmasq.conf /etc/dnsmasq.conf.example
 cat > /etc/dnsmasq.conf << "EOF"
 # --- DNS ---
 # Listen on this specific port instead of the standard DNS port
-# (53) as DNS service is provied by unbound. 
+# (53) as ‘unbound’ is the DNS server.
 port=35353
 
 # Add local-only domains here, queries in these domains are answered
@@ -227,17 +228,16 @@ expand-hosts
 # 3) Provides the domain part for "expand-hosts"
 domain=chidley.home
 
-# This only needs to be small as we're only doing local DNS
+# This is small as it covers just local DNS lookup
 cache-size=1000
 
 # --- DHCP ---
 dhcp-authoritative
 interface=eth1 # only listen on LAN port
 
-# DHCP range with netmask
-#dhcp-range=10.0.0.100,10.0.0.255,255.255.0.0,12h
-# some odd thing happening with routing.
-dhcp-range=10.0.0.100,10.0.0.255,12h
+# DHCP range with netmask. This must fit with the
+# netmask/ip address assigned to the (static) interface
+dhcp-range=10.0.1.1,10.0.1.255,255.255.0.0,12h
 
 # dhcp-leasefile=/var/lib/misc/dnsmasq.leases
 
