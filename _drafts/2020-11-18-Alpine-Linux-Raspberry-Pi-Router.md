@@ -78,7 +78,7 @@ cat > /mnt/piboot/answerfile.txt << "EOF"
 KEYMAPOPTS="gb gb"
 
 # Set hostname to alpine-router
-HOSTNAMEOPTS="-n alpine-router”
+HOSTNAMEOPTS="-n alpine-router"
 
 # Contents of /etc/network/interfaces
 INTERFACESOPTS="auto lo
@@ -296,11 +296,31 @@ EOF
 unbound-checkconf
 rc-service unbound start
 # use unbound and not google for DNS resolution
+# https://www.shellhacks.com/setup-dns-resolution-resolvconf-example/
 sed -i s/8.8.8.8/127.0.0.1/ /etc/resolv.conf 
 lbu ci -d
 ```
 
+### hardware random number generator
 
+[The HWRNG on the BCM2838 is compatible to iproc-rng200](https://github.com/raspberrypi/linux/commit/577a2fa60481a0563b86cfd5a0237c0582fb66e0)
+[Arch Linux Arm: Raspberry Pi](https://archlinuxarm.org/wiki/Raspberry_Pi)
+
+`haveged` competes with the broadcom provided random number generator, now `iproc-rng200` (previously bcm2835_rng and bcm2708-rng) and so it needs to be disabled
+
+```
+cat /proc/sys/kernel/random/entropy_avail
+# typically less than 1000
+apk add rng-tools
+RNGD_OPTS="-x1 -o /dev/random -r /dev/hwrng"
+rc-service rngd start
+rc-update add rngd
+cat /proc/sys/kernel/random/entropy_avail
+# should be more than 3000
+rngd -l
+# The "Hardware RNG Device (hwrng)" should be an "Available and enabled entropy source"
+lbu ci -d
+```
 
 ### Basic Firewall and Routing
   
