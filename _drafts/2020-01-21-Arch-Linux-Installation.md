@@ -165,6 +165,18 @@ pacman -S nvidia-390xx # legacy driver front room
 localectl --no-convert set-x11-keymap gb # UK keyboard layout
 ```
 
+May need to add 
+
+```
+setxkbmap gb # current session only
+# add to .xinitrc
+setxkbmap -layout gb
+exec dwm # or another display manager
+```
+
+[Xorg/Keyboard configuration - ArchWiki](https://wiki.archlinux.org/index.php/Xorg/Keyboard_configuration)
+
+
 If you don't load the correct drivers, you get an unhelpful set of errors including ```xinit: unable to connect to X server: Connection refused```.
 [Intel Graphics](https://wiki.archlinux.org/index.php/intel_graphics)
 
