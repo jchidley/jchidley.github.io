@@ -13,6 +13,12 @@ This is a follow up to my earlier posts about building cheap, high performance a
 
 ## Instructions
 
+Look at headless installation
+[GitHub - mesca/alpine_headless: Enable headless installation of Alpine Linux on Raspberry Pi](https://github.com/mesca/alpine_headless)
+[Raspberry Pi - Headless Installation - Alpine Linux](https://wiki.alpinelinux.org/wiki/Raspberry_Pi_-_Headless_Installation)
+[Raspberry Pi - Alpine Linux](https://wiki.alpinelinux.org/wiki/Raspberry_Pi)
+[Dwm - Alpine Linux](https://wiki.alpinelinux.org/wiki/Dwm#Installing_Xorg)
+
 ### On the Build machine
 
 I am using a raspberry pi running Raspbian OS
