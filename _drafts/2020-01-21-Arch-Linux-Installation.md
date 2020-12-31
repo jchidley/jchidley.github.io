@@ -163,36 +163,51 @@ pacman -S xorg-server xfce4
 pacman -S xf86-video-intel # card specific video drivers
 pacman -S nvidia-390xx # legacy driver front room
 localectl --no-convert set-x11-keymap gb # UK keyboard layout
+setxkbmap gb # X11 current session only
 ```
 
-May need to add 
+[sara - simple and lightweight tiling window manager](https://github.com/gitluin/sara)
 
+```bash
+https://github.com/gitluin/sara.git
+
+cd sara
+sed -i -E 's/barpx\s+=\s+18/barpx\t\t\t= 0/g' config.h # set top bar to 0
+grep barpx config.h # check
+make
+sudo make install
 ```
-setxkbmap gb # current session only
-# add to .xinitrc
+
+[st - fork of suckless' simple terminal](https://github.com/LukeSmithxyz/st)
+
+```bash
+git clone https://github.com/LukeSmithxyz/st.git
+```
+ - no terminal otherwise
+
+[dmenu - "super+d" for mini menu](https://tools.suckless.org/dmenu/) 
+
+```bash
+git clone https://git.suckless.org/dmenu
+``` 
+
+[sxhkd - X daemon for input events - keyboard, mouse](https://github.com/baskerville/sxhkd)
+
+```bash
+git clone https://github.com/baskerville/sxhkd.git
+```
+
+`~/.xinitrc`
+```bash
 setxkbmap -layout gb
-exec dwm # or another display manager
+sxhkd -c & # enable keys e.g. 'super-d' for dmenu
+st & # start with a terminal on screen
+exec sara # or another display manager
 ```
 
-[Xorg/Keyboard configuration - ArchWiki](https://wiki.archlinux.org/index.php/Xorg/Keyboard_configuration)
-
-
-If you don't load the correct drivers, you get an unhelpful set of errors including ```xinit: unable to connect to X server: Connection refused```.
-[Intel Graphics](https://wiki.archlinux.org/index.php/intel_graphics)
-
-Minimal display manager [tbsm](https://aur.archlinux.org/packages/tbsm/) from the [AUR](https://wiki.archlinux.org/index.php/Arch_User_Repository).
+If you don't load the correct drivers, you get an unhelpful set of errors including `xinit: unable to connect to X server: Connection refused`.
 
 ```bash
-pacman -S base-devel git # for AUR installation
-git clone https://aur.archlinux.org/tbsm.git
-cd tbsm
-makepkg -si # as a normal user
-```
-
-Run the display manager and pick the display environment.  
-
-```bash
-tbsm
 pacman -S firefox # web browser
 ```
 
@@ -221,11 +236,10 @@ source ~/basic-env/bin/activate # enable a default Python environment to avoid p
 
 [pacman/Tips and tricks](https://wiki.archlinux.org/index.php/Pacman/Tips_and_tricks)
 
-List explicitly installed packages not in the base meta package, base-devel, qt5, xfce4 package groups:
+List explicitly installed packages not in the base meta package, base-devel package groups:
 
 ```bash
-pacman -S expac
-comm -23 <(pacman -Qeq | sort) <({ pacman -Qqg base-devel qt5 xfce4; expac -l '\n' '%E' base; cat pacman_install.txt; } | sort | uniq)
+expac -H M "%011m\t%-20n\t%10d" $(comm -23 <(pacman -Qqen | sort) <({ pacman -Qqg base-devel; expac -l '\n' '%E' base; cat pacman_install.txt;} | sort | uniq)) | sort -n
 ```
 
 ```bash
@@ -233,11 +247,6 @@ cat << EOF > pacman_install.txt
 arch-install-scripts
 base
 curl
-dhcpcd
-dosfstools
-efibootmgr
-eigen
-expac
 firefox
 git
 intel-ucode
@@ -253,28 +262,30 @@ python-pip
 reflector
 rsync
 sudo
-tbsm
-tmux
 unzip
 usbutils
 vi
 visual-studio-code-bin
 wget
-xf86-video-intel
-xorg-server
-zip
+xf86-video-intelsuckless
 EOF
 ```
 
 `cat pacman_install.txt | sort | uniq`
 
-### tmux commands
+## Links
 
-Command | output
---- | ---a
-[Arch Installation](https://wiki.archlinux.org/index.php/Install_Arch_Linux_from_existing_Linux)
+* [Arch Installation](https://wiki.archlinux.org/index.php/Install_Arch_Linux_from_existing_Linux)
 "Method B: Using the LiveCD image" files [here](https://mirror.bytemark.co.uk/archlinux/iso/2020.01.01/arch/x86_64/), for example
-[Arch Linux Instllation](https://wiki.archlinux.org/index.php/Installation_guide)
-[Intel Graphics](https://wiki.archlinux.org/index.php/intel_graphics)
-[tbsm](https://aur.archlinux.org/packages/tbsm/)
-[AUR](https://wiki.archlinux.org/index.php/Arch_User_Repository).
+* [Arch Linux Instllation](https://wiki.archlinux.org/index.php/Installation_guide)
+* [Intel Graphics](https://wiki.archlinux.org/index.php/intel_graphics)
+* [AUR - Arch User Repository](https://wiki.archlinux.org/index.php/Arch_User_Repository)
+* [tbsm - minimal display manager](https://aur.archlinux.org/packages/tbsm/)
+* [st - simple terminal](https://st.suckless.org)
+* [Alacritty - graphics accellerated terminal](https://github.com/alacritty/alacritty)
+* [Xorg/Keyboard configuration - ArchWiki](https://wiki.archlinux.org/index.php/Xorg/Keyboard_configuration)
+* [st fonts](https://wiki.archlinux.org/index.php/st#Font) 
+* [Symbol fonts for linux terminals](https://c42f.github.io/2015/12/29/crisp-terminal-fonts.html)
+* [Fonts - Arch Linux](https://wiki.archlinux.org/index.php/Fonts#Font_packages)
+* [Pacman Tip and Tricks](https://wiki.archlinux.org/index.php/Pacman/Tips_and_tricks)
+* [Unified Extensible Firmware Interface](https://wiki.archlinux.org/index.php/Unified_Extensible_Firmware_Interface#UEFI_variables)
