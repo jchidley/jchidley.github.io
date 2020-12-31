@@ -70,7 +70,7 @@ pacman -S unzip sudo nano vi dhcpcd efibootmgr openssh git ntp
 * sudo - run commands as superuser
 * nano - minimal visual editor
 * vi - keystroke driven editor
-* dhcpcd - request IP address from servers 
+* dhcpcd - request IP address from servers
 * efibootmgr - manage system boot
 * openssh - allow ssh into this machine
 * git - for software management
@@ -169,9 +169,9 @@ setxkbmap gb # X11 current session only
 [sara - simple and lightweight tiling window manager](https://github.com/gitluin/sara)
 
 ```bash
-https://github.com/gitluin/sara.git
-
+git clone https://github.com/gitluin/sara.git
 cd sara
+cp config.def.h config.h
 sed -i -E 's/barpx\s+=\s+18/barpx\t\t\t= 0/g' config.h # set top bar to 0
 grep barpx config.h # check
 make
@@ -183,21 +183,28 @@ sudo make install
 ```bash
 git clone https://github.com/LukeSmithxyz/st.git
 ```
- - no terminal otherwise
 
-[dmenu - "super+d" for mini menu](https://tools.suckless.org/dmenu/) 
+no terminal otherwise
+
+[dmenu - "super+d" for mini menu](https://tools.suckless.org/dmenu/)
 
 ```bash
 git clone https://git.suckless.org/dmenu
-``` 
+```
 
 [sxhkd - X daemon for input events - keyboard, mouse](https://github.com/baskerville/sxhkd)
 
 ```bash
 git clone https://github.com/baskerville/sxhkd.git
+cd sxhkd
+make
+sudo make install
+mkdir -p ~/.config/sxhkd
+cp ~/sara/examples/sxhkdrc ~/.config/sxhkd/sxhkdrc
 ```
 
 `~/.xinitrc`
+
 ```bash
 setxkbmap -layout gb
 sxhkd -c & # enable keys e.g. 'super-d' for dmenu
@@ -236,8 +243,6 @@ source ~/basic-env/bin/activate # enable a default Python environment to avoid p
 
 [pacman/Tips and tricks](https://wiki.archlinux.org/index.php/Pacman/Tips_and_tricks)
 
-<<<<<<< Updated upstream
-=======
 Remove orphans
 
 ```bash
@@ -246,7 +251,6 @@ pacman -S pacman-contrib # paccache
 paccache -rk1 -ruk0 # clean the cache
 ```
 
->>>>>>> Stashed changes
 List explicitly installed packages not in the base meta package, base-devel package groups:
 
 ```bash
@@ -295,7 +299,7 @@ EOF
 * [st - simple terminal](https://st.suckless.org)
 * [Alacritty - graphics accellerated terminal](https://github.com/alacritty/alacritty)
 * [Xorg/Keyboard configuration - ArchWiki](https://wiki.archlinux.org/index.php/Xorg/Keyboard_configuration)
-* [st fonts](https://wiki.archlinux.org/index.php/st#Font) 
+* [st fonts](https://wiki.archlinux.org/index.php/st#Font)
 * [Symbol fonts for linux terminals](https://c42f.github.io/2015/12/29/crisp-terminal-fonts.html)
 * [Fonts - Arch Linux](https://wiki.archlinux.org/index.php/Fonts#Font_packages)
 * [Pacman Tip and Tricks](https://wiki.archlinux.org/index.php/Pacman/Tips_and_tricks)
