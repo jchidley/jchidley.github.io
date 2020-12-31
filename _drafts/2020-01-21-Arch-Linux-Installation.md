@@ -236,6 +236,17 @@ source ~/basic-env/bin/activate # enable a default Python environment to avoid p
 
 [pacman/Tips and tricks](https://wiki.archlinux.org/index.php/Pacman/Tips_and_tricks)
 
+<<<<<<< Updated upstream
+=======
+Remove orphans
+
+```bash
+pacman -Qtdq | pacman -Rns - # remove orphans
+pacman -S pacman-contrib # paccache
+paccache -rk1 -ruk0 # clean the cache
+```
+
+>>>>>>> Stashed changes
 List explicitly installed packages not in the base meta package, base-devel package groups:
 
 ```bash
