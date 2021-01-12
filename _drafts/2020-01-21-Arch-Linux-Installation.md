@@ -43,6 +43,7 @@ arch-chroot /mnt
 
 ## Language
 
+Needs to be moved to after booting for the first time
 ```bash
 vi /etc/locale.gen
 # uncomment the line "en_GB.UTF-8 UTF-8"
@@ -63,13 +64,13 @@ reflector --verbose --country 'United Kingdom' -l 10 --sort rate --save /etc/pac
 Arch comes with almost nothing by default.
 
 ```bash
-pacman -S unzip sudo nano vi dhcpcd efibootmgr openssh git ntp
+pacman -S unzip sudo nano vim dhcpcd efibootmgr openssh git ntp
 ```
 
 * unzip - unziping EFI Shell and rEFInd
 * sudo - run commands as superuser
 * nano - minimal visual editor
-* vi - keystroke driven editor
+* vim - keystroke driven editor
 * dhcpcd - request IP address from servers
 * efibootmgr - manage system boot
 * openssh - allow ssh into this machine
@@ -158,10 +159,13 @@ As a fail safe, can create a `startup.nsh` file containing this single long line
 
 ## GUI
 
+pacman-S base-develop
+
 ```bash
 pacman -S xorg-server xfce4
 pacman -S xf86-video-intel # card specific video drivers
 pacman -S nvidia-390xx # legacy driver front room
+pacman -S xorg-xinit # startx
 localectl --no-convert set-x11-keymap gb # UK keyboard layout
 setxkbmap gb # X11 current session only
 ```
