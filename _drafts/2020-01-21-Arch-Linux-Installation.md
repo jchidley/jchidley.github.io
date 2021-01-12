@@ -112,8 +112,8 @@ Getting the thing to boot the raw EFI way.
 
 ```bash
 pacman -S intel-ucode
-mkdir /boot/efi/Arch2Shuttle2 # In the EFI boot partition
-rsync /boot/* /boot/efi/Arch2Shuttle2/ # copy all of the boot files across
+mkdir /boot/efi/nuc3arch1 # In the EFI boot partition
+rsync /boot/* /boot/efi/nuc3arch1/ # copy all of the boot files across
 ```
 
 Create an EFI shell script to boot the new opearting system.
@@ -121,35 +121,45 @@ Create an EFI shell script to boot the new opearting system.
 Tabbing for completion speeds this up and avoids errors
 
 ```bash
-ls /boot/efi/Arch2Shuttle2 > Arch2Shuttle2.nsh
-ls /boot/efi/vmlinuz-linux >> Arch2Shuttle2.nsh
-lsblk -o NAME,UUID | grep sda2 >> /boot/efi/Arch2Shuttle2.nsh # assuming /dev/sda2 is operating system partition
-ls /boot/efi/intel-ucode.img >> Arch2Shuttle2.nsh
-ls /boot/efi/initramfs-linux.img >> Arch2Shuttle2.nsh
-vi /boot/efi/Arch2Shuttle2.nsh
+ls /boot/efi/nuc3arch1 > nuc3arch1.nsh
+ls /boot/efi/vmlinuz-linux >> nuc3arch1.nsh
+lsblk -o NAME,UUID | grep sda2 >> /boot/efi/nuc3arch1.nsh # assuming /dev/sda2 is operating system partition
+ls /boot/efi/intel-ucode.img >> nuc3arch1.nsh
+ls /boot/efi/initramfs-linux.img >> nuc3arch1.nsh
+vi /boot/efi/nuc3arch1.nsh
 ```
 
-contents of /boot/efi/Arch2Shuttle2.nsh
+contents of /boot/efi/nuc3arch1.nsh
 
 ```bash
-cd Arch2Shuttle2
-vmlinuz-linux root=UUID=23aff7da-45d6-492d-9f9c-b71b531cebfb rw initrd=/Arch2Shuttle2/intel-ucode.img initrd=/Arch2Shuttle2/initramfs-linux.img
+cd nuc3arch1
+vmlinuz-linux root=UUID=761edd1d-27d0-406a-8033-45c5654dcbc9 rw initrd=/nuc3arch1/intel-ucode.img initrd=/nuc3arch1/initramfs-linux.img
 ```
 
 Only need to do this if you're direct booting Arch, otherwise do the EFI shell/rEFInd process.
 
 ```bash
 lsblk -o NAME,UUID # use the right UUID below
-efibootmgr --disk /dev/sda --part 1 --create --label "Arch 5" --loader /Arch5/vmlinuz-linux --unicode 'root=UUID=23aff7da-45d6-492d-9f9c-b71b531cebfb rw initrd=/Arch5/intel-ucode.img initrd=/Arch5/initramfs-linux.img' --verbose
+efibootmgr --disk /dev/sda --part 1 --create --label "nuc3arch1" --loader /nuc3arch1/vmlinuz-linux --unicode 'root=UUID=761edd1d-27d0-406a-8033-45c5654dcbc9 rw initrd=/nuc3arch1/intel-ucode.img initrd=/nuc3arch1/initramfs-linux.img' --verbose
 efibootmgr -v # check to see what number it is, say 0004
 efibootmgr -n 4 # try the next boot without commiting to it
 ```
 
 If it boots correctly, then...
 
-```bash
-efibootmgr -o 4,1,2 # reorder the boot once it has worked
-```
+# Mac OS is normally detected and run automatically; however,
+# if you want to do something unusual, a manual boot stanza may
+# be the way to do it. This one does nothing very unusual, but
+# it may serve as a starting point. Note that you'll almost
+# certainly need to change the "volume" line for this example
+# to work.
+menuentry "My macOS" {
+    icon \EFI\refind\icons\os_mac.png
+    volume "macOS boot"
+    loader \System\Library\CoreServices\boot.efi
+    disabled
+}
+
 
 As a fail safe, can create a `startup.nsh` file containing this single long line
 
@@ -176,7 +186,20 @@ setxkbmap gb # X11 current session only
 git clone https://github.com/gitluin/sara.git
 cd sara
 cp config.def.h config.h
-sed -i -E 's/barpx\s+=\s+18/barpx\t\t\t= 0/g' config.h # set top bar to 0
+sed -i -E 's/barpx\s+=\s+
+# Mac OS is normally detected and run automatically; however,
+# if you want to do something unusual, a manual boot stanza may
+# be the way to do it. This one does nothing very unusual, but
+# it may serve as a starting point. Note that you'll almost
+# certainly need to change the "volume" line for this example
+# to work.
+menuentry "My macOS" {
+    icon \EFI\refind\icons\os_mac.png
+    volume "macOS boot"
+    loader \System\Library\CoreServices\boot.efi
+    disabled
+}
+18/barpx\t\t\t= 0/g' config.h # set top bar to 0
 grep barpx config.h # check
 make
 sudo make install
@@ -185,8 +208,19 @@ sudo make install
 [st - fork of suckless' simple terminal](https://github.com/LukeSmithxyz/st) as there would be no terminal otherwise
 
 ```bash
-git clone https://github.com/LukeSmithxyz/st.git
-```
+git clone https://github.
+# Mac OS is normally detected and run automatically; however,
+# if you want to do something unusual, a manual boot stanza may
+# be the way to do it. This one does nothing very unusual, but
+# it may serve as a starting point. Note that you'll almost
+# certainly need to change the "volume" line for this example
+# to work.
+menuentry "My macOS" {
+    icon \EFI\refind\icons\os_mac.png
+    volume "macOS boot"
+    loader \System\Library\CoreServices\boot.efi
+    disabled
+}
 
 [dmenu - "super+d" for mini menu](https://tools.suckless.org/dmenu/)
 

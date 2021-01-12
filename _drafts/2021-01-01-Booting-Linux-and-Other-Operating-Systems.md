@@ -53,7 +53,7 @@ To boot this directly from hardware add an entry to the EFI NVRAM like this:
 
 ```shell
 efibootmgr -v # check the current boot order
-efibootmgr --disk /dev/sda --part 1 --create --label "Arch 5" --loader /Arch5/vmlinuz-linux --unicode 'root=UUID=23aff7da-45d6-492d-9f9c-b71b531cebfb rw initrd=/Arch5/initramfs-linux.img' --verbose
+efibootmgr --disk /dev/sda --part 1 --create --label "nuc3arch1" --loader /nuc3arch1/vmlinuz-linux --unicode 'root=UUID=761edd1d-27d0-406a-8033-45c5654dcbc9 rw initrd=/nuc3arch1/intel-ucode.img initrd=/nuc3arch1/initramfs-linux.img' --verbose
 efibootmgr -o 0,1 # reset the boot order back to what it was orginally
 efibootmgr -n 2 # to run the newly added item at next boot
 ```
@@ -74,12 +74,11 @@ I have found that EFI shells, and other pre-opeating system utilties/enviroments
 
 ```shell
 cd ~/Downloads
-wget https://github.com/tianocore/edk2/releases/download/edk2-stable202002/ShellBinPkg.zip # The last binary version
+wget https://github.com/tianocore/edk2/releases/download/edk2-stable202002/ShellBinPkg.zip # The most recent binary version
 unzip ShellBinPkg.zip
 sudo rsync -r ShellBinPkg/UefiShell /boot/efi/
 cd /boot/efi
-efibootmgr -c -l -v UefiShell/X64/Shell.efi -L "TianoCore UEFI Shell" # works if relative 
-efibootmgr --disk /dev/sda --part 1 --create --label "TianoCore UEFI Shell" --loader  --verbose # a single long line 
+efibootmgr --disk /dev/sda --part 1 --create --label "TianoCore UEFI Shell" --loader /UefiShell/X64/Shell.efi --verbose
 ```
 
 Here are some useful EFI commands:
@@ -92,7 +91,7 @@ Here are some useful EFI commands:
 
 To actually boot things requires that:
 
-1. You know the EFI command to run your operating system.  The command needs to be a single line e.g. [ `vmlinuz-linux root=/dev/sda5 rw initrd=/Arch3/intel-ucode.img initrd=/Arch3/initramfs-linux.img` ]. The directories are relative the root of the EFI System Parition
+1. You know the EFI command to run your operating system.  The command needs to be a single line e.g. [ `vmlinuz-linux root=UUID=761edd1d-27d0-406a-8033-45c5654dcbc9 rw initrd=/nuc3arch1/intel-ucode.img initrd=/nuc3arch1/initramfs-linux.img` ]. The directories are relative the root of the EFI System Parition
 1. Create an `nsh` script file in the root directory, like `Arch5.nsh`, to select the right directory and run the boot command.  This can be created using your operating system or using `edit` from the shell itself. Using the EFI shell's `edit` is slow and error prone.
 1. Run the script to boot your operating system.  It is possible to type the whole boot command at the EFI prompt.  Up to you.
 1. This is enough to run the everything.  But a Boot manager might be nice.
@@ -113,10 +112,33 @@ cd ~/Downloads
 wget https://sourceforge.net/projects/refind/files/latest/download # it is possible to download it directly like this but not recommended
 unzip download # the filename as used by wget (last part)
 sudo rsync -r ~/Downloads/refind-bin-0.12.0/refind/* /boot/efi/refind # 12.0 is the current version
-mv refind.conf-sample refind.conf
+cd /boot/efi/refind
+cp refind.conf-sample refind.conf
 nano refind.conf
 cd /boot/efi
-efibootmgr -c -l -v refind/refind_x64.efi -L rEFInd
+efibootmgr --disk /dev/sda --part 1 --create --label "rEFInd" --loader /refind/refind_x64.efi --verbose
+```
+
+sample menu items in refind.conf, added at the bottom
+```bash
+menuentry "nuc3arch1" {
+    icon     /refind/icons/os_arch.png
+    loader   /nuc3arch1/vmlinuz-linux
+    initrd   /nuc3arch1/intel-ucode.img
+    initrd   /nuc3arch1/initramfs-linux.img
+    options  "root=UUID=761edd1d-27d0-406a-8033-45c5654dcbc9 rw"
+}
+
+menuentry "nuc3arch1 - just options" {
+    icon     /refind/icons/os_arch.png
+    loader   /nuc3arch1/vmlinuz-linux
+    options  "root=UUID=761edd1d-27d0-406a-8033-45c5654dcbc9 rw initrd=/nuc3arch1/intel-ucode.img initrd=/nuc3arch1/initramfs-linux.img"
+}
+
+menuentry "TianoCore UEFI Shell" {
+    icon    /refind/icons/tool_shell.png
+    loader  /UefiShell/X64/Shell.efi
+}
 ```
 
 Change the boot order back to the original state boot `efibootmgr -o` and refind on the next boot `efibootmgr -n` for testing
