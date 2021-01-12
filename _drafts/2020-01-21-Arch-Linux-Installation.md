@@ -147,19 +147,9 @@ efibootmgr -n 4 # try the next boot without commiting to it
 
 If it boots correctly, then...
 
-# Mac OS is normally detected and run automatically; however,
-# if you want to do something unusual, a manual boot stanza may
-# be the way to do it. This one does nothing very unusual, but
-# it may serve as a starting point. Note that you'll almost
-# certainly need to change the "volume" line for this example
-# to work.
-menuentry "My macOS" {
-    icon \EFI\refind\icons\os_mac.png
-    volume "macOS boot"
-    loader \System\Library\CoreServices\boot.efi
-    disabled
-}
-
+```bash
+efibootmgr -o 4,1,2 # reorder the boot once it has worked
+```
 
 As a fail safe, can create a `startup.nsh` file containing this single long line
 
@@ -186,20 +176,7 @@ setxkbmap gb # X11 current session only
 git clone https://github.com/gitluin/sara.git
 cd sara
 cp config.def.h config.h
-sed -i -E 's/barpx\s+=\s+
-# Mac OS is normally detected and run automatically; however,
-# if you want to do something unusual, a manual boot stanza may
-# be the way to do it. This one does nothing very unusual, but
-# it may serve as a starting point. Note that you'll almost
-# certainly need to change the "volume" line for this example
-# to work.
-menuentry "My macOS" {
-    icon \EFI\refind\icons\os_mac.png
-    volume "macOS boot"
-    loader \System\Library\CoreServices\boot.efi
-    disabled
-}
-18/barpx\t\t\t= 0/g' config.h # set top bar to 0
+sed -i -E 's/barpx\s+=\s+18/barpx\t\t\t= 0/g' config.h # set top bar to 0
 grep barpx config.h # check
 make
 sudo make install
@@ -208,19 +185,8 @@ sudo make install
 [st - fork of suckless' simple terminal](https://github.com/LukeSmithxyz/st) as there would be no terminal otherwise
 
 ```bash
-git clone https://github.
-# Mac OS is normally detected and run automatically; however,
-# if you want to do something unusual, a manual boot stanza may
-# be the way to do it. This one does nothing very unusual, but
-# it may serve as a starting point. Note that you'll almost
-# certainly need to change the "volume" line for this example
-# to work.
-menuentry "My macOS" {
-    icon \EFI\refind\icons\os_mac.png
-    volume "macOS boot"
-    loader \System\Library\CoreServices\boot.efi
-    disabled
-}
+git clone https://github.com/LukeSmithxyz/st.git
+```
 
 [dmenu - "super+d" for mini menu](https://tools.suckless.org/dmenu/)
 
