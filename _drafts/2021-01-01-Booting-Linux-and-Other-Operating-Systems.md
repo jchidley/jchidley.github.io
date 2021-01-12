@@ -1,19 +1,19 @@
 ---
-date: "2020-01-15"
-title: "Booting Linux and Operating System Choice"
+date: "2021-01-01"
+title: "Booting Linux and Other Operating Systems"
 ---
 
 <!-- markdownlint-disable MD025 -->
-# Booting Linux and Operating System Choice
+# Booting Linux and Other Operating Systems
 <!-- markdownlint-enable MD025 -->
 
 ## Introduction
 
-I want to install multiple operating systems on my computer and choose which one to boot with the minimum amount of fuss.  I had thought that this was a solved problem.  How wrong I was.
+I want to install multiple operating systems (mostly Linux and Windows) on my computer and choose which one to boot with the without any fuss. I had thought that this was a solved problem. How wrong I was.
 
-I have converted my computers, even the old ones, to UEFI to make things consistent.  At a pinch, I can boot MBR disks.  My target operating systems are Linux and Windows.
+I have converted my computers, even the old ones, to UEFI to make things consistent. At a pinch, I can boot MBR disks.
 
-What I have learned is that booting is it's own process.  It's best to use programs that are designed to run in the UEFI environment directly and not things provided by any operating system.  Every operating system takes booting very seriously and each is liable to make decisions about booting which may interefere with other operating systems' ability to boot.  GRUB for example has it's own boot loader and I've found that Ubuntu's version of GRUB will not boot Arch Linux successfully - giving "Authentication Errors" when I tried to login.
+Booting a single operating system isn't trivial - just try to discover, in detail, how it's done for your favourite and you'll see what I mean (for example [Linux bootdisk](https://tldp.org/HOWTO/Bootdisk-HOWTO/index.html)). It's best to use programs that are designed to run in the UEFI environment directly and not things provided by any operating system. Because booting is a critical part of an operating systems, every single system is very particular how they do it and, generally, assumes that they have complete control over every part of the process and usually use a bootloader to do it. This means that operating systems usually interfere with other operating system's ability to boot sucessfully. [GRUB](https://www.gnu.org/software/grub/manual/grub/grub.html) is a popular choice for bootloader and I've found that Ubuntu's version of GRUB will not boot Arch Linux successfully - giving "Authentication Errors" when I tried to login.
 
 ## Booting Sequence
 
@@ -23,9 +23,9 @@ Keeping things simple, I use only UEFI capable hardware.  The proccess is:
 1. If it's an EFI bootable operating system, you're done.
 1. If it is a "boot manager" - they're generally not good managers - or "boot loader" - ditto - then this runs and gives its choices.  This process repeats until an operating system is booted.
 
-## Perscriptive Advice
+## Advice
 
-The steps below will ensure that the computer will always boot and can resuce mistakes.  It requires manually copying files from each operating system's normal boot localion to the EFI system partition.  A small price to pay for predictability.
+The steps below will ensure that the computer will always boot and that mistakes can be fixed. It requires manually copying files from each operating system's normal boot localion to the EFI system partition. A small price to pay for predictability.
 
 1. Boot from a Linux live or installation USB of some sort
 1. Create a 1GB EFI system partition formatted to fat32
@@ -68,21 +68,22 @@ bcdedit /v
 
 ## UEFI Shell
 
-I have found that shells, and other pre-opeating system utilties/enviroments like boot managers, need to be installed from the original sources.  Operating system providers tend to customise these things and hence they don't always work with other operating systems.
+I have found that EFI shells, and other pre-opeating system utilties/enviroments like boot managers, need to be installed from the original sources to work properly.
 
-[TianoCore](https://www.tianocore.org/) provides "an open source implementation of the Unified Extensible Firmware Interface" and a release can be downloaded [here](https://github.com/tianocore/edk2/releases).  I put mine in the root of the EFI partion in /UefiShell and ran this to add it to NVRAM, same process as to add an operating system, above.
+[TianoCore](https://www.tianocore.org/) provides "an open source implementation of the Unified Extensible Firmware Interface". Releases can be downloaded [here](https://github.com/tianocore/edk2/releases) but these are now source code only. [Feb 2020](https://github.com/tianocore/edk2/releases/download/edk2-stable202002/ShellBinPkg.zip) is the most recent binary release.
 
 ```shell
-rsync -r /mnt/ShellBinPkg/UefiShell /boot/efi/
+cd ~/Downloads
+wget https://github.com/tianocore/edk2/releases/download/edk2-stable202002/ShellBinPkg.zip # The last binary version
+unzip ShellBinPkg.zip
+sudo rsync -r ShellBinPkg/UefiShell /boot/efi/
 cd /boot/efi
 efibootmgr -c -l -v UefiShell/X64/Shell.efi -L "TianoCore UEFI Shell" # works if relative 
-efibootmgr --disk /dev/sda --part 1 --create --label "TianoCore UEFI Shell" --loader  --verbose
+efibootmgr --disk /dev/sda --part 1 --create --label "TianoCore UEFI Shell" --loader  --verbose # a single long line 
 ```
 
-Note: this is a single long line.
-
 Here are some useful EFI commands:
-Merge 20200312
+
 1. `help -b` the -b is for output pagination.
 1. `mode` to view and change the number of lines and columns displayed.
 1. `map` displays some of the devices available.  On my system there's a series of drives labelled `FS0` (for UEFI known file systems), `BLK1` (block devices), etc.
@@ -91,11 +92,8 @@ Merge 20200312
 
 To actually boot things requires that:
 
-1. You know the EFI command to run your operating system.  The command needs to be a single line e.g.  
-`vmlinuz-linux root=/dev/sda5 rw inMerge 20200312itrd=/Arch3/intel-ucode.img initrd=/Arch3/initramfs-linux.img`.  
-The directories are relative the root of the EFI System Parition
-1. Create an `nsh` script file in the root directory, like `Arch5.nsh`, to select the right directory and run the boot command.  This can be created using your operating system or using `edit` from the shell itself.  
-It's best to do only minor editing in the EFI shell as this can be tedious and error prone.
+1. You know the EFI command to run your operating system.  The command needs to be a single line e.g. [ `vmlinuz-linux root=/dev/sda5 rw initrd=/Arch3/intel-ucode.img initrd=/Arch3/initramfs-linux.img` ]. The directories are relative the root of the EFI System Parition
+1. Create an `nsh` script file in the root directory, like `Arch5.nsh`, to select the right directory and run the boot command.  This can be created using your operating system or using `edit` from the shell itself. Using the EFI shell's `edit` is slow and error prone.
 1. Run the script to boot your operating system.  It is possible to type the whole boot command at the EFI prompt.  Up to you.
 1. This is enough to run the everything.  But a Boot manager might be nice.
 1. `startup.nsh` in the root of the EFI system drive will be booted by default.  See [Arch's description](https://wiki.archlinux.org/index.php/EFISTUB#Using_a_startup.nsh_script).
@@ -104,17 +102,17 @@ Any UEFI specific program can be run within the UEFI shell, say device drivers a
 
 ## Boot Managers
 
-Just like for the UEFI shell, you should get these direct from the original providers.  It's a small price to pay to have to manually update them vs the potential to be customized in unusal ways to be overwritten during udpates.
+Just like for the UEFI shell, you should get these direct from the original providers. It's a small price to pay to have to manually update them. If it's installed by an operating system, then you lose control over the boot process - who knows what will happen when the operating system updates itself.
 
 ### rEFInd
 
-[rEFInd](http://www.rodsbooks.com/refind/) can be downloaded [here](https://sourceforge.net/projects/refind/files/0.11.5/refind-bin-0.11.5.zip/download).  The `download` file needs to be unzipped.
+[rEFInd](http://www.rodsbooks.com/refind/) can be downloaded [here](http://www.rodsbooks.com/refind/getting.html). Once `unzip`ed it needs to be moved to the refind directory on the EFI partition.
 
 ```shell
-cd ~
-wget https://sourceforge.net/projects/refind/files/0.11.5/refind-bin-0.11.5.zip/download
-unzip download # this is actually the refind-bin-0.11.5.zip file
-sudo rsync -r ~/refind-bin-0.11.5/refind/* /boot/efi/refind
+cd ~/Downloads
+wget https://sourceforge.net/projects/refind/files/latest/download # it is possible to download it directly like this but not recommended
+unzip download # the filename as used by wget (last part)
+sudo rsync -r ~/Downloads/refind-bin-0.12.0/refind/* /boot/efi/refind # 12.0 is the current version
 mv refind.conf-sample refind.conf
 nano refind.conf
 cd /boot/efi
@@ -164,4 +162,3 @@ Change the boot order back to the original state boot `efibootmgr -o` and refind
 * [Using the UEFI Shell - PDF](https://uefi.org/sites/default/files/resources/Insyde_Using_the_UEFI_Shell.pdf)
 * [Binary Release of the UEFI Shell](https://github.com/tianocore/edk2/releases)
 * [rEFInd - offical site including lots of useful UEFI, secure boot and related information](http://www.rodsbooks.com/refind/)
-* [rEFInd download](https://sourceforge.net/projects/refind/files/0.11.4/)
