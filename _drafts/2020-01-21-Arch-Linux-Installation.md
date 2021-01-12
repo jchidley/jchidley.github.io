@@ -9,11 +9,11 @@ title: "Arch Linux Installation"
 
 ## Introduction
 
-A set of instructions to get up and running with Arch Linux.  Arch installation instructions are on the [Wiki](https://wiki.archlinux.org/index.php/Installation_guide).  This is my pithy guide to how I do it.
+My pithy guide to setup Arch Linux. The official Arch installation instructions are on the [Wiki](https://wiki.archlinux.org/index.php/Installation_guide).
 
 ## Booting
 
-Boot from a USB media or run `pacman -S arch-install-scripts` (or similar) to get the standard installation scripts from a running Linux system.
+Boot from a USB media or run `pacman -S arch-install-scripts` to get the standard Linux installation scripts.
 
 ```bash
 timedatectl set-ntp true
@@ -21,15 +21,15 @@ timedatectl set-ntp true
 
 ## Disk sizing and setup
 
-To get the block size of disks `blockdev --getsz /dev/sda`: the smallest 2GB SD Card that I own has 3840000 512 byte blocks.
+Get the block size of disks `blockdev --getsz /dev/sda` the smallest 2GB SD card that I own has 3840000 512 byte blocks.
 
 To get progress of `sync` run `watch -d grep -e Dirty: -e Writeback: /proc/meminfo`
 
-setup disks - I use a single disk for the whole operating system and a 1GB partition at the beginning of the desk as the EFI partition.  In my view, operating systems should be disposable, so the more self contained they are the better.  Data, and  possibly user settings, should be very carefully looked after.  I try to avoid using any swapfiles by installing lots of RAM in the first place and building a minimal system.
+I use a single disk for the whole operating system and a 1GB partition at the beginning of the disk as the EFI partition. In my view, operating systems should be disposable, so the more self-contained they are the better. Data, and  possibly user settings, should be very carefully looked after. I avoid using any swapfiles by installing lots of RAM in the first place and building a minimal system.
 
 ## pacstrap
 
-Mount the correct drives and install a minimal system.  Enough to chroot and setup pacman properly.
+Mount the correct drives and install a minimal system. Enough to chroot and setup pacman properly.
 
 ```bash
 mount /dev/sda2 /mnt # substitute /dev/sda2 as needed
@@ -150,7 +150,7 @@ If it boots correctly, then...
 efibootmgr -o 4,1,2 # reorder the boot once it has worked
 ```
 
-As a fail safe, can create a ```startup.nsh``` file containing this single long line
+As a fail safe, can create a `startup.nsh` file containing this single long line
 
 ```bash
 \vmlinuz-linux root=/dev/sda2 rw initrd=\initramfs-linux.img
@@ -166,7 +166,7 @@ localectl --no-convert set-x11-keymap gb # UK keyboard layout
 setxkbmap gb # X11 current session only
 ```
 
-[sara - simple and lightweight tiling window manager](https://github.com/gitluin/sara)
+[sara - lightweight tiling window manager](https://github.com/gitluin/sara)
 
 ```bash
 git clone https://github.com/gitluin/sara.git
@@ -178,13 +178,11 @@ make
 sudo make install
 ```
 
-[st - fork of suckless' simple terminal](https://github.com/LukeSmithxyz/st)
+[st - fork of suckless' simple terminal](https://github.com/LukeSmithxyz/st) as there would be no terminal otherwise
 
 ```bash
 git clone https://github.com/LukeSmithxyz/st.git
 ```
-
-no terminal otherwise
 
 [dmenu - "super+d" for mini menu](https://tools.suckless.org/dmenu/)
 
@@ -212,7 +210,7 @@ st & # start with a terminal on screen
 exec sara # or another display manager
 ```
 
-If you don't load the correct drivers, you get an unhelpful set of errors including `xinit: unable to connect to X server: Connection refused`.
+If you don't load the correct drivers, you get an unhelpful set of errors including `xinit: unable to connect to X server: Connection refused`. Also, don’t run X as root.
 
 ```bash
 pacman -S firefox # web browser
@@ -282,7 +280,7 @@ usbutils
 vi
 visual-studio-code-bin
 wget
-xf86-video-intelsuckless
+xf86-video-intel
 EOF
 ```
 
