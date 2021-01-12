@@ -44,6 +44,7 @@ arch-chroot /mnt
 ## Language
 
 Needs to be moved to after booting for the first time
+
 ```bash
 vi /etc/locale.gen
 # uncomment the line "en_GB.UTF-8 UTF-8"
@@ -159,7 +160,7 @@ As a fail safe, can create a `startup.nsh` file containing this single long line
 
 ## GUI
 
-pacman-S base-develop
+pacman -S base-devel
 
 ```bash
 pacman -S xorg-server xfce4
@@ -173,6 +174,7 @@ setxkbmap gb # X11 current session only
 [sara - lightweight tiling window manager](https://github.com/gitluin/sara)
 
 ```bash
+pacman -S libxft libxinerama # and for dmenu
 git clone https://github.com/gitluin/sara.git
 cd sara
 cp config.def.h config.h
@@ -185,18 +187,21 @@ sudo make install
 [st - fork of suckless' simple terminal](https://github.com/LukeSmithxyz/st) as there would be no terminal otherwise
 
 ```bash
+pacman -S libxext ncurses # from sara install libxft
 git clone https://github.com/LukeSmithxyz/st.git
 ```
 
 [dmenu - "super+d" for mini menu](https://tools.suckless.org/dmenu/)
 
 ```bash
+# same requirement as sara
 git clone https://git.suckless.org/dmenu
 ```
 
 [sxhkd - X daemon for input events - keyboard, mouse](https://github.com/baskerville/sxhkd)
 
 ```bash
+pacman -S libxcb xcb-util-keysyms xcb-util
 git clone https://github.com/baskerville/sxhkd.git
 cd sxhkd
 make
