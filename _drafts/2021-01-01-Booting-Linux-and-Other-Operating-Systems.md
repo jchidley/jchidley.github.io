@@ -105,21 +105,21 @@ Just like for the UEFI shell, you should get these direct from the original prov
 
 ### rEFInd
 
-[rEFInd](http://www.rodsbooks.com/refind/) can be downloaded [here](http://www.rodsbooks.com/refind/getting.html). Once `unzip`ed it needs to be moved to the refind directory on the EFI partition.
+[rEFInd](http://www.rodsbooks.com/refind/) can be downloaded [here](http://www.rodsbooks.com/refind/getting.html). Once `unzip`ed it needs to be moved to the refind directory on the EFI partition. Linux [quickstart](https://www.rodsbooks.com/refind/linux.html#quickstart) configuration.
 
 ```shell
 cd ~/Downloads
 wget https://sourceforge.net/projects/refind/files/latest/download # it is possible to download it directly like this but not recommended
 unzip download # the filename as used by wget (last part)
+~/Downloads/refind-bin-0.12.0/mkrlconf # will make a refind_linux.conf in the /boot directory
 sudo rsync -r ~/Downloads/refind-bin-0.12.0/refind/* /boot/efi/refind # 12.0 is the current version
-cd /boot/efi/refind
-cp refind.conf-sample refind.conf
-nano refind.conf
-cd /boot/efi
 efibootmgr --disk /dev/sda --part 1 --create --label "rEFInd" --loader /refind/refind_x64.efi --verbose
 ```
 
-sample menu items in refind.conf, added at the bottom
+edit /boot/refind_linux.conf and add `initrd=boot\intel-ucode.img initrd=boot\initramfs-linux.img` to each of the lines.
+
+Might also want to add sample menu items to refind.conf, copied from `refind.conf-sample`, at the bottom of the file.
+
 ```bash
 menuentry "nuc3arch1" {
     icon     /refind/icons/os_arch.png
@@ -141,7 +141,14 @@ menuentry "TianoCore UEFI Shell" {
 }
 ```
 
-Change the boot order back to the original state boot `efibootmgr -o` and refind on the next boot `efibootmgr -n` for testing
+Change the boot order back to the original state boot `efibootmgr -o` and refind on the next boot `efibootmgr -n` for testing.
+
+If Arch Linux boots into an emergency shell because it cannot find the root partition, then:
+
+```bash
+mount /dev/sda2 new_root # or /dev/disk/by-id/...
+exit
+```
 
 <!-- markdownlint-disable MD034 -->
 * (https://en.wikipedia.org/wiki/Linux_startup_process)
@@ -162,6 +169,8 @@ Change the boot order back to the original state boot `efibootmgr -o` and refind
 
 ## Links
 
+* [Inside the Linux boot process](https://developer.ibm.com/articles/l-linuxboot/)
+* [Inspecting the content of an initrd file](https://www.ducea.com/2006/06/24/inspecting-the-content-of-an-initrd-file/)
 * [The Kernel Newbie Corner: "Initrd" And "Initramfs"–What’s Up With That?](https://www.linux.com/tutorials/kernel-newbie-corner-initrd-and-initramfs-whats/)
 * [The BIOS/MBR Boot Process](https://neosmart.net/wiki/mbr-boot-process/)
 * [Shim and secure boot - fedora](https://docs.fedoraproject.org/en-US/Fedora/18/html/UEFI_Secure_Boot_Guide/sect-UEFI_Secure_Boot_Guide-Implementation_of_UEFI_Secure_Boot-Shim.html)
