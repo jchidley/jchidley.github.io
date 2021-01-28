@@ -54,3 +54,22 @@ Windows. The solution was to run this command:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 git config --global core.autocrlf true
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+## ssh usage
+
+[Connecting to GitHub with SSH](https://docs.github.com/en/github/authenticating-to-github/connecting-to-github-with-ssh)
+
+```bash
+ssh-keygen -t ed25519 -C "name@example.com"
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_ed25519
+cat ~.ssh/id_ed25519.pub # copy to clipboard
+ssh -T git@github.com
+cd jchidley.github.io/
+git remote --verbose
+git remote set-url  --push origin git@github.com:jchidley/jchidley.github.io.git
+git config pull.rebase true
+git pull
+git config --global user.name "Jack Chidley"
+git config --global user.email 7399749+jchidley@users.noreply.github.com # account settings in GitHub, no reply email
+```
