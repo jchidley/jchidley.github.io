@@ -31,23 +31,16 @@ We're going to install Alpine in "diskless" mode and use overlay files.  Prepare
 
 ```bash
 sudo su
-export PIDEVICE=/dev/sda # get the correct device from `cat /proc/partitions` or `df -h`
-umount ${PIDEVICE}1
-umount ${PIDEVICE}2 # many linuxes automount
-# clear out old partition
-# simulating manual input
-# 
+cd
+export PIDEVICE=/dev/sdX # get the correct device from `cat /proc/partitions` or `df -h`
+umount ${PIDEVICE}{1,2} # many linuxes automount
+# clear the old drive
+wipefs -a ${PIDEVICE} #  -a, --all wipe all magic strings (BE CAREFUL!)
 # The `sed` script uses the first string of continuous 
 # letters and digits after optional spaces, 
 # This, in efffect, strips the comments, allowing for in-line comments.
 # Note that sending nothing (or spaces) will send a newline
 # usually selecting the defaul value.
-sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | fdisk ${PIDEVICE}
-  o # create a new empty DOS partition table
-  w # write table to disk and exit
-EOF
-sync # make sure that partition table is read by OS
-# Create partitions manually using `fdisk` and an "answer file"
 sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | fdisk ${PIDEVICE}
   o # create a new empty DOS partition table
   n # new partition
@@ -67,13 +60,27 @@ sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | fdisk ${PIDEVICE}
 EOF
 ```
 
+or use `sfdisk`.
+
 ```bash
-mkfs.vfat ${PIDEVICE}1
-mkfs.ext2 ${PIDEVICE}2
-mkdir /mnt/piboot
-mount ${PIDEVICE}1 /mnt/piboot
+sfdisk ${PIDEVICE} << eof
+,$((2048*1024)),c
+;
+eof
+```
+
+```bash
+mkfs.fat ${PIDEVICE}1
+mkfs.ext2 ${PIDEVICE}2 # unnecessary
+# armv7 works on every Pi except the first Model A and Model B
+wget https://dl-cdn.alpinelinux.org/alpine/v3.13/releases/armv7/alpine-rpi-3.13.0-armv7.tar.gz
+mkdir delete_me
+mount ${PIDEVICE}1 delete_me
 # download the correct alpine linux from the web site
-tar -xvf /home/pi/Downloads/alpine-rpi-3.12.1-aarch64.tar.gz -C /mnt/piboot --no-same-owner
+tar -xvf alpine-rpi-3.13.0-armv7.tar.gz -C delete_me --no-same-owner
+umount delete_me
+rm -d delete_me
+sync
 ```
 
 To find out the correct options, run `setup-alpine -c answerfile.txt` on a newly booted Alpine system.
