@@ -114,3 +114,33 @@
 
 
 [How do I install an insulation vapour barrier?](http://www.superhomes.org.uk/resources/insulation-vapour-barrier/)
+
+[Lecture Notes | Mechanics & Materials I | Mechanical Engineering | MIT OpenCourseWare](https://ocw.mit.edu/courses/mechanical-engineering/2-001-mechanics-materials-i-fall-2006/lecture-notes/)
+[Introduction to Cored Composite Structures | Explore Composites!](https://explorecomposites.com/articles/design-for-composites/basics-cored-structures/)
+[Welcome to Explore Composites! | Explore Composites!](https://explorecomposites.com/)
+[Roof Vents - Easy Solutions to Roof Ventilation](https://www.fixmyroof.co.uk/roof-vents/)
+[How do I install an insulation vapour barrier?](http://www.superhomes.org.uk/resources/insulation-vapour-barrier/)
+[PS - The World’s Opinion Page - Project Syndicate](https://www.project-syndicate.org/)
+[SDG Electronics - An Electronics Text and Video Blog](https://sdgelectronics.co.uk/)
+[Load testing](https://web.archive.org/web/20160301081951/http://bethandevans.com/load.htm)
+
+
+
+[GitHub - Obijuan/open-fpga-verilog-tutorial: Learn how to design digital systems and synthesize them into an FPGA using only opensource tools](https://github.com/Obijuan/open-fpga-verilog-tutorial)
+[GitHub - EnigmaCurry/SAP: A very simple computer written in Verilog, with a Python test bench](https://github.com/EnigmaCurry/SAP)
+[GitHub - ellisgl/sap-1-v2-mojo: SAP-1 CPU in Verilog for the Mojo FPGA board - has seperate address bus.](https://github.com/ellisgl/sap-1-v2-mojo)
+[technogeek: SAP simple as possible computer Malvino: Verilog code](http://technoembed.blogspot.com/2014/01/sap-simple-as-possible-computer-malvino.html)
+
+[Cellular Solids: Structure, Properties and Applications | Materials Science and Engineering | MIT OpenCourseWare](https://ocw.mit.edu/courses/materials-science-and-engineering/3-054-cellular-solids-structure-properties-and-applications-spring-2015/)
+[The Science Behind the Bike - OpenLearn - Open University](https://www.open.edu/openlearn/science-maths-technology/engineering-technology/the-science-behind-the-bike#)
+[Document neat CM4 projects/accessories · Issue #25 · geerlingguy/raspberry-pi-pcie-devices · GitHub](https://github.com/geerlingguy/raspberry-pi-pcie-devices/issues/25)
+[StereoPi v2 - CM4-based DIY stereoscopic camera | Hackaday.io](https://hackaday.io/project/175788-stereopi-v2-cm4-based-diy-stereoscopic-camera)
+[Title](https://ocw.mit.edu/courses/materials-science-and-engineering/3-054-cellular-solids-structure-properties-and-applications-spring-2015/lecture-notes/MIT3_054S15_L18_Nat_trans.pdf)
+[Mechanics & Materials I | Mechanical Engineering | MIT OpenCourseWare](https://ocw.mit.edu/courses/mechanical-engineering/2-001-mechanics-materials-i-fall-2006/)
+[Tensors — PyTorch Tutorials 1.8.0 documentation](https://pytorch.org/tutorials/beginner/blitz/tensor_tutorial.html#sphx-glr-beginner-blitz-tensor-tutorial-py)
+[Slicing – #3DBenchy](http://www.3dbenchy.com/category/software/slicing/)
+[Deep Learning with PyTorch: A 60 Minute Blitz — PyTorch Tutorials 1.8.0 documentation](https://pytorch.org/tutorials/beginner/deep_learning_60min_blitz.html)
+[woodworking.digital – a digital woodworking blog](https://www.woodworking.digital/)
+
+[GitHub - alicevision/meshroom: 3D Reconstruction Software](https://github.com/alicevision/meshroom)
+[Releases · alicevision/meshroom · GitHub](https://github.com/alicevision/meshroom/releases)
