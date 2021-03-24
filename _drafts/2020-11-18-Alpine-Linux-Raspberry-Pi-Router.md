@@ -176,6 +176,8 @@ rc-service dropbear start
 lbu ci -d
 ```
 
+### OverlayFS
+
 ```bash
 ssh root@10.3.151.102
 mkdir /media/mmcblk0p2
@@ -183,10 +185,7 @@ echo "/dev/mmcblk0p2 /media/mmcblk0p2 ext4 rw,relatime,errors=remount-ro 0 0" >>
 mount -a
 mkdir /media/mmcblk0p2/home
 mkdir /media/mmcblk0p2/.workhome
-mkdir /media/mmcblk0p2/var
-mkdir /media/mmcblk0p2/.workvar
 echo "overlay /home overlay lowerdir=/home,upperdir=/media/mmcblk0p2/home,workdir=/media/mmcblk0p2/.workhome 0 0" >> /etc/fstab 
-echo "overlay /var overlay lowerdir=/var,upperdir=/media/mmcblk0p2/var,workdir=/media/mmcblk0p2/.workvar 0 0" >> /etc/fstab 
 mount -a
 df # check overlays are mounted
 adduser jack --home /home/jack
