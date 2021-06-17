@@ -1,5 +1,5 @@
 ---
-date: "2020-01-15"
+date: "2021-06-17"
 title: "Arch Linux Installation"
 ---
 
@@ -158,72 +158,11 @@ As a fail safe, can create a `startup.nsh` file containing this single long line
 \vmlinuz-linux root=/dev/sda2 rw initrd=\initramfs-linux.img
 ```
 
+
+
 ## GUI
 
-pacman -S base-devel
-
-```bash
-pacman -S xorg-server xfce4
-pacman -S xf86-video-intel # card specific video drivers
-pacman -S nvidia-390xx # legacy driver front room
-pacman -S xorg-xinit # startx
-localectl --no-convert set-x11-keymap gb # UK keyboard layout
-setxkbmap gb # X11 current session only
-```
-
-[sara - lightweight tiling window manager](https://github.com/gitluin/sara)
-
-```bash
-pacman -S libxft libxinerama # and for dmenu
-git clone https://github.com/gitluin/sara.git
-cd sara
-cp config.def.h config.h
-sed -i -E 's/barpx\s+=\s+18/barpx\t\t\t= 0/g' config.h # set top bar to 0
-grep barpx config.h # check
-make
-sudo make install
-```
-
-[st - fork of suckless' simple terminal](https://github.com/LukeSmithxyz/st) as there would be no terminal otherwise
-
-```bash
-pacman -S libxext ncurses # from sara install libxft
-git clone https://github.com/LukeSmithxyz/st.git
-```
-
-[dmenu - "super+d" for mini menu](https://tools.suckless.org/dmenu/)
-
-```bash
-# same requirement as sara
-git clone https://git.suckless.org/dmenu
-```
-
-[sxhkd - X daemon for input events - keyboard, mouse](https://github.com/baskerville/sxhkd)
-
-```bash
-pacman -S libxcb xcb-util-keysyms xcb-util
-git clone https://github.com/baskerville/sxhkd.git
-cd sxhkd
-make
-sudo make install
-mkdir -p ~/.config/sxhkd
-cp ~/sara/examples/sxhkdrc ~/.config/sxhkd/sxhkdrc
-```
-
-`~/.xinitrc`
-
-```bash
-setxkbmap -layout gb
-sxhkd -c & # enable keys e.g. 'super-d' for dmenu
-st & # start with a terminal on screen
-exec sara # or another display manager
-```
-
-If you don't load the correct drivers, you get an unhelpful set of errors including `xinit: unable to connect to X server: Connection refused`. Also, don’t run X as root.
-
-```bash
-pacman -S firefox # web browser
-```
+See 2021-06-15-Arch-Linux-GUI-VNC
 
 ## Extras
 
@@ -299,14 +238,8 @@ EOF
 
 * [Arch Installation](https://wiki.archlinux.org/index.php/Install_Arch_Linux_from_existing_Linux)
 "Method B: Using the LiveCD image" files [here](https://mirror.bytemark.co.uk/archlinux/iso/2020.01.01/arch/x86_64/), for example
-* [Arch Linux Instllation](https://wiki.archlinux.org/index.php/Installation_guide)
 * [Intel Graphics](https://wiki.archlinux.org/index.php/intel_graphics)
 * [AUR - Arch User Repository](https://wiki.archlinux.org/index.php/Arch_User_Repository)
-* [tbsm - minimal display manager](https://aur.archlinux.org/packages/tbsm/)
-* [st - simple terminal](https://st.suckless.org)
-* [Alacritty - graphics accellerated terminal](https://github.com/alacritty/alacritty)
-* [Xorg/Keyboard configuration - ArchWiki](https://wiki.archlinux.org/index.php/Xorg/Keyboard_configuration)
-* [st fonts](https://wiki.archlinux.org/index.php/st#Font)
 * [Symbol fonts for linux terminals](https://c42f.github.io/2015/12/29/crisp-terminal-fonts.html)
 * [Fonts - Arch Linux](https://wiki.archlinux.org/index.php/Fonts#Font_packages)
 * [Pacman Tip and Tricks](https://wiki.archlinux.org/index.php/Pacman/Tips_and_tricks)
