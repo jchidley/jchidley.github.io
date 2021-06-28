@@ -10,6 +10,39 @@ title: "Python Apple"
 
 Use `pyenv` and `pyenv-virtualenv` to setup python seperately from the system's python and create virtual python instances that automatically start when you `cd` to specific directories.
 
+* [Manage Jupyter Notebook and JupyterLab with Systemd - Parametric Thoughts](https://janakiev.com/blog/jupyter-systemd/)
+
+* [Python Programming And Numerical Methods: A Guide For Engineers And Scientists — Python Numerical Methods](https://pythonnumericalmethods.berkeley.edu/notebooks/Index.html)
+* [Try/Except — Python Numerical Methods](https://pythonnumericalmethods.berkeley.edu/notebooks/chapter10.03-Try-Except.html)
+* [Study Guide: Intro to Computing with Finite Difference Methods](http://hplgit.github.io/INF5620/doc/pub/lecture_decay-1.html#5620:about)
+* [StrictYAML - HitchDev](https://hitchdev.com/strictyaml/)
+* [Build a YAML document from scratch in code - HitchDev](https://hitchdev.com/strictyaml/using/alpha/howto/build-yaml-document/)
+
+## Visitors
+
+### Python Cookbook
+
+All of this predates Python 3.4 when singledispatch-functools first appeared
+
+8.21. Implementing the Visitor Pattern
+8.22. Implementing the Visitor Pattern Without Recursion
+9.24. Parsing and Analyzing Python Source
+
+* [Arpeggio/__init__.py at master · textX/Arpeggio · GitHub](https://github.com/textX/Arpeggio/blob/master/arpeggio/__init__.py)
+* [Semantic analysis - Arpeggio](http://textx.github.io/Arpeggio/stable/semantics/)
+
+* [WHY YOU DON’T NEED DESIGN PATTERNS IN PYTHON?](https://ep2017.europython.eu/media/conference/slides/why-you-dont-need-design-patterns-in-python.pdf)
+* [Function overloading with singledispatch-functools - GeeksforGeeks](https://www.geeksforgeeks.org/function-overloading-with-singledispatch-functools/)
+* [functools — Higher-order functions and operations on callable objects — Python 3.9.5 documentation](https://docs.python.org/3/library/functools.html)
+* [How can I use functools.singledispatch with instance methods? | Newbedev](https://newbedev.com/how-can-i-use-functools-singledispatch-with-instance-methods)
+* [Generic Functions with Python’s Singledispatch | Red’s Digressions](https://rednafi.github.io/digressions/python/2020/04/05/python-singledispatch.html)
+* [2.1. What is Data? — Python: From None to Machine Learning](https://python.astrotech.io/machine-learning/introduction/data.html)
+* [PEP 443 — Single-dispatch generic functions | Python.org](https://www.python.org/dev/peps/pep-0443/)
+* [PEP 318 — Decorators for Functions and Methods | Python.org](https://www.python.org/dev/peps/pep-0318/)
+* [Python Advanced: Easy Introduction into Decorators and Decoration](https://www.python-course.eu/python3_decorators.php)
+* [Primer on Python Decorators – Real Python](https://realpython.com/primer-on-python-decorators/)
+* [Python Class Method Decorator @classmethod](https://www.tutorialsteacher.com/python/classmethod-decorator)
+
 ## Links
 
 ### iPad
