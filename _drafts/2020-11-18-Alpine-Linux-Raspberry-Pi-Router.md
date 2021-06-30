@@ -32,7 +32,7 @@ We're going to install Alpine in "diskless" mode and use overlay files.  Prepare
 ```bash
 sudo su
 cd
-export PIDEVICE=/dev/sdX # get the correct device from `cat /proc/partitions` or `df -h`
+PIDEVICE=/dev/sdX # get the correct device from `cat /proc/partitions` or `df -h`
 umount ${PIDEVICE}{1,2} # many linuxes automount
 # clear the old drive
 wipefs -a ${PIDEVICE} #  -a, --all wipe all magic strings (BE CAREFUL!)
@@ -67,6 +67,7 @@ sfdisk ${PIDEVICE} << eof
 ,$((2048*1024)),c
 ;
 eof
+sfdisk -V ${PIDEVICE}
 ```
 
 ```bash
@@ -74,12 +75,12 @@ mkfs.fat ${PIDEVICE}1
 mkfs.ext2 ${PIDEVICE}2 # unnecessary
 # armv7 works on every Pi except the first Model A and Model B
 wget https://dl-cdn.alpinelinux.org/alpine/v3.13/releases/armv7/alpine-rpi-3.13.0-armv7.tar.gz
-mkdir delete_me
-mount ${PIDEVICE}1 delete_me
+tdir="$(mktemp -d /tmp/alpine_install.XXXXXX)"
+mount ${PIDEVICE}1 $tdir
 # download the correct alpine linux from the web site
-tar -xvf alpine-rpi-3.13.0-armv7.tar.gz -C delete_me --no-same-owner
-umount delete_me
-rm -d delete_me
+tar -xvf alpine-rpi-3.13.0-armv7.tar.gz -C $tdir --no-same-owner
+umount $tdir
+rm -d $tdir
 sync
 ```
 
