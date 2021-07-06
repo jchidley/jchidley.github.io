@@ -42,6 +42,11 @@ All of this predates Python 3.4 when singledispatch-functools first appeared
 * [WHY YOU DON’T NEED DESIGN PATTERNS IN PYTHON?](https://ep2017.europython.eu/media/conference/slides/why-you-dont-need-design-patterns-in-python.pdf)
 * [Function overloading with singledispatch-functools - GeeksforGeeks](https://www.geeksforgeeks.org/function-overloading-with-singledispatch-functools/)
 * [functools — Higher-order functions and operations on callable objects — Python 3.9.5 documentation](https://docs.python.org/3/library/functools.html)
+* [Built-in Functions — Python 3.9.5 documentation](https://docs.python.org/3/library/functions.html#staticmethod)
+* [Glossary — Python 3.9.5 documentation](https://docs.python.org/3/glossary.html)
+* [PEP 614 — Relaxing Grammar Restrictions On Decorators | Python.org](https://www.python.org/dev/peps/pep-0614/)
+* [PEP 3119 — Introducing Abstract Base Classes | Python.org](https://www.python.org/dev/peps/pep-3119/)
+* [3. Data model — Python 3.9.5 documentation](https://docs.python.org/3/reference/datamodel.html#emulating-callable-objects)
 * [How can I use functools.singledispatch with instance methods? | Newbedev](https://newbedev.com/how-can-i-use-functools-singledispatch-with-instance-methods)
 * [Generic Functions with Python’s Singledispatch | Red’s Digressions](https://rednafi.github.io/digressions/python/2020/04/05/python-singledispatch.html)
 * [2.1. What is Data? — Python: From None to Machine Learning](https://python.astrotech.io/machine-learning/introduction/data.html)
@@ -50,6 +55,10 @@ All of this predates Python 3.4 when singledispatch-functools first appeared
 * [Python Advanced: Easy Introduction into Decorators and Decoration](https://www.python-course.eu/python3_decorators.php)
 * [Primer on Python Decorators – Real Python](https://realpython.com/primer-on-python-decorators/)
 * [Python Class Method Decorator @classmethod](https://www.tutorialsteacher.com/python/classmethod-decorator)
+
+* [mypy - Optional Static Typing for Python](http://mypy-lang.org)
+* [PyPy: Faster Python With Minimal Effort – Real Python](https://realpython.com/pypy-faster-python/)
+* [PyPy](https://www.pypy.org)
 
 ## Links
 
