@@ -10,6 +10,14 @@ title: "Python Apple"
 
 Use `pyenv` and `pyenv-virtualenv` to setup python seperately from the system's python and create virtual python instances that automatically start when you `cd` to specific directories.
 
+### Testing
+
+don't forget that files need to be called `test_*.py` or `*_test.py`
+
+* [pytest](https://docs.pytest.org/)
+* [Effective Python Testing With Pytest](https://realpython.com/pytest-python-testing/)
+* [Property based testing]https://hypothesis.readthedocs.io/en/latest/
+
 * [Manage Jupyter Notebook and JupyterLab with Systemd - Parametric Thoughts](https://janakiev.com/blog/jupyter-systemd/)
 
 * [Python Programming And Numerical Methods: A Guide For Engineers And Scientists — Python Numerical Methods](https://pythonnumericalmethods.berkeley.edu/notebooks/Index.html)
