@@ -13,6 +13,8 @@ This is a follow up to my earlier posts about building cheap, high performance a
 
 ## Instructions
 
+Network addresses will need to be adjusted. Don't forget, that if you're behind a private network, the 'Martian' addresses will need to be adusted in the firewall.
+
 Look at headless installation
 [GitHub - mesca/alpine_headless: Enable headless installation of Alpine Linux on Raspberry Pi](https://github.com/mesca/alpine_headless)
 [Raspberry Pi - Headless Installation - Alpine Linux](https://wiki.alpinelinux.org/wiki/Raspberry_Pi_-_Headless_Installation)
@@ -74,17 +76,22 @@ sfdisk -V ${PIDEVICE}
 mkfs.fat ${PIDEVICE}1
 mkfs.ext2 ${PIDEVICE}2 # unnecessary
 # armv7 works on every Pi except the first Model A and Model B
-wget https://dl-cdn.alpinelinux.org/alpine/v3.13/releases/armv7/alpine-rpi-3.13.0-armv7.tar.gz
+wget https://dl-cdn.alpinelinux.org/alpine/v3.14/releases/armv7/alpine-rpi-3.14.0-armv7.tar.gz
 tdir="$(mktemp -d /tmp/alpine_install.XXXXXX)"
 mount ${PIDEVICE}1 $tdir
 # download the correct alpine linux from the web site
-tar -xvf alpine-rpi-3.13.0-armv7.tar.gz -C $tdir --no-same-owner
+tar -xvf alpine-rpi-3.14.0-armv7.tar.gz -C $tdir --no-same-owner
 umount $tdir
 rm -d $tdir
 sync
 ```
 
 To find out the correct options, run `setup-alpine -c answerfile.txt` on a newly booted Alpine system.
+
+```bash
+mkdir /mnt/piboot
+mount ${PIDEVICE}1 /mnt/piboot
+```
 
 ```bash
 cat > /mnt/piboot/answerfile.txt << "EOF"
@@ -107,11 +114,12 @@ iface eth0 inet dhcp
 auto eth1
 iface eth1 inet static
     hostname alpine-router
-    address 10.0.0.1
+    address 10.2.0.1 # suitable name
     netmask 255.255.0.0
 "
 
 # `home` is the local domain name and 8.8.8.8 Google public nameserver
+# or ip address of the local name server
 # This will be replaced with custom DNS setup
 DNSOPTS="-d chidley.home -n 8.8.8.8"
 
@@ -180,7 +188,7 @@ lbu ci -d
 ### OverlayFS
 
 ```bash
-ssh root@10.3.151.102
+ssh jack@10.3.151.102 # substitute correct ip address
 mkdir /media/mmcblk0p2
 echo "/dev/mmcblk0p2 /media/mmcblk0p2 ext4 rw,relatime,errors=remount-ro 0 0" >> /etc/fstab
 mount -a
@@ -250,7 +258,7 @@ interface=eth1 # only listen on LAN port
 
 # DHCP range with netmask. This must fit with the
 # netmask/ip address assigned to the (static) interface
-dhcp-range=10.0.1.1,10.0.1.255,255.255.0.0,12h
+dhcp-range=10.2.1.1,10.2.1.255,255.255.0.0,12h
 
 # dhcp-leasefile=/var/lib/misc/dnsmasq.leases
 
@@ -285,7 +293,7 @@ server:
 	interface: ::0
 	root-hints: "/etc/unbound/root.hints"
 	access-control: 127.0.0.0/8 allow
-	access-control: 10.0.0.0/16 allow
+	access-control: 10.2.0.0/16 allow
 	do-not-query-localhost: no
 	domain-insecure: "0.10.in-addr.arpa"
 	domain-insecure: "chidley.home"
@@ -379,6 +387,51 @@ reboot
 
 Once the above works, then see [Traffic Manager for a better "firewall"](2020-01-07-Traffic-Manager-Not-Firewall.html).
 
+
+## Wireless Access Point
+
+https://wiki.alpinelinux.org/wiki/Raspberry_Pi_3_-_Configuring_it_as_wireless_access_point_-AP_Mode 
+
+```bash
+apk add hostapd
+```
+
+edit `/etc/hostapd/hostapd.conf`
+
+```bash
+interface=wlan0
+driver=nl80211
+ssid=C_test
+hw_mode=g
+channel=1
+macaddr_acl=0
+auth_algs=1
+wpa=2
+wpa_key_mgmt=WPA-PSK
+wpa_passphrase=chidley_super_secret
+rsn_pairwise=CCMP
+wpa_pairwise=CCMP
+```
+
+add `interface=wlan0` to `dnsmasq.conf`
+
+add 
+```bash
+auto wlan0
+iface wlan0 inet static
+  address 10.2.0.2
+  netmask 255.255.255.0
+```
+
+to `/etc/network/interfaces`
+
+```bash
+service dnsmasq start
+service hostapd start
+# to test, then
+rc-update add hostapd
+lbu ci -d
+``` 
 ### i2c for RTC
 
 * [Saving time with Hardware Clock](https://wiki.alpinelinux.org/wiki/Saving_time_with_Hardware_Clock)
