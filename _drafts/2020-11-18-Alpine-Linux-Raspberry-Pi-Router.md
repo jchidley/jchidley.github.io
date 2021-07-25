@@ -13,122 +13,18 @@ This is a follow up to my earlier posts about building cheap, high performance a
 
 Network addresses will need to be adjusted. Don't forget, that if you're behind a private network, the 'Martian' addresses will need to be adusted in the firewall.
 
-### On the Build machine
+### Basic Setup
 
-I am using a raspberry pi running Raspbian OS
+see "Alpine Linux Install", need ssh server and the hardware provided Random Number Generator (RNG) Device (hwrng)
 
-[Install Alpine on a Raspberry Pi](https://wiki.alpinelinux.org/wiki/Raspberry_Pi)
-[Classic install or sys mode on Raspberry Pi](https://wiki.alpinelinux.org/wiki/Classic_install_or_sys_mode_on_Raspberry_Pi)
+Things to change
 
-We're going to install Alpine in "diskless" mode and use overlay files.  Prepare an SD card with 500MB DOS bootable partition with the remainder as ext4
-[Create suitable partitions programatically](https://superuser.com/questions/332252/how-to-create-and-format-a-partition-using-a-bash-script)
-
-```bash
-apk add e2fsprogs lsblk dosfstools
-sudo su
-cd
-PIDEVICE=/dev/sdX # get the correct device from `cat /proc/partitions` or `df -h`
-umount ${PIDEVICE}{1,2} # many linuxes automount
-# clear the old drive
-wipefs -a ${PIDEVICE} #  -a, --all wipe all magic strings (BE CAREFUL!)
-# The `sed` script uses the first string of continuous 
-# letters and digits after optional spaces, 
-# This, in efffect, strips the comments, allowing for in-line comments.
-# Note that sending nothing (or spaces) will send a newline
-# usually selecting the defaul value.
-sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | fdisk ${PIDEVICE}
-  o # create a new empty DOS partition table
-  n # new partition
-  p # primary partition
-  1 # partition number 1
-    # default: start at beginning of disk 
-  +500M # 500 MB boot parttion
-  t # change a partition type
-  c # change type of partition to 'W95 FAT32 (LBA)'
-  n # add a new partition
-  p # primary partition
-  2 # partion number 2
-    # default: start immediately after preceding partition
-    # default: extend partition to end of disk
-  p # print the partition table
-  w # write table to disk and exit
-EOF
-```
-
-or use `sfdisk`.
+* alpine-router # hostname
+* address 10.2.0.1 #eth1 interface
+* chidley.home #local domain name
+* dhcp-range=10.2.1.1,10.2.1.255,255.255.0.0,12h # 
 
 ```bash
-sfdisk ${PIDEVICE} << eof
-,$((2048*1024)),c
-;
-eof
-sfdisk -V ${PIDEVICE}
-```
-
-```bash
-mkfs.fat ${PIDEVICE}1
-mkfs.ext2 ${PIDEVICE}2 # unnecessary
-# armv7 works on every Pi except the first Model A and Model B
-wget https://dl-cdn.alpinelinux.org/alpine/v3.14/releases/armv7/alpine-rpi-3.14.0-armv7.tar.gz
-tdrive="$(mktemp -d /tmp/alpine_install.XXXXXX)"
-mount ${PIDEVICE}1 $tdrive
-mkdir $tdrive/setup_files
-tdir="$tdrive/setup_files"
-# download the correct alpine linux from the web site
-tar -xvf alpine-rpi-3.14.0-armv7.tar.gz -C $tdrive --no-same-owner
-```
-
-To find out the correct options, run `setup-alpine -c answerfile.txt` on a newly booted Alpine system.
-
-```bash
-cat > $tdir/answerfile.txt << "EOF"
-# Use GB layout with GB variant
-KEYMAPOPTS="gb gb"
-
-# Set hostname to alpine-router
-HOSTNAMEOPTS="-n alpine-router"
-
-# Contents of /etc/network/interfaces
-INTERFACESOPTS="auto lo
-iface lo inet loopback
-
-# Internal Ethernet - WAN
-auto eth0
-iface eth0 inet dhcp
-    hostname alpine-router
-
-# USB Ethernet adapter - LAN
-auto eth1
-iface eth1 inet static
-    hostname alpine-router
-    address 10.2.0.1 # suitable name
-    netmask 255.255.0.0
-"
-
-# `home` is the local domain name and 8.8.8.8 Google public nameserver
-# or ip address of the local name server
-# This will be replaced with custom DNS setup
-DNSOPTS="-d chidley.home -n 8.8.8.8"
-
-# Set timezone to UTC
-TIMEZONEOPTS="-z UTC"
-
-# set http/ftp proxy
-PROXYOPTS="none"
-
-# Use the first mirror, usually CDN (Content Delivery Network)
-APKREPOSOPTS="-1"
-
-# Install Dropboar
-SSHDOPTS="-c dropbear"
-
-# Use chronyd
-NTPOPTS="-c chrony"
-
-# Setup in /media/mmcblk0p1
-LBUOPTS="/media/mmcblk0p1"
-APKCACHEOPTS="/media/mmcblk0p1/cache"
-EOF
 
 # --- rtc ---
 cat > $tdir/usercfg.txt << "EOF"
@@ -163,7 +59,7 @@ expand-hosts
 #    domain of all systems configured by list of ports in use on linuxDHCP
 # 3) Provides the domain part for "expand-hosts"
 domain=chidley.home
-
+alpine-test
 # This is small as it covers just local DNS lookup
 cache-size=1000
 
@@ -200,7 +96,7 @@ server:
   access-control: 10.2.0.0/16 allow
   do-not-query-localhost: no
   domain-insecure: "0.10.in-addr.arpa"
-  domain-insecure: "chidley.home"
+  domain-insecure: "chidley.home"alpine-test
   local-zone: "0.10.in-addr.arpa." nodefault
   private-address: 10.0.0.0/8
   private-address: 169.254.0.0/16
@@ -250,7 +146,7 @@ iface lo inet loopback
 # Internal Ethernet - WAN
 auto eth0
 iface eth0 inet dhcp
-    hostname alpine-test
+    hostname alpine-router
 
 auto br0
 iface br0 inet static
@@ -282,12 +178,10 @@ rmdir $tdrive
 boot
 
 ```bash
-setup_files="/media/mmcblk0p1/setup_files"
 rc-service hwclock start # if you have a RTC with the date already set
 date -s 2012011342 # set date to approprite value, e.g. 2020 November 27 13:47
-setup-alpine -f $setup_files/answerfile.txt
-apk update
-apk upgrade
+setup-alpine -f answerfile.txt
+apk -U upgrade # update and upgrade
 apk add dropbear # dropbear not installed
 apk add dropbear-dbclient
 rc-update add hwclock # if you have added an RTC
@@ -361,7 +255,7 @@ sed -i s/8.8.8.8/127.0.0.1/ /etc/resolv.conf
 lbu ci -d
 ```
 
-### hardware random number generator
+Need hardware random number generator
 
 [The HWRNG on the BCM2838 is compatible to iproc-rng200](https://github.com/raspberrypi/linux/commit/577a2fa60481a0563b86cfd5a0237c0582fb66e0)
 [Arch Linux Arm: Raspberry Pi](https://archlinuxarm.org/wiki/Raspberry_Pi)

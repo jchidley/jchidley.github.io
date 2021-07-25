@@ -18,7 +18,7 @@ For more detailed information see the [Alpine User Handbook](https://docs.alpine
 
 This is the Linux that I have been waiting for.
 
-### From Scratch Install - Intel Desktop
+## From Scratch Install - Intel Desktop
 
 boot USB (or other prepared) boot device and run the setup program
 
@@ -28,7 +28,7 @@ setup-alpine
 
 I manually configured the partitions because I'm running an EFI system.
 
-#### EFI boot
+### EFI boot
 
 create `.nsh` file like this:
 
@@ -40,7 +40,7 @@ vmlinux ... root... modules... initrd=/alpine1shuttle1/initramfs-lts
 
 the boot line is modified from the extlinux.cfg file.  Note the initrd comes at the end and includes the full path on the EFI system drive.
 
-#### xfce4 desktop
+### xfce4 desktop
 
 ```bash
 setup-xorg-base xfce4 xfce4-terminal lightdm-gtk-greeter xfce-polkit xfce4-screensaver consolekit2 dbus-x11 sudo
@@ -66,15 +66,177 @@ rc-update add dbus # rebooted
 rc-update add lightdm # rebooted
 ```
 
-#### Firefox
+### Firefox
 
 ```bash
 apk add firefox-esr
 ```
 
-#### The End
+### The End
 
 This is enough to get a normal desktop in under 2G of disk space.
+
+## From Scratch Install - Raspberry Pi
+
+### On the Build machine
+
+[Install Alpine on a Raspberry Pi](https://wiki.alpinelinux.org/wiki/Raspberry_Pi)
+[Classic install or sys mode on Raspberry Pi](https://wiki.alpinelinux.org/wiki/Classic_install_or_sys_mode_on_Raspberry_Pi)
+
+We're going to install Alpine in "diskless" mode and use overlay files.  Prepare an SD card with 500MB DOS bootable partition with the remainder as ext4
+[Create suitable partitions programatically](https://superuser.com/questions/332252/how-to-create-and-format-a-partition-using-a-bash-script)
+
+```bash
+apk add e2fsprogs lsblk dosfstools
+sudo su
+cd
+PIDEVICE=/dev/sdX # get the correct device from `cat /proc/partitions` or `df -h`
+umount ${PIDEVICE}{1,2} # many linuxes automount
+# clear the old drive
+wipefs -a ${PIDEVICE} #  -a, --all wipe all magic strings (BE CAREFUL!)
+# The `sed` script uses the first string of continuous 
+# letters and digits after optional spaces, 
+# This, in efffect, strips the comments, allowing for in-line comments.
+# Note that sending nothing (or spaces) will send a newline
+# usually selecting the defaul value.
+sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | fdisk ${PIDEVICE}
+  o # create a new empty DOS partition table
+  n # new partition
+  p # primary partition
+  1 # partition number 1
+    # default: start at beginning of disk 
+  +500M # 500 MB boot parttion
+  t # change a partition type
+  c # change type of partition to 'W95 FAT32 (LBA)'
+  n # add a new partition
+  p # primary partition
+  2 # partion number 2
+    # default: start immediately after preceding partition
+    # default: extend partition to end of disk
+  p # print the partition table
+  w # write table to disk and exit
+EOF
+```
+
+or use `sfdisk`.
+
+```bash
+sfdisk ${PIDEVICE} << eof
+,$((2048*1024)),c
+;
+eof
+sfdisk -V ${PIDEVICE}
+```
+
+```bash
+mkfs.fat ${PIDEVICE}1
+mkfs.ext2 ${PIDEVICE}2 # unnecessary
+# armv7 works on every Pi except the first Model A and Model B
+cd ~/Downloads # or /home/username/Downloads
+wget https://dl-cdn.alpinelinux.org/alpine/v3.14/releases/armv7/alpine-rpi-3.14.0-armv7.tar.gz
+# wget https://dl-cdn.alpinelinux.org/alpine/v3.14/releases/aarch64/alpine-rpi-3.14.0-aarch64.tar.gz # pi 4
+tdrive="$(mktemp -d /tmp/alpine_install.XXXXXX)"
+mount ${PIDEVICE}1 $tdrive
+# download the correct alpine linux from the web site
+tar -xvf alpine-rpi-3.14.0-armv7.tar.gz -C $tdrive --no-same-owner
+```
+
+To find out the correct options, run `setup-alpine -c answerfile.txt` on a newly booted Alpine system. This script doesn't always work as it should
+
+Things to change
+
+* alpine-scratch-pi # hostname
+* chidley.home #local domain name
+
+```bash
+cat > $tdrive/answerfile.txt << "EOF"
+# Use GB layout with GB variant
+KEYMAPOPTS="gb gb"
+
+# Set hostname to alpine-scratch-pi
+HOSTNAMEOPTS="-n alpine-scratch-pi"
+
+# Contents of /etc/network/interfaces
+INTERFACESOPTS="auto lo
+iface lo inet loopback
+
+# Internal Ethernet - WAN
+auto eth0
+iface eth0 inet dhcp
+    hostname alpine-scratch-pi
+"
+
+# `home` is the local domain name and 8.8.8.8 Google public nameserver
+# or ip address of the local name server
+# This will be replaced with custom DNS setup
+DNSOPTS="-d chidley.home -n 8.8.8.8"
+
+# Set timezone to UTC
+TIMEZONEOPTS="-z UTC"
+
+# set http/ftp proxy
+PROXYOPTS="none"
+
+# Use the first mirror, usually CDN (Content Delivery Network)
+APKREPOSOPTS="-1"
+
+# Install Dropboar
+SSHDOPTS="-c dropbear"
+
+# Use chronyd
+NTPOPTS="-c chrony"
+
+# Setup in /media/mmcblk0p1
+LBUOPTS="/media/mmcblk0p1"
+APKCACHEOPTS="/media/mmcblk0p1/cache"
+EOF
+
+sync # make sure all the files are written to the SD card
+umount $tdrive
+rmdir $tdrive
+```
+
+boot
+
+```bash
+setup-alpine -f answerfile.txt
+# --- check ---
+ls /media/mmcblk0p1/cache/ # should have dropbear in it
+cat /etc/apk/repositories # should be adjusted from default with, at least:
+# /media/mmcblk0p1/apks
+# http://uk.alpinelinux.org/alpine/v3.14/main
+```
+
+### hardware random number generator
+
+[The HWRNG on the BCM2838 is compatible to iproc-rng200](https://github.com/raspberrypi/linux/commit/577a2fa60481a0563b86cfd5a0237c0582fb66e0)
+[Arch Linux Arm: Raspberry Pi](https://archlinuxarm.org/wiki/Raspberry_Pi)
+
+`haveged` competes with the broadcom provided random number generator, now `iproc-rng200` (previously bcm2835_rng and bcm2708-rng) and so it needs to be disabled
+
+```bash
+cat /proc/sys/kernel/random/entropy_avail
+# typically less than 1000
+apk add rng-tools
+RNGD_OPTS="-x1 -o /dev/random -r /dev/hwrng"
+rc-service rngd start
+rc-update add rngd
+cat /proc/sys/kernel/random/entropy_avail
+# should be more than 3000
+rngd -l
+# The "Hardware RNG Device (hwrng)" should be an "Available and enabled entropy source"
+```
+
+### Finalise
+
+```bash
+apk -U upgrade
+apk add mkinitfs # update to inital ramfs
+apk -vv info|sort # list of installed packages, look for dropbear
+apk cache -v sync # download and clean out cache
+lbu ci -d
+# upgrade instructions here https://wiki.alpinelinux.org/wiki/Upgrading_Alpine
+```
 
 ## Links
 
