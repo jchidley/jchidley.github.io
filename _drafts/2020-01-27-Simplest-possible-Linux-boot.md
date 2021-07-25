@@ -123,8 +123,8 @@ rm -rf airlock
 * [LinuxCommand.org: Learn The Linux Command Line. Write Shell Scripts.](http://linuxcommand.org/index.php)
 * [Bash scripting cheatsheet](https://devhints.io/bash)
 
-* [rob’s blog](http://landley.net/notes.html)
-* [Stuff I’ve written.](http://landley.net/writing/)
+* [Rob’s blog](http://landley.net/notes.html)
+* [Stuff Rob's written.](http://landley.net/writing/)
 
 * [J-Core Open Processor](https://j-core.org/)
 * [j-core mailing list](https://lists.j-core.org/mailman/listinfo/j-core)

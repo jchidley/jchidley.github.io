@@ -17,10 +17,18 @@ See [python apple](2021-06-06-python-apple)
 
 ## Links
 
+* [Whirlwind Tour of ARM Assembly](http://www.coranac.com/tonc/text/asm.htm)
+* [ARM Assembler](http://www.pp4s.co.uk/main/tu-trans-asm-arm.html)
 * [PP4S: Introduction](http://www.pp4s.co.uk/main/tu-trans-comp-jc-01.html)
 * [Let’s Build a Compiler, by Jack Crenshaw](https://compilers.iecc.com/crenshaw/)
 * [Small-C - Wikipedia](https://en.wikipedia.org/wiki/Small-C)
-* [Developer Network Small-C Compiler book on CD-ROM | Dr Dobb’s](https://www.drdobbs.com/developer-network-small-c-compiler-book/184415519?queryText=%2522small%2Bc%2522)
+* [Raspberry Pi Pico, VSCode and MacOS](https://www.chrisclaxton.me.uk/chris-claxtons-blog/raspberry-pi-pico-vscode-and-macos)
+* [Stephen Smith's Blog - Musings on Machine Learning… - Posts Tagged ‘assembly language’](https://smist08.wordpress.com/tag/assembly-language/)
+* [1. ASM Programming RP2040 - Assembly Language on the Raspberry Pi Pico](https://smist08.wordpress.com/2021/04/16/assembly-language-on-the-raspberry-pi-pico/)
+* [2. ASM Programming RP2040 - Calling Main in Assembly Language on the RP2040](https://smist08.wordpress.com/2021/04/23/calling-main-in-assembly-language-on-the-rp2040/)
+* [3. ASM Programming RP2040 - Bit-Banging the Raspberry Pi Pico’s GPIO Registers](https://smist08.wordpress.com/2021/04/24/bit-banging-the-raspberry-pi-picos-gpio-registers/)
+* [How to Use Inline Assembly Language in C Code](https://gcc.gnu.org/onlinedocs/gcc/Using-Assembly-Language-with-C.html)
+* [Developer Network Small-C Compiler book on CD-ROM | Dr Dobb’s](https://www.drdobbs.com/developer-network-small-c-compiler-book/184415519?queryText=%2522small%2Bc%2522) - includes K&R writing
 * [Creating a toy language — ppci 0.5.9 documentation](https://ppci.readthedocs.io/en/latest/howto/toy.html)
 * [Compiling a Lisp: Overture | Max Bernstein](https://bernsteinbear.com/blog/compiling-a-lisp-0/)
 * [textX](http://textx.github.io/textX/stable/)

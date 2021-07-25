@@ -7,31 +7,24 @@ title: "Alpine Linux Raspberry Pi Router"
 # Alpine Linux Raspberry Pi Router
 <!-- markdownlint-enable MD025 -->
 
-<!-- markdownlint-disable MD034 -->
-
 This is a follow up to my earlier posts about building cheap, high performance and flexible home router.
 
 ## Instructions
 
 Network addresses will need to be adjusted. Don't forget, that if you're behind a private network, the 'Martian' addresses will need to be adusted in the firewall.
 
-Look at headless installation
-[GitHub - mesca/alpine_headless: Enable headless installation of Alpine Linux on Raspberry Pi](https://github.com/mesca/alpine_headless)
-[Raspberry Pi - Headless Installation - Alpine Linux](https://wiki.alpinelinux.org/wiki/Raspberry_Pi_-_Headless_Installation)
-[Raspberry Pi - Alpine Linux](https://wiki.alpinelinux.org/wiki/Raspberry_Pi)
-[Dwm - Alpine Linux](https://wiki.alpinelinux.org/wiki/Dwm#Installing_Xorg)
-
 ### On the Build machine
 
 I am using a raspberry pi running Raspbian OS
 
 [Install Alpine on a Raspberry Pi](https://wiki.alpinelinux.org/wiki/Raspberry_Pi)
-https://wiki.alpinelinux.org/wiki/Classic_install_or_sys_mode_on_Raspberry_Pi
+[Classic install or sys mode on Raspberry Pi](https://wiki.alpinelinux.org/wiki/Classic_install_or_sys_mode_on_Raspberry_Pi)
 
 We're going to install Alpine in "diskless" mode and use overlay files.  Prepare an SD card with 500MB DOS bootable partition with the remainder as ext4
 [Create suitable partitions programatically](https://superuser.com/questions/332252/how-to-create-and-format-a-partition-using-a-bash-script)
 
 ```bash
+apk add e2fsprogs lsblk dosfstools
 sudo su
 cd
 PIDEVICE=/dev/sdX # get the correct device from `cat /proc/partitions` or `df -h`
@@ -77,24 +70,18 @@ mkfs.fat ${PIDEVICE}1
 mkfs.ext2 ${PIDEVICE}2 # unnecessary
 # armv7 works on every Pi except the first Model A and Model B
 wget https://dl-cdn.alpinelinux.org/alpine/v3.14/releases/armv7/alpine-rpi-3.14.0-armv7.tar.gz
-tdir="$(mktemp -d /tmp/alpine_install.XXXXXX)"
-mount ${PIDEVICE}1 $tdir
+tdrive="$(mktemp -d /tmp/alpine_install.XXXXXX)"
+mount ${PIDEVICE}1 $tdrive
+mkdir $tdrive/setup_files
+tdir="$tdrive/setup_files"
 # download the correct alpine linux from the web site
-tar -xvf alpine-rpi-3.14.0-armv7.tar.gz -C $tdir --no-same-owner
-umount $tdir
-rm -d $tdir
-sync
+tar -xvf alpine-rpi-3.14.0-armv7.tar.gz -C $tdrive --no-same-owner
 ```
 
 To find out the correct options, run `setup-alpine -c answerfile.txt` on a newly booted Alpine system.
 
 ```bash
-mkdir /mnt/piboot
-mount ${PIDEVICE}1 /mnt/piboot
-```
-
-```bash
-cat > /mnt/piboot/answerfile.txt << "EOF"
+cat > $tdir/answerfile.txt << "EOF"
 # Use GB layout with GB variant
 KEYMAPOPTS="gb gb"
 
@@ -142,30 +129,163 @@ NTPOPTS="-c chrony"
 LBUOPTS="/media/mmcblk0p1"
 APKCACHEOPTS="/media/mmcblk0p1/cache"
 EOF
-```
 
-For the reatime clock
-
-```bash
-cat > /mnt/piboot/usercfg.txt << "EOF"
+# --- rtc ---
+cat > $tdir/usercfg.txt << "EOF"
 # for the RTC
 dtparam=i2c
 dtoverlay=i2c-rtc,pcf8523
+EOF
+
+# --- dnsmasq ---
+cat > $tdir/dnsmasq.conf << "EOF"
+# --- DNS ---
+# Listen on this specific port instead of the standard DNS port
+# (53) as ‘unbound’ is the DNS server.
+port=35353
+
+# Add local-only domains here, queries in these domains are answered
+# from /etc/hosts or DHCP only.
+local=/localnet/
+
+# interface _not_ to listen on (WAN)
+except-interface=eth0
+
+# Set this (and domain: see below) if you want to have a domain
+# automatically added to simple names in a hosts-file.
+expand-hosts
+
+# Set the domain for dnsmasq. this is optional, but if it is set, it
+# does the following things.
+# 1) Allows DHCP hosts to have fully qualified domain names, as long
+#     as the domain part matches this setting.
+# 2) Sets the "domain" DHCP option thereby potentially setting the
+#    domain of all systems configured by list of ports in use on linuxDHCP
+# 3) Provides the domain part for "expand-hosts"
+domain=chidley.home
+
+# This is small as it covers just local DNS lookup
+cache-size=1000
+
+# --- DHCP ---
+dhcp-authoritative
+interface=br0 # only listen on LAN port
+
+# DHCP range with netmask. This must fit with the
+# netmask/ip address assigned to the (static) interface
+dhcp-range=10.2.1.1,10.2.1.255,255.255.0.0,12h
+
+# dhcp-leasefile=/var/lib/misc/dnsmasq.leases
+
+# Set the NTP time server address to be the same machine as
+# is running dnsmasq
+dhcp-option=option:ntp-server,0.0.0.0
+
+# Set the DNS server address to be the same machine as
+# is running dnsmasq
+dhcp-option=option:dns-server,0.0.0.0
+
+dhcp-option=option:domain-name,chidley.home
+
+# --- PXE ---
+EOF
+
+# --- unbound ---
+cat > $tdir/unbound.conf << "EOF"
+server:
+  interface: 0.0.0.0
+  interface: ::0
+  root-hints: "/etc/unbound/root.hints"
+  access-control: 127.0.0.0/8 allow
+  access-control: 10.2.0.0/16 allow
+  do-not-query-localhost: no
+  domain-insecure: "0.10.in-addr.arpa"
+  domain-insecure: "chidley.home"
+  local-zone: "0.10.in-addr.arpa." nodefault
+  private-address: 10.0.0.0/8
+  private-address: 169.254.0.0/16
+  private-address: 172.16.0.0/12
+  private-address: 192.168.0.0/16
+  private-address: fd00::/8
+  private-address: fe80::/10
+  private-domain: "chidley.home"
+
+forward-zone:
+  name: "chidley.home"
+  forward-addr: 127.0.0.1@35353
+  forward-zone:
+
+name: "0.10.in-addr.arpa"
+  forward-addr: 127.0.0.1@35353
+EOF
+
+# --- hostapd ---
+cat > $tdir/hostapd.conf << "EOF"
+interface=wlan0
+bridge=br0
+driver=nl80211
+ssid=C_test
+hw_mode=g
+channel=1
+macaddr_acl=0
+auth_algs=1
+wpa=2
+wpa_key_mgmt=WPA-PSK
+wpa_passphrase=chidley_super_secret
+rsn_pairwise=CCMP
+wpa_pairwise=CCMP
+EOF
+
+# --- forwarding for routing ---
+cat > $tdir/local.conf << "EOF"
+# Controls IP packet forwarding
+net.ipv4.ip_forward = 1
+EOF
+
+# --- network interfaces ---
+cat > $tdir/interfaces << "EOF"
+auto lo
+iface lo inet loopback
+
+# Internal Ethernet - WAN
+auto eth0
+iface eth0 inet dhcp
+    hostname alpine-test
+
+auto br0
+iface br0 inet static
+    bridge-ports wlan0 eth1
+    bridge-stp 0
+    address 10.2.0.1
+    netmask 255.255.0.0
+EOF
+
+cat > $tdir/nftables.nft << "EOF"
+flush ruleset
+define wan = eth0
+table ip nat {
+  chain postrouting {
+    type nat hook postrouting priority srcnat;
+
+    oif $wan masquerade persistent
+  }
+}
 EOF
 ```
 
 ```bash
 sync # make sure all the files are written to the SD card
-umount ${PIDEVICE}1
-umount ${PIDEVICE}2
+umount $tdrive
+rmdir $tdrive
 ```
 
 boot
 
 ```bash
+setup_files="/media/mmcblk0p1/setup_files"
 rc-service hwclock start # if you have a RTC with the date already set
 date -s 2012011342 # set date to approprite value, e.g. 2020 November 27 13:47
-setup-alpine -f /media/mmcblk0p1/answerfile.txt
+setup-alpine -f $setup_files/answerfile.txt
 apk update
 apk upgrade
 apk add dropbear # dropbear not installed
@@ -205,15 +325,14 @@ reboot
 ```bash
 ssh jack@10.3.151.102 # substitute correct ip address
 su
+setup_files="/media/mmcblk0p1/setup_files"
 ```
 
 ## Router Setup
 
-[Static IP and Network Configuration on Debian Linux]https://www.howtoforge.com/debian-static-ip-address)
+[Static IP and Network Configuration on Debian Linux](https://www.howtoforge.com/debian-static-ip-address)
 [Linux Router with VPN on a Raspber](https://wiki.alpinelinux.org/wiki/Linux_Router_with_VPN_on_a_Raspberry_Pi)
 [WireGuard on Alpine Linux with nftables](https://alextsang.net/articles/20191012-080947/index.html)
-
-
 
 ### Dnsmasq
 
@@ -223,57 +342,7 @@ rc-update add dnsmasq
 lbu ci -d
 # rc-service dnsmasq start
 mv /etc/dnsmasq.conf /etc/dnsmasq.conf.example
-cat > /etc/dnsmasq.conf << "EOF"
-# --- DNS ---
-# Listen on this specific port instead of the standard DNS port
-# (53) as ‘unbound’ is the DNS server.
-port=35353
-
-# Add local-only domains here, queries in these domains are answered
-# from /etc/hosts or DHCP only.
-local=/localnet/
-
-# interface _not_ to listen on (WAN)
-except-interface=eth0
-
-# Set this (and domain: see below) if you want to have a domain
-# automatically added to simple names in a hosts-file.
-expand-hosts
-
-# Set the domain for dnsmasq. this is optional, but if it is set, it
-# does the following things.
-# 1) Allows DHCP hosts to have fully qualified domain names, as long
-#     as the domain part matches this setting.
-# 2) Sets the "domain" DHCP option thereby potentially setting the
-#    domain of all systems configured by list of ports in use on linuxDHCP
-# 3) Provides the domain part for "expand-hosts"
-domain=chidley.home
-
-# This is small as it covers just local DNS lookup
-cache-size=1000
-
-# --- DHCP ---
-dhcp-authoritative
-interface=eth1 # only listen on LAN port
-
-# DHCP range with netmask. This must fit with the
-# netmask/ip address assigned to the (static) interface
-dhcp-range=10.2.1.1,10.2.1.255,255.255.0.0,12h
-
-# dhcp-leasefile=/var/lib/misc/dnsmasq.leases
-
-# Set the NTP time server address to be the same machine as
-# is running dnsmasq
-dhcp-option=option:ntp-server,0.0.0.0
-
-# Set the DNS server address to be the same machine as
-# is running dnsmasq
-dhcp-option=option:dns-server,0.0.0.0
-
-dhcp-option=option:domain-name,chidley.home
-
-# --- PXE ---
-EOF
+cp $setup_files/dnsmasq.conf /etc/dnsmasq.conf
 ```
 
 ### Unbound
@@ -282,38 +351,8 @@ EOF
 apk add unbound
 rc-update add unbound
 wget https://www.internic.net/domain/named.root -O /etc/unbound/root.hints
-lbu ci -d
-```
-
-```bash
 #https://kevinlocke.name/bits/2017/03/09/unbound-with-dnsmasq-on-openwrt/
-cat > /etc/unbound/unbound.conf << "EOF"
-server:
-	interface: 0.0.0.0
-	interface: ::0
-	root-hints: "/etc/unbound/root.hints"
-	access-control: 127.0.0.0/8 allow
-	access-control: 10.2.0.0/16 allow
-	do-not-query-localhost: no
-	domain-insecure: "0.10.in-addr.arpa"
-	domain-insecure: "chidley.home"
-	local-zone: "0.10.in-addr.arpa." nodefault
-	private-address: 10.0.0.0/8
-	private-address: 169.254.0.0/16
-	private-address: 172.16.0.0/12
-	private-address: 192.168.0.0/16
-	private-address: fd00::/8
-	private-address: fe80::/10
-	private-domain: "chidley.home"
-
-forward-zone:
-	name: "chidley.home"
-	forward-addr: 127.0.0.1@35353
-	forward-zone:
-
-name: "0.10.in-addr.arpa"
-	forward-addr: 127.0.0.1@35353
-EOF
+cp $setup_files/unbound.conf /etc/unbound/unbound.conf
 unbound-checkconf
 rc-service unbound start
 # use unbound and not google for DNS resolution
@@ -329,7 +368,7 @@ lbu ci -d
 
 `haveged` competes with the broadcom provided random number generator, now `iproc-rng200` (previously bcm2835_rng and bcm2708-rng) and so it needs to be disabled
 
-```
+```bash
 cat /proc/sys/kernel/random/entropy_avail
 # typically less than 1000
 apk add rng-tools
@@ -344,40 +383,18 @@ lbu ci -d
 ```
 
 ### Basic Firewall and Routing
-  
-```bash
-# helpful tools for diagnosis and testing
-apk add bind-tools
-```
 
 This router configuration will forward all traffic between all interfaces.
 
 ```bash
-cat > /etc/sysctl.d/local.conf << "EOF"
-# Controls IP packet forwarding
-net.ipv4.ip_forward = 1
-EOF
-```
-
-```bash
-apk add nftables
+cp $setup_files/local.conf /etc/sysctl.d/local.conf
 ```
 
 This `nftables` does masquerading so that you can use your internet connection with multiple clients, there is no filtering or traffic management.
 
-
 ```bash
-cat > /etc/nftables.nft << "EOF"
-flush ruleset
-define wan = eth0
-table ip nat {
-  chain postrouting {
-    type nat hook postrouting priority srcnat;
-
-    oif $wan masquerade persistent
-  }
-}
-EOF
+apk add nftables
+cp $setup_files/nftables.nft /etc/nftables.nft 
 rc-update add nftables
 lbu ci -d
 rc-service nftables start
@@ -387,43 +404,18 @@ reboot
 
 Once the above works, then see [Traffic Manager for a better "firewall"](2020-01-07-Traffic-Manager-Not-Firewall.html).
 
-
 ## Wireless Access Point
 
-https://wiki.alpinelinux.org/wiki/Raspberry_Pi_3_-_Configuring_it_as_wireless_access_point_-AP_Mode 
+[Raspberry Pi 3 - Configuring it as wireless access point -AP Mode](https://wiki.alpinelinux.org/wiki/Raspberry_Pi_3_-_Configuring_it_as_wireless_access_point_-AP_Mode)
 
 ```bash
 apk add hostapd
+cp $setup_files/hostapd.conf /etc/hostapd/hostapd.conf
 ```
-
-edit `/etc/hostapd/hostapd.conf`
 
 ```bash
-interface=wlan0
-driver=nl80211
-ssid=C_test
-hw_mode=g
-channel=1
-macaddr_acl=0
-auth_algs=1
-wpa=2
-wpa_key_mgmt=WPA-PSK
-wpa_passphrase=chidley_super_secret
-rsn_pairwise=CCMP
-wpa_pairwise=CCMP
+cp $setup_files/interfaces /etc/network/interfaces
 ```
-
-add `interface=wlan0` to `dnsmasq.conf`
-
-add 
-```bash
-auto wlan0
-iface wlan0 inet static
-  address 10.2.0.2
-  netmask 255.255.255.0
-```
-
-to `/etc/network/interfaces`
 
 ```bash
 service dnsmasq start
@@ -431,7 +423,8 @@ service hostapd start
 # to test, then
 rc-update add hostapd
 lbu ci -d
-``` 
+```
+
 ### i2c for RTC
 
 * [Saving time with Hardware Clock](https://wiki.alpinelinux.org/wiki/Saving_time_with_Hardware_Clock)
@@ -461,4 +454,14 @@ lbu ci -d
 * [Blocking DHCP servers and router advertisements with nftables | ungleich.ch](https://ungleich.ch/u/blog/nftables-block-dhcp-and-router-advertisements/)
 * [Linux Router with VPN on a Raspberry Pi (IPv6) - Alpine Linux](https://wiki.alpinelinux.org/wiki/Linux_Router_with_VPN_on_a_Raspberry_Pi_(IPv6))
 
+<!-- markdownlint-disable MD034 -->
+https://wiki.alpinelinux.org/wiki/How_to_set_up_Alpine_as_a_wireless_router
+https://thepihut.com/blogs/raspberry-pi-tutorials/setting-up-a-wireless-access-point-a-bridge-method-internet-over-wired-ethernet
+https://wiki.alpinelinux.org/wiki/Bridge_wlan0_to_eth0
+
+https://unix.stackexchange.com/questions/363332/how-do-i-configure-a-network-interface-bridge-from-wifi-to-ethernet-with-debian
+
+https://www.thegeekstuff.com/2017/06/brctl-bridge/
+https://tldp.org/HOWTO/BRIDGE-STP-HOWTO/set-up-the-bridge.html
+https://www.raspberrypi.org/documentation/configuration/wireless/access-point-routed.md
 <!-- markdownlint-enable MD034 -->
