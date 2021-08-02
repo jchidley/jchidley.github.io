@@ -19,6 +19,18 @@ title: "QEMU distcc Raspberry Pi"
 * [Developing for non-x86 targets using QEMU](https://landley.net/aboriginal/presentation.html) for extra qemu options
 in addition to the `qemu` package also needed `qemu-arch-extra` on Arch Linux
 
+* [QEMU Documentation/Platforms/ARM](https://wiki.qemu.org/Documentation/Platforms/ARM#Generic_ARM_system_emulation_with_the_virt_machine)
+* [Virtual 32 bit QEMU](https://translatedcode.wordpress.com/2016/11/03/installing-debian-on-qemus-32-bit-arm-virt-board/)
+* [Installing Debian on QEMU’s 64-bit ARM “virt” board](https://translatedcode.wordpress.com/2017/07/24/installing-debian-on-qemus-64-bit-arm-virt-board/* )
+* [Debian on QEMU’s Raspberry Pi 3 model - flaky](https://translatedcode.wordpress.com/2018/04/25/debian-on-qemus-raspberry-pi-3-model/)
+* [Raspbian “stretch” for Raspberry Pi 3 on QEMU - February 2019](https://github.com/wimvanderbauwhede/limited-systems/wiki/Raspbian-%22stretch%22-for-Raspberry-Pi-3-on-QEMU)
+* [Windows for Raspberry Pi 2 on QEMU HOWTO - June 2018 but older](https://github.com/0xabu/qemu/wiki)
+* [Run a virtualized image of Raspberry Pi in QEMU - April 2018](https://tkrel.com/7390)
+* [Emulate Raspberry PI with QEMU - April 2018](http://blog.hellonico.info/iot/arm_on_qemu/)
+* [How to emulate Ubuntu Core for Raspberry Pi 3 using QEMU? - March 2018](https://stackoverflow.com/questions/49134948/how-to-emulate-ubuntu-core-for-raspberry-pi-3-using-qemu)
+* [How to emulate the Raspberry Pi 2 on QEMU?- March 2015](https://stackoverflow.com/questions/28880833/how-to-emulate-the-raspberry-pi-2-on-qemu)
+* [Emulate Rapberry Pi 2 in QEMU - November 2015](https://blog.3mdeb.com/2015/2015-12-30-emulate-rapberry-pi-2-in-qemu/)
+
 For Arch, packages `qemu` and `qemu-arch-extra` are required. The first steps are to download the standard Raspbian images and unzip them.
 
 After unzipping the Raspbian download to a img file, I needed to use
@@ -29,23 +41,18 @@ fdisk -u sectors -l ../Downloads/2020-08-20-raspios-buster-armhf-lite.img
 
 to work out the correct options to setup a loop device.  This showed that the first partitions *Start* (in sectors) was 8192 and *Sectors* was 524288.  So the *offset* in bytes will be 8192 * 512 and the *sizelimit* 524288 * 512
 
+[How to use loop devices](https://sleeplessbeastie.eu/2017/07/03/how-to-use-loop-devices/)
+
 ```bash
-losetup -f —show -P —offset $((8192 * 512)) —sizelimit $((524288 *
+losetup -f —show -P —offset $((8192 * 512)) —sizelimit $((524288 * 512)) ../Downloads/2020-08-20-raspios-buster-armhf-lite.img
+mount /dev/loop0 /mnt/rpi # or the appropriate loop device
 ```
 
-Note: I have chopped this up somehow - this was correct in simplest file a few updates back
+Or do the mount directly like this:
 
-* [QEMU Documentation/Platforms/ARM](https://wiki.qemu.org/Documentation/Platforms/ARM#Generic_ARM_system_emulation_with_the_virt_machine)
-* [Virtual 32 bit QEMU](https://translatedcode.wordpress.com/2016/11/03/installing-debian-on-qemus-32-bit-arm-virt-board/)
-* [Installing Debian on QEMU’s 64-bit ARM "virt" board](https://translatedcode.wordpress.com/2017/07/24/installing-debian-on-qemus-64-bit-arm-virt-board/* )
-* [Debian on QEMU’s Raspberry Pi 3 model - flaky](https://translatedcode.wordpress.com/2018/04/25/debian-on-qemus-raspberry-pi-3-model/)
-* [Raspbian "stretch" for Raspberry Pi 3 on QEMU - February 2019](https://github.com/wimvanderbauwhede/limited-systems/wiki/Raspbian-%22stretch%22-for-Raspberry-Pi-3-on-QEMU)
-* [Windows for Raspberry Pi 2 on QEMU HOWTO - June 2018 but older](https://github.com/0xabu/qemu/wiki)
-* [Run a virtualized image of Raspberry Pi in QEMU - April 2018](https://tkrel.com/7390)
-* [Emulate Raspberry PI with QEMU - April 2018](http://blog.hellonico.info/iot/arm_on_qemu/)
-* [How to emulate Ubuntu Core for Raspberry Pi 3 using QEMU? - March 2018](https://stackoverflow.com/questions/49134948/how-to-emulate-ubuntu-core-for-raspberry-pi-3-using-qemu)
-* [How to emulate the Raspberry Pi 2 on QEMU?- March 2015](https://stackoverflow.com/questions/28880833/how-to-emulate-the-raspberry-pi-2-on-qemu)
-* [Emulate Rapberry Pi 2 in QEMU - November 2015](https://blog.3mdeb.com/2015/2015-12-30-emulate-rapberry-pi-2-in-qemu/)
+`mount 2020-08-20-raspios-buster-armhf-lite.img /mnt/rpi/ -o loop,offset=${OFFSET_of_PARTITION},sizelimit=$((524288 * 512))`
+
+Note: I have chopped this up somehow - this was correct in simplest file a few updates back. Needs testing
 
 
 ```bash
