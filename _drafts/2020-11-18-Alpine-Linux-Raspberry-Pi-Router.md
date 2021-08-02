@@ -177,6 +177,36 @@ rmdir $tdrive
 
 boot
 
+# http://community.riocities.com/alpine_rpi_rtc.html
+edit usercfg.txt
+dtoverlay=i2c-rtc,ds3231
+apk add mkinitfs
+
+# add `rpirtc` to /etc/mkinitfs/mkinitfs.conf
+add to the end of the features list
+
+rebuild
+
+```bash
+. /etc/lbu/lbu.conf
+ln -s /media/$LBU_MEDIA/boot /boot
+mount /media/$LBU_MEDIA -o remount,rw
+
+. /etc/mkinitfs/mkinitfs.conf
+mkinitfs -F "$features base squashfs"
+
+mount /media/$LBU_MEDIA -o remount,ro
+```
+
+Enable the hwclock service
+
+```bash
+rc-update del swclock boot
+rc-update add hwclock boot
+hwclock -w
+lbu commit
+```
+
 ```bash
 rc-service hwclock start # if you have a RTC with the date already set
 date -s 2012011342 # set date to approprite value, e.g. 2020 November 27 13:47
@@ -184,7 +214,6 @@ setup-alpine -f answerfile.txt
 apk -U upgrade # update and upgrade
 apk add dropbear # dropbear not installed
 apk add dropbear-dbclient
-rc-update add hwclock # if you have added an RTC
 lbu commit -d # delete any previous commits
 ip add # get ip address
 reboot # belt and braces
