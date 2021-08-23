@@ -20,17 +20,16 @@ see "Alpine Linux Install", need ssh server and the hardware provided Random Num
 Things to change
 
 * alpine-router # hostname
-* address 10.2.0.1 #eth1 interface
+* address 10.2.0.1 # eth1 interface
 * chidley.home #local domain name
-* dhcp-range=10.2.1.1,10.2.1.255,255.255.0.0,12h # 
+* dhcp-range=10.2.1.1,10.2.1.255,255.255.0.0,12h # or whatever your local network needs to be
 
 ```bash
-
 # --- rtc ---
 cat > $tdir/usercfg.txt << "EOF"
 # for the RTC
 dtparam=i2c
-dtoverlay=i2c-rtc,pcf8523
+dtoverlay=i2c-rtc,ds3231 # or pcf8523
 EOF
 
 # --- dnsmasq ---
@@ -59,7 +58,7 @@ expand-hosts
 #    domain of all systems configured by list of ports in use on linuxDHCP
 # 3) Provides the domain part for "expand-hosts"
 domain=chidley.home
-alpine-test
+alpine-router
 # This is small as it covers just local DNS lookup
 cache-size=1000
 
@@ -96,7 +95,7 @@ server:
   access-control: 10.2.0.0/16 allow
   do-not-query-localhost: no
   domain-insecure: "0.10.in-addr.arpa"
-  domain-insecure: "chidley.home"alpine-test
+  domain-insecure: "chidley.home"
   local-zone: "0.10.in-addr.arpa." nodefault
   private-address: 10.0.0.0/8
   private-address: 169.254.0.0/16
@@ -177,24 +176,24 @@ rmdir $tdrive
 
 boot
 
-# http://community.riocities.com/alpine_rpi_rtc.html
-edit usercfg.txt
-dtoverlay=i2c-rtc,ds3231
+[Alpine Linux on a Raspberry Pi 3 B+ with a RTC module](http://community.riocities.com/alpine_rpi_rtc.html)
+edit usercfg.txtwget https://www.internic.net/domain/named.root -O /etc/unbound/root.hints
+
+```bash
+dtoverlay=i2c-rtc,ds3231 # or pcf8523
 apk add mkinitfs
+```
 
-# add `rpirtc` to /etc/mkinitfs/mkinitfs.conf
-add to the end of the features list
+add `rpirtc` to the end of the features list in /etc/mkinitfs/mkinitfs.conf
 
-rebuild
+rebuild the initial RAM fs image.
 
 ```bash
 . /etc/lbu/lbu.conf
 ln -s /media/$LBU_MEDIA/boot /boot
 mount /media/$LBU_MEDIA -o remount,rw
-
 . /etc/mkinitfs/mkinitfs.conf
 mkinitfs -F "$features base squashfs"
-
 mount /media/$LBU_MEDIA -o remount,ro
 ```
 
@@ -214,7 +213,7 @@ setup-alpine -f answerfile.txt
 apk -U upgrade # update and upgrade
 apk add dropbear # dropbear not installed
 apk add dropbear-dbclient
-lbu commit -d # delete any previous commits
+lbu commit
 ip add # get ip address
 reboot # belt and braces
 ```
@@ -225,7 +224,7 @@ Dropbear installation is a little buggy, so need to login locally again and chec
 apk add dropbear
 rc-update add dropbear
 rc-service dropbear start
-lbu ci -d
+lbu ci
 ```
 
 ### OverlayFS
@@ -262,7 +261,7 @@ setup_files="/media/mmcblk0p1/setup_files"
 ```bash
 apk add dnsmasq
 rc-update add dnsmasq
-lbu ci -d
+lbu ci
 # rc-service dnsmasq start
 mv /etc/dnsmasq.conf /etc/dnsmasq.conf.example
 cp $setup_files/dnsmasq.conf /etc/dnsmasq.conf
@@ -281,7 +280,7 @@ rc-service unbound start
 # use unbound and not google for DNS resolution
 # https://www.shellhacks.com/setup-dns-resolution-resolvconf-example/
 sed -i s/8.8.8.8/127.0.0.1/ /etc/resolv.conf 
-lbu ci -d
+lbu ci
 ```
 
 Need hardware random number generator
@@ -302,7 +301,7 @@ cat /proc/sys/kernel/random/entropy_avail
 # should be more than 3000
 rngd -l
 # The "Hardware RNG Device (hwrng)" should be an "Available and enabled entropy source"
-lbu ci -d
+lbu ci
 ```
 
 ### Basic Firewall and Routing
@@ -319,7 +318,7 @@ This `nftables` does masquerading so that you can use your internet connection w
 apk add nftables
 cp $setup_files/nftables.nft /etc/nftables.nft 
 rc-update add nftables
-lbu ci -d
+lbu ci
 rc-service nftables start
 rc-service nftables list # should be as entered above
 reboot
@@ -345,7 +344,7 @@ service dnsmasq start
 service hostapd start
 # to test, then
 rc-update add hostapd
-lbu ci -d
+lbu ci
 ```
 
 ### i2c for RTC
