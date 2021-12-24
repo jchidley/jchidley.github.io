@@ -25,146 +25,16 @@ Things to change
 * dhcp-range=10.2.1.1,10.2.1.255,255.255.0.0,12h # or whatever your local network needs to be
 
 ```bash
+mount /media/mmcblk0p1 -o rw,remount
+apk -U upgrade
+```
+
+```bash
 # --- rtc ---
 cat > $tdir/usercfg.txt << "EOF"
 # for the RTC
 dtparam=i2c
 dtoverlay=i2c-rtc,ds3231 # or pcf8523
-EOF
-
-# --- dnsmasq ---
-cat > $tdir/dnsmasq.conf << "EOF"
-# --- DNS ---
-# Listen on this specific port instead of the standard DNS port
-# (53) as ‘unbound’ is the DNS server.
-port=35353
-
-# Add local-only domains here, queries in these domains are answered
-# from /etc/hosts or DHCP only.
-local=/localnet/
-
-# interface _not_ to listen on (WAN)
-except-interface=eth0
-
-# Set this (and domain: see below) if you want to have a domain
-# automatically added to simple names in a hosts-file.
-expand-hosts
-
-# Set the domain for dnsmasq. this is optional, but if it is set, it
-# does the following things.
-# 1) Allows DHCP hosts to have fully qualified domain names, as long
-#     as the domain part matches this setting.
-# 2) Sets the "domain" DHCP option thereby potentially setting the
-#    domain of all systems configured by list of ports in use on linuxDHCP
-# 3) Provides the domain part for "expand-hosts"
-domain=chidley.home
-alpine-router
-# This is small as it covers just local DNS lookup
-cache-size=1000
-
-# --- DHCP ---
-dhcp-authoritative
-interface=br0 # only listen on LAN port
-
-# DHCP range with netmask. This must fit with the
-# netmask/ip address assigned to the (static) interface
-dhcp-range=10.2.1.1,10.2.1.255,255.255.0.0,12h
-
-# dhcp-leasefile=/var/lib/misc/dnsmasq.leases
-
-# Set the NTP time server address to be the same machine as
-# is running dnsmasq
-dhcp-option=option:ntp-server,0.0.0.0
-
-# Set the DNS server address to be the same machine as
-# is running dnsmasq
-dhcp-option=option:dns-server,0.0.0.0
-
-dhcp-option=option:domain-name,chidley.home
-
-# --- PXE ---
-EOF
-
-# --- unbound ---
-cat > $tdir/unbound.conf << "EOF"
-server:
-  interface: 0.0.0.0
-  interface: ::0
-  root-hints: "/etc/unbound/root.hints"
-  access-control: 127.0.0.0/8 allow
-  access-control: 10.2.0.0/16 allow
-  do-not-query-localhost: no
-  domain-insecure: "0.10.in-addr.arpa"
-  domain-insecure: "chidley.home"
-  local-zone: "0.10.in-addr.arpa." nodefault
-  private-address: 10.0.0.0/8
-  private-address: 169.254.0.0/16
-  private-address: 172.16.0.0/12
-  private-address: 192.168.0.0/16
-  private-address: fd00::/8
-  private-address: fe80::/10
-  private-domain: "chidley.home"
-
-forward-zone:
-  name: "chidley.home"
-  forward-addr: 127.0.0.1@35353
-  forward-zone:
-
-name: "0.10.in-addr.arpa"
-  forward-addr: 127.0.0.1@35353
-EOF
-
-# --- hostapd ---
-cat > $tdir/hostapd.conf << "EOF"
-interface=wlan0
-bridge=br0
-driver=nl80211
-ssid=C_test
-hw_mode=g
-channel=1
-macaddr_acl=0
-auth_algs=1
-wpa=2
-wpa_key_mgmt=WPA-PSK
-wpa_passphrase=chidley_super_secret
-rsn_pairwise=CCMP
-wpa_pairwise=CCMP
-EOF
-
-# --- forwarding for routing ---
-cat > $tdir/local.conf << "EOF"
-# Controls IP packet forwarding
-net.ipv4.ip_forward = 1
-EOF
-
-# --- network interfaces ---
-cat > $tdir/interfaces << "EOF"
-auto lo
-iface lo inet loopback
-
-# Internal Ethernet - WAN
-auto eth0
-iface eth0 inet dhcp
-    hostname alpine-router
-
-auto br0
-iface br0 inet static
-    bridge-ports wlan0 eth1
-    bridge-stp 0
-    address 10.2.0.1
-    netmask 255.255.0.0
-EOF
-
-cat > $tdir/nftables.nft << "EOF"
-flush ruleset
-define wan = eth0
-table ip nat {
-  chain postrouting {
-    type nat hook postrouting priority srcnat;
-
-    oif $wan masquerade persistent
-  }
-}
 EOF
 ```
 
@@ -177,10 +47,8 @@ rmdir $tdrive
 boot
 
 [Alpine Linux on a Raspberry Pi 3 B+ with a RTC module](http://community.riocities.com/alpine_rpi_rtc.html)
-edit usercfg.txtwget https://www.internic.net/domain/named.root -O /etc/unbound/root.hints
 
 ```bash
-dtoverlay=i2c-rtc,ds3231 # or pcf8523
 apk add mkinitfs
 ```
 
@@ -193,11 +61,13 @@ rebuild the initial RAM fs image.
 ln -s /media/$LBU_MEDIA/boot /boot
 mount /media/$LBU_MEDIA -o remount,rw
 . /etc/mkinitfs/mkinitfs.conf
-mkinitfs -F "$features base squashfs"
+mkinitfs -F "$features squashfs"
 mount /media/$LBU_MEDIA -o remount,ro
 ```
 
 Enable the hwclock service
+
+boot
 
 ```bash
 rc-update del swclock boot
@@ -247,7 +117,6 @@ reboot
 ```bash
 ssh jack@10.3.151.102 # substitute correct ip address
 su
-setup_files="/media/mmcblk0p1/setup_files"
 ```
 
 ## Router Setup
@@ -259,33 +128,112 @@ setup_files="/media/mmcblk0p1/setup_files"
 ### Dnsmasq
 
 ```bash
+# --- dnsmasq ---
 apk add dnsmasq
 rc-update add dnsmasq
-lbu ci
 # rc-service dnsmasq start
 mv /etc/dnsmasq.conf /etc/dnsmasq.conf.example
-cp $setup_files/dnsmasq.conf /etc/dnsmasq.conf
+cat > /etc/dnsmasq.conf << "EOF"
+# --- DNS ---
+# Listen on this specific port instead of the standard DNS port
+# (53) as ‘unbound’ is the DNS server.
+port=35353
+
+# Add local-only domains here, queries in these domains are answered
+# from /etc/hosts or DHCP only.
+local=/localnet/
+
+# interface _not_ to listen on (WAN)
+except-interface=eth0
+
+# Set this (and domain: see below) if you want to have a domain
+# automatically added to simple names in a hosts-file.
+expand-hosts
+
+# Set the domain for dnsmasq. this is optional, but if it is set, it
+# does the following things.
+# 1) Allows DHCP hosts to have fully qualified domain names, as long
+#     as the domain part matches this setting.
+# 2) Sets the "domain" DHCP option thereby potentially setting the
+#    domain of all systems configured by list of ports in use on linuxDHCP
+# 3) Provides the domain part for "expand-hosts"
+domain=chidley.home
+# This is small as it covers just local DNS lookup
+cache-size=1000
+
+# --- DHCP ---
+dhcp-authoritative
+interface=br0 # only listen on LAN port
+# DHCP range with netmask. This must fit with the
+# netmask/ip address assigned to the (static) interface
+dhcp-range=10.2.1.1,10.2.1.255,255.255.0.0,12h
+
+# dhcp-leasefile=/var/lib/misc/dnsmasq.leases
+
+# Set the NTP time server address to be the same machine as
+# is running dnsmasq
+dhcp-option=option:ntp-server,0.0.0.0
+
+# Set the DNS server address to be the same machine as
+# is running dnsmasq
+dhcp-option=option:dns-server,0.0.0.0
+
+dhcp-option=option:domain-name,chidley.home
+
+# --- PXE ---
+EOF
+sed -i s/chidley.home/example.com/ /etc/dnsmasq.conf # substitute example.com with the correct address
+lbu ci -d
 ```
 
 ### Unbound
 
 ```bash
 apk add unbound
-rc-update add unbound
+rc-update add unboundservice dnsmasq start
+service hostapd start
 wget https://www.internic.net/domain/named.root -O /etc/unbound/root.hints
 #https://kevinlocke.name/bits/2017/03/09/unbound-with-dnsmasq-on-openwrt/
-cp $setup_files/unbound.conf /etc/unbound/unbound.conf
+# --- unbound ---
+cat > /etc/unbound/unbound.conf << "EOF"
+server:
+  interface: 0.0.0.0
+  interface: ::0
+  root-hints: "/etc/unbound/root.hints"
+  access-control: 127.0.0.0/8 allow
+  access-control: 10.2.0.0/16 allow
+  do-not-query-localhost: no
+  domain-insecure: "2.10.in-addr.arpa"
+  domain-insecure: "chidley.home"
+  local-zone: "2.10.in-addr.arpa." nodefault
+  private-address: 10.0.0.0/8
+  private-address: 169.254.0.0/16
+  private-address: 172.16.0.0/12
+  private-address: 192.168.0.0/16
+  private-address: fd00::/8
+  private-address: fe80::/10
+  private-domain: "chidley.home"
+
+forward-zone:
+  name: "chidley.home"
+  forward-addr: 127.0.0.1@35353
+
+forward-zone:
+  name: "2.10.in-addr.arpa"
+  forward-addr: 127.0.0.1@35353
+EOF
+sed -i s/chidley.home/example.com/ /etc/unbound/unbound.conf
 unbound-checkconf
 rc-service unbound start
 # use unbound and not google for DNS resolution
-# https://www.shellhacks.com/setup-dns-resolution-resolvconf-example/
+# https://www.shellhacks.com/setup-dns-resolution-resoapk add nftableslvconf-example/
 sed -i s/8.8.8.8/127.0.0.1/ /etc/resolv.conf 
 lbu ci
 ```
 
 Need hardware random number generator
 
-[The HWRNG on the BCM2838 is compatible to iproc-rng200](https://github.com/raspberrypi/linux/commit/577a2fa60481a0563b86cfd5a0237c0582fb66e0)
+[The HWRNG on the BCM2838 is compatible to iproc-rng200](https://github.com/raspberrypi/linux/commit/577a2fa60481a0563b86cfd5a0237c0582fb66e0)apk add nftables
 [Arch Linux Arm: Raspberry Pi](https://archlinuxarm.org/wiki/Raspberry_Pi)
 
 `haveged` competes with the broadcom provided random number generator, now `iproc-rng200` (previously bcm2835_rng and bcm2708-rng) and so it needs to be disabled
@@ -294,7 +242,7 @@ Need hardware random number generator
 cat /proc/sys/kernel/random/entropy_avail
 # typically less than 1000
 apk add rng-tools
-RNGD_OPTS="-x1 -o /dev/random -r /dev/hwrng"
+RNGD_OPTS="-x1 -o /dev/random -r /dev/hwrng"apk add nftables
 rc-service rngd start
 rc-update add rngd
 cat /proc/sys/kernel/random/entropy_avail
@@ -309,18 +257,32 @@ lbu ci
 This router configuration will forward all traffic between all interfaces.
 
 ```bash
-cp $setup_files/local.conf /etc/sysctl.d/local.conf
+# --- forwarding for routing ---
+cat > /etc/sysctl.d/local.conf << "EOF"
+# Controls IP packet forwarding
+net.ipv4.ip_forward = 1
+EOF
 ```
 
-This `nftables` does masquerading so that you can use your internet connection with multiple clients, there is no filtering or traffic management.
+This `nftables` does masquerading so that you can use your internet connection with multiple clients, there is no filtering or traffic management./etc/network/interfaces
 
 ```bash
 apk add nftables
-cp $setup_files/nftables.nft /etc/nftables.nft 
+cat > /etc/nftables.nft << "EOF"
+flush ruleset
+define wan = eth0
+table ip nat {
+  chain postrouting {
+    type nat hook postrouting priority srcnat;
+
+    oif $wan masquerade persistent
+  }
+}
+EOF
 rc-update add nftables
 lbu ci
 rc-service nftables start
-rc-service nftables list # should be as entered above
+rc-service nftables list # should be as entered above/etc/network/interfaces
 reboot
 ```
 
@@ -332,22 +294,55 @@ Once the above works, then see [Traffic Manager for a better "firewall"](2020-01
 
 ```bash
 apk add hostapd
-cp $setup_files/hostapd.conf /etc/hostapd/hostapd.conf
+apk add bridge
+rc-update add hostapd
+# --- hostapd ---
+# https://raspberrypi.stackexchange.com/questions/69866/wlan0-could-not-connect-to-kernel-driver
+cat > /etc/hostapd/hostapd.conf << "EOF"
+interface=wlan0
+bridge=br0
+driver=nl80211
+ssid=C_test
+hw_mode=g
+channel=1
+macaddr_acl=0
+auth_algs=1
+wpa=2
+wpa_key_mgmt=WPA-PSK
+wpa_passphrase=chidley_secret
+rsn_pairwise=CCMP
+wpa_pairwise=CCMP
+EOF
+lbu ci -d
+# --- network interfaces ---
+cat > /etc/network/interfaces << "EOF"
+auto lo
+iface lo inet loopback
+
+# Internal Ethernet - WAN
+auto eth0
+iface eth0 inet dhcp
+    hostname alpine-router
+
+auto br0
+iface br0 inet static
+    bridge-ports wlan0 eth1
+    bridge-stp 0
+    address 10.2.0.1
+    netmask 255.255.0.0
+EOF
 ```
 
 ```bash
-cp $setup_files/interfaces /etc/network/interfaces
-```
-
-```bash
-service dnsmasq start
-service hostapd start
+rc-service dnsmasq start
+rc-service hostapd start
 # to test, then
 rc-update add hostapd
+rc-update add dnsmasq
 lbu ci
 ```
 
-### i2c for RTC
+/etc/network/interfaces### i2c for RTC
 
 * [Saving time with Hardware Clock](https://wiki.alpinelinux.org/wiki/Saving_time_with_Hardware_Clock)
 * [How to activate Raspberry-pi’s i2c bus](https://openest.io/en/2020/01/18/activate-raspberry-pi-4-i2c-bus/)
@@ -357,9 +352,9 @@ lbu ci
 ## Dnsmasq and Unbound Links
 
 * [Unbound with Dnsmasq on OpenWrt - Kevin Locke’s Homepage](https://kevinlocke.name/bits/2017/03/09/unbound-with-dnsmasq-on-openwrt/)
-* [Combining Dnsmasq and Unbound – Simon Josefsson’s blog](https://blog.josefsson.org/2015/10/26/combining-dnsmasq-and-unbound/)
+* [Combining Dnsmasq and Unbound – Simon Josefsson’s blog](https://blog.josefsson.org/2015/10/26/combining-dnsmasq-and-unbound/)unbound-checkconf
 * [dnsmasq + unbound](http://blog.alanporter.com/2014-03-09/dnsmasq-unbound/)
-* [Unbound DNS Server Tutorial @ Calomel.org](https://calomel.org/unbound_dns.html)
+* [Unbound DNS Server Tutorial @ Calomel.org](https://calomel.orgunbound-checkconf/unbound_dns.html)
 * [Unbound, an Easy, Fast and Small DNS Resolver](http://troubleshooters.com/linux/unbound_nsd/unbound.htm#authoritative)
 * [Use dnsmasq to provide DNS & DHCP services - Fedora Magazine](https://fedoramagazine.org/dnsmasq-provide-dns-dhcp-services/)
 * [dnsmasq - Debian Wiki](https://wiki.debian.org/dnsmasq)
