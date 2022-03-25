@@ -2,7 +2,7 @@
 date: "2022-03-25"
 title: "Radio stuff"
 ---
-<!-- filename "2022-03-25-Radio stuff.md" -->
+<!-- filename "2022-03-25-Radio-stuff.md" -->
 
 <!-- markdownlint-disable MD025 -->
 # Radio stuf
