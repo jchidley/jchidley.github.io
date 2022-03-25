@@ -73,3 +73,11 @@ git pull
 git config --global user.name "Jack Chidley"
 git config --global user.email 7399749+jchidley@users.noreply.github.com # account settings in GitHub, no reply email
 ```
+
+### Git everyday
+
+https://git-scm.com/docs/everyday
+
+### Git with GitHub
+
+https://git-scm.com/book/en/v2/GitHub-Account-Setup-and-Configuration
