@@ -8,7 +8,31 @@ title: "Python Apple"
 
 ## Python
 
-Use `pyenv` and `pyenv-virtualenv` to setup python seperately from the system's python and create virtual python instances that automatically start when you `cd` to specific directories.
+[pyenv](https://github.com/pyenv/pyenv#basic-github-checkout)
+
+Use `pyenv` to setup python seperately from the system's python and create virtual python instances that automatically start when you `cd` to specific directories.
+
+### Virtual environments
+
+Use conda (Mamba) seperately from venv. Conda is a generalised package manager, venv is for python only.
+
+[A Guide to Python’s Virtual Environments](https://towardsdatascience.com/virtual-environments-104c62d48c54)
+[The definitive guide to Python virtual environments with conda](https://en.whiteboxml.com/blog/the-definitive-guide-to-python-virtual-environments-with-conda)
+[The Definitive Guide to Conda Environments](https://towardsdatascience.com/a-guide-to-conda-environments-bc6180fc533)
+
+### Conda (Mamba)
+
+Try to install all the dependencies (perhaps using a `requirements.txt` generated from a environment like this `pip freeze > requirements.txt`) at the same time. e.g. `conda create -n octopus requests numpy pandas`
+
+[Mamba](https://mamba.readthedocs.io/en/latest/user_guide/mamba.html)
+[Conda or Mamba for production?](https://labs.epi2me.io/conda-or-mamba-for-production/)
+use Mambaforge download the latest from https://github.com/conda-forge/miniforge `bash Mambaforge-MacOSX-arm64.sh -b` This is based on conda. Use `conda activate base` then create a `conda env create [envrionment]` and activate it.
+
+### Python venv
+
+[venv — Creation of virtual environments](https://docs.python.org/3/library/venv.html)
+
+`python -m venv venv` inside each python project for a full isolated environment
 
 ### Testing
 
