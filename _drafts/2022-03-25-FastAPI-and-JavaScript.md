@@ -88,6 +88,9 @@ run `python -m http.server 9000` in the directory with `index.html`
 * [CORS (Cross-Origin Resource Sharing)](https://fastapi.tiangolo.com/tutorial/cors/)
 * [Build FastAPI + uvicorn + nginx with docker-compose](https://linuxtut.com/en/02ed76b94c60deba8282/)
 * [The cheap way how to use Docker to deploy your FastAPI](https://medium.com/analytics-vidhya/how-to-deploy-a-python-api-with-fastapi-with-nginx-and-docker-1328cbf41bc)
+* [Learn JavaScript](https://github.com/snipcart/learn-vanilla-js)
+* [JavaScript Helper Functions](https://vanillajstoolkit.com/helpers/)
+* [JavaScript Libraries](https://vanillajstoolkit.com/libraries/)
 
 <!-- markdownlint-disable MD034 -->
 https://vuejs.org/

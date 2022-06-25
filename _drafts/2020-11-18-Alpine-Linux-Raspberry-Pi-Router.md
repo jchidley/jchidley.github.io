@@ -34,7 +34,7 @@ apk -U upgrade
 cat > $tdir/usercfg.txt << "EOF"
 # for the RTC
 dtparam=i2c
-dtoverlay=i2c-rtc,ds3231 # or pcf8523
+dtoverlay=i2c-rtc,pcf8523 # ds3231 or pcf8523
 EOF
 ```
 
@@ -182,7 +182,8 @@ dhcp-option=option:domain-name,chidley.home
 
 # --- PXE ---
 EOF
-sed -i s/chidley.home/example.com/ /etc/dnsmasq.conf # substitute example.com with the correct address
+sed -i s/chidley.home/example.com/ /etc/dnsmasq.conf # change example.com
+sed -i s/10.2/10.10/g /etc/dnsmasq.conf # change 10.10
 lbu ci -d
 ```
 
@@ -190,8 +191,9 @@ lbu ci -d
 
 ```bash
 apk add unbound
-rc-update add unboundservice dnsmasq start
-service hostapd start
+rc-update add unbound
+rc-service dnsmasq start
+rc-service hostapd start
 wget https://www.internic.net/domain/named.root -O /etc/unbound/root.hints
 #https://kevinlocke.name/bits/2017/03/09/unbound-with-dnsmasq-on-openwrt/
 # --- unbound ---
@@ -222,7 +224,9 @@ forward-zone:
   name: "2.10.in-addr.arpa"
   forward-addr: 127.0.0.1@35353
 EOF
-sed -i s/chidley.home/example.com/ /etc/unbound/unbound.conf
+sed -i s/chidley.home/example.com/ /etc/unbound/unbound.conf # change example.com
+sed -i s/2.10.in-addr.arpa/10.10.in-addr.arpa/g /etc/unbound/unbound.conf # change 10.10.in-addr.arpa
+sed -i s/10.2.0.0/10.10.0.0/g /etc/unbound/unbound.conf #  change 10.10.0.0
 unbound-checkconf
 rc-service unbound start
 # use unbound and not google for DNS resolution
@@ -242,7 +246,7 @@ Need hardware random number generator
 cat /proc/sys/kernel/random/entropy_avail
 # typically less than 1000
 apk add rng-tools
-RNGD_OPTS="-x1 -o /dev/random -r /dev/hwrng"apk add nftables
+RNGD_OPTS="-x1 -o /dev/random -r /dev/hwrng"
 rc-service rngd start
 rc-update add rngd
 cat /proc/sys/kernel/random/entropy_avail
@@ -313,6 +317,8 @@ wpa_passphrase=chidley_secret
 rsn_pairwise=CCMP
 wpa_pairwise=CCMP
 EOF
+sed -i s/C_test/C_J/ /etc/hostapd/hostapd.conf # change C_J
+sed -i s/chidley_secret/secret/ /etc/hostapd/hostapd.conf # change secret
 lbu ci -d
 # --- network interfaces ---
 cat > /etc/network/interfaces << "EOF"
@@ -331,6 +337,7 @@ iface br0 inet static
     address 10.2.0.1
     netmask 255.255.0.0
 EOF
+sed -i s/10.2.0.1/10.10.0.1/ /etc/network/interfaces # change 10.10.0.1
 ```
 
 ```bash
