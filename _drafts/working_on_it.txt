@@ -1,0 +1,21 @@
+document.querySelectorAll('pre').length
+
+document.querySelectorAll('pre>code')
+
+document.querySelectorAll('pre>code.language-bash')[2].innerHTML
+
+var h = document.querySelectorAll('pre>code')
+h.forEach(i => console.log(i.innerHTML))
+
+document.querySelectorAll('pre>code').forEach(i => console.log(i.innerHTML))
+
+
+Array.prototype.filter()
+
+var turkey = Array.prototype.filter.call(sandwiches, function (sandwich) {
+    return sandwich.matches('.turkey');
+});
+
+Array.prototype.filter.call(h, function (i) { return i.matches('.language-bash') });
+
+Array.prototype.filter.call(h, function (i) { return i.innerHTML.includes('Docker') });
