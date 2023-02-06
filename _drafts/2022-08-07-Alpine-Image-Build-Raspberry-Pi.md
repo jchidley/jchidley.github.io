@@ -353,6 +353,73 @@ EOF
 ~/pibuild rpi --simulate
 ```
 
+
+<!-- Research -->
+
+Mininal must be: booted Linux kernel, apk.static, internet connection [Alpine Linux in a chroot - Alpine Linux](https://wiki.alpinelinux.org/wiki/Alpine_Linux_in_a_chroot)
+[Raspberry Pi Documentation - Raspberry Pi Hardware](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#raspberry-pi-4-boot-eeprom)
+[Raspberry Pi Documentation - Raspberry Pi Hardware](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#raspberry-pi-boot-modes)
+[linux-rpi « main - aports - Alpine packages build scripts](https://git.alpinelinux.org/aports/tree/main/linux-rpi)
+
+Precompiled firmware from Raspberry Pi foundation [GitHub - raspberrypi/firmware: This repository contains pre-compiled binaries of the current Raspberry Pi kernel and modules, userspace libraries, and bootloader/GPU firmware.](https://github.com/raspberrypi/firmware). Stage 1 from Pi-Gen is the Pi foundation's minimal config [GitHub - RPi-Distro/pi-gen: Tool used to create the official Raspberry Pi OS images](https://github.com/RPi-Distro/pi-gen)
+
+This must be minimum required for toybox, which is just short of networking for the above
+[toybox/mkroot.sh at master · landley/toybox · GitHub](https://github.com/landley/toybox/blob/master/scripts/mkroot.sh)
+
+Licensing [Aports contributions - license & copyright? (#9074) · Issues · alpine / aports · GitLab](https://gitlab.alpinelinux.org/alpine/aports/-/issues/9074)
+
+Perhaps start with `MINI ROOT FILESYSTEM`? [downloads | Alpine Linux](https://alpinelinux.org/downloads/)
+[GitHub - alpinelinux/docker-alpine: Official Alpine Linux Docker image. Win at minimalism!](https://github.com/alpinelinux/docker-alpine) and [docker-alpine/prepare-branch.sh at master · alpinelinux/docker-alpine · GitHub](https://github.com/alpinelinux/docker-alpine/blob/master/prepare-branch.sh)
+
+[Creating custom Alpine Linux ISO with an answer file built-in - Unix & Linux Stack Exchange](https://unix.stackexchange.com/questions/700198/creating-custom-alpine-linux-iso-with-an-answer-file-built-in)
+[docker-alpine/mkimage-alpine.bash at master · gliderlabs/docker-alpine · GitHub](https://github.com/gliderlabs/docker-alpine/blob/master/builder/scripts/mkimage-alpine.bash)
+[mkimage-alpine.sh](https://github.com/gliderlabs/docker-alpine/blob/master/builder/scripts/mkimage-alpine.bash)
+[moby/mkimage-alpine.sh at master · moby/moby · GitHub](https://github.com/moby/moby/blob/master/contrib/mkimage-alpine.sh)
+[Docker Alpine Linux Image for ARM · Miek Gieben](https://miek.nl/2015/may/25/docker-alpine-linux-image-for-arm/)
+[The Bash Trap Command | Linux Journal](https://www.linuxjournal.com/content/bash-trap-command)
+
+```ash
+cat > sedscript <<\EOF
+s/(.*profile_)(rpi_?[^<]*)(\(.*)/===\1\3/
+s/(.*section_)(rpi_?[^<]*)(\(.*)/===\1\3/
+/===/ p
+EOF
+
+cat > sedscript <<\EOF
+s/(.*profile_)(rpi_?[^<]*)(\(.*)/\1jackpi\3/
+s/(.*section_)(rpi_?[^<]*)(\(.*)/\1jackpi\3/
+EOF
+
+sed -n -r -f sedscript aports/scripts/mkimg.arm.sh
+# substitute `-i` for `-n` when building
+
+tee -a aports/scripts/mkimg.arm.sh <<\EOF 
+section_jackpi_stuff() {
+      build_section jackpi_stuff
+}
+section_jackpi_more_stuff() {
+      build_section jackpi_more_stuff
+}
+build_jackpi_stuff() {
+      echo 'build_jackpi_stuff'
+}
+build_jackpi_more_stuff() {
+      echo 'build_jackpi_more_stuff'
+}
+EOF
+```
+<!-- Research END -->
+
+<!-- Testing -->
+```ash
+~/pibuild jackpi
+```
+```ash
+# test for config and cmdline as these things disappear
+tar tf iso/alpine-jackpi-edge-armv7.tar.gz | sed -n -e '/config.txt/ p' -e '/cmdline.txt/ p'
+```
+<!-- Testing END -->
+
 example output
 ```ash
 OK: 0 MiB in 0 packages
@@ -370,6 +437,11 @@ Images generated in /home/build/iso
 ```
 
 ### Make an apkovl Overaly File
+
+```ash
+# password has been set like this `password=$(mkpasswd my_password)`
+sed -i -r 's_(root:)[^:]*(:.*)_\1'"$password"'\2_' /etc/shadow
+```
 
 ```ash
 cat > genapkovl-chidley.sh <<\EOFgenapkovl
@@ -424,15 +496,15 @@ wpa_supplicant
 EOF
 
 mkdir -p "$tmp"/etc/wpa_supplicant
-makefile root:root 0644 "$tmp"/etc/wpa_supplicant/wpa_supplicant.conf << "EOF"                                                   
-ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev                                                                     
-update_config=1                                                                                                             
-country=GB                                                                                                                  
-network={                                                                                                                   
-        ssid="Jack-iPhone"                                                                                                  
-        psk=d9e0b093b4fcd484e696ec228c4690ee440776ab1c6159502c3059867d730678                                                
-}                                                                                                                           
-network={                                                                                                                   
+makefile root:root 0644 "$tmp"/etc/wpa_supplicant/wpa_supplicant.conf <<"EOF"
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+update_config=1
+country=GB                                                                                                                 
+network={                                                                                                                  
+        ssid="Jack-iPhone"                                                                                                 
+        psk=d9e0b093b4fcd484e696ec228c4690ee440776ab1c6159502c3059867d730678
+        }                                                                                                                          
+network={                                                                                                                  
         ssid="C1"
         psk=896f3ea944b25e1d0e0ec2cc7062f34617d0401b0f2fa670a3840f123d53390d
 }
@@ -458,6 +530,26 @@ network={
 }
 EOF
 
+mkdir -p "$tmp"/etc/init.d
+makefile root:root 0644 "$tmp"/etc/init.d/finishsetup <<EOF
+#!/sbin/openrc-run
+
+start() {
+
+# ==== completion of setup, state saved
+# `lbu` normally saves `/etc` excludes `/etc/init.d directory`
+# so the cleanest way to save state is using `rc-update del`
+# leaving behind this script for later inspection
+
+rc-update del finishsetup
+lbu ci
+
+# `/root` is not normally saved, so a passing reassurance only
+touch /root/finishsetup_\$(date)
+
+}
+EOF
+
 rc_add devfs sysinit
 rc_add dmesg sysinit
 rc_add mdev sysinit
@@ -478,11 +570,33 @@ rc_add mount-ro shutdown
 rc_add killprocs shutdown
 rc_add savecache shutdown
 
+rc_add finishsetup default
+
 tar -c -C "$tmp" etc | gzip -9n > $HOSTNAME.apkovl.tar.gz
 EOFgenapkovl
 ```
 
 ### First Script
+
+If using OpenRC the serivce should probably be added to `default`
+
+[Bash Tutorial => Conditional execution of command lists](https://riptutorial.com/bash/example/18001/conditional-execution-of-command-lists)
+[Shellscripting: Conditional Execution - DEV Community](https://dev.to/puritanic/shellscripting-conditional-execution-3kgm)
+[bash - Conditionally execute command in Linux shell script - Stack Overflow](https://stackoverflow.com/questions/40933930/conditionally-execute-command-in-linux-shell-script)
+
+[OpenRC - Gentoo Wiki](https://wiki.gentoo.org/wiki/OpenRC)
+
+[virtualbox - Making Linux self-configure on initial boot - Unix & Linux Stack Exchange](https://unix.stackexchange.com/a/304641)
+https://github.com/alpinelinux/aports/blob/master/main/openrc/firstboot.initd 
+[Writing Init Scripts - Alpine Linux](https://wiki.alpinelinux.org/wiki/Writing_Init_Scripts)
+[OpenRC - Alpine Linux](https://wiki.alpinelinux.org/wiki/OpenRC)
+[How to enable and start services on Alpine Linux - nixCraft](https://www.cyberciti.biz/faq/how-to-enable-and-start-services-on-alpine-linux/)
+
+Could use this [/etc/local.d - Gentoo Wiki](https://wiki.gentoo.org/wiki//etc/local.d) but it requires the serice to be enabled. Probably just as easy to use an OpenRC service directly
+
+[toybox/mkroot.sh at master · landley/toybox · GitHub](https://github.com/landley/toybox/blob/master/scripts/mkroot.sh)
+
+[systemd-firstboot](https://www.freedesktop.org/software/systemd/man/systemd-firstboot.html)
 
 ### Copy image to sdcard
 

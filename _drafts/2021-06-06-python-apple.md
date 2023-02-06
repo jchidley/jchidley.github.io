@@ -12,6 +12,8 @@ title: "Python Apple"
 
 Use `pyenv` to setup python seperately from the system's python and create virtual python instances that automatically start when you `cd` to specific directories.
 
+[How to set up a perfect Python project](https://sourcery.ai/blog/python-best-practices/)
+
 ### Virtual environments
 
 Use conda (Mamba) seperately from venv. Conda is a generalised package manager, venv is for python only.

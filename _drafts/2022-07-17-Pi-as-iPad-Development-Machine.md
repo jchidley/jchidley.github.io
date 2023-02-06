@@ -1,4 +1,4 @@
----
+  —
 ---
 
 <!-- markdownlint-disable MD025 -->
@@ -7,7 +7,7 @@
 
 ## Introduction
 
-A sentance
+Use Alpine Linux on any target devices because Alpine Linux 'iSH' is in the Apple App Store; it uses x86 emulation. [Mounting other iOS file providers](https://github.com/ish-app/ish/wiki/Mounting-other-file-providers) is possible so it's possible to work seamlessly with data from other iOS apps.
 
 ## Build
 
@@ -23,6 +23,8 @@ ssh
 ```bash
 sudo touch /mnt/sdb1/ssh
 ```
+
+tmux
 
 WiFi
 "Wi-Fi is currently blocked by rfkill.
@@ -141,8 +143,66 @@ chroot . /bin/ash
 sudo chroot . /bin/ash
 ```
 
+### Alpine Linux - Chroot using script
+
+[GitHub - alpinelinux/alpine-chroot-install: Install Alpine Linux in chroot with a breeze. Build ARM on Travis CI or any other x86_64 CI.](https://github.com/alpinelinux/alpine-chroot-install/)
+
+```bash
+wget https://raw.githubusercontent.com/alpinelinux/alpine-chroot-install/v0.13.3/alpine-chroot-install \
+    && echo 'c3005e323029637db20ec9595243ac94bb9b2226  alpine-chroot-install' | sha1sum -c \
+    || exit 1
+```
+
+My script to install for aarch64
+
+[Passing Environment Variables to Sudo Command](https://www.petefreitag.com/item/877.cfm)
+
+This is going to be a little hacky... but using [Alpine Linux in a chroot - Alpine Linux](https://wiki.alpinelinux.org/wiki/Alpine_Linux_in_a_chroot) and the [Apk spec - Alpine Linux](https://wiki.alpinelinux.org/wiki/Apk_spec).
+
+```bash
+mirror=https://dl-cdn.alpinelinux.org
+arch=armv7
+curl -LO ${mirror}/alpine/latest-stable/main/${arch}/APKINDEX.tar.gz
+tar xvf APKINDEX.tar.gz APKINDEX
+version=$(grep -A 10 'P:apk-tools-static' APKINDEX | sed -n -E 's/V:(.*$)/\1/p')
+curl -LO ${mirror}/alpine/latest-stable/main/${arch}/apk-tools-static-${version}.apk
+tar -xzf apk-tools-static-*.apk
+```
+
+checksums and versions from https://gitlab.alpinelinux.org/alpine/apk-tools/-/packages 
+
+```bash
+cat > armv7.sh <<"EOFarmv7"
+export APK_TOOLS_URI="https://dl-cdn.alpinelinux.org/alpine/latest-stable/main/armv7/apk-tools-static-2.12.9-r3.apk"
+# "sha256sum" on "apk-tools-static" file to get correct APK_TOOLS_SHA256 for it
+# this is a hack because currently all of the apk.static files appear to be identical
+# they're the ones for aarch64, apparently
+export APK_TOOLS_SHA256="704e21006358fc968d2da7acbf4f1c7835ecd41228036e052f6a2216a33b884c"
+sed -i -E 's|(download_file "\$APK_TOOLS_URI" "\$APK_TOOLS_SHA256" "\$TEMP_DIR")|\1\
+if [ -f $TEMP_DIR/apk-tools-static-*.apk ]\
+then\
+tar -xzf $TEMP_DIR/apk-tools-static-*.apk -C $TEMP_DIR\
+mv $TEMP_DIR/sbin/apk.static $TEMP_DIR/apk.static\
+fi\
+|' alpine-chroot-install
+sudo --preserve-env=APK_TOOLS_URI,APK_TOOLS_SHA256 ./alpine-chroot-install -aarmv7
+EOFarmv7
+chmod +x armv7.sh
+chmod +x alpine-chroot-install
+```
+
+```bash
+cat > arch64.sh <<"EOFarch64"
+export APK_TOOLS_URI="https://gitlab.alpinelinux.org/api/v4/projects/5/packages/generic/v2.12.9/aarch64/apk.static"
+export APK_TOOLS_SHA256="0164d47954c8a52e8ed10db1633174974a3b1e4182a1993a5a8343e394ee1bbc"
+sudo --preserve-env=APK_TOOLS_URI,APK_TOOLS_SHA256 ./alpine-chroot-install -aaarch64
+EOFarch64
+chmod +x arch64.sh
+chmod +x alpine-chroot-install
+```
+
 Alpine Linux Chroot
-[Alpine Linux in a chroot - Alpine Linux](  https://wiki.alpinelinux.org/wiki/Alpine_Linux_in_a_chroot)
+[Alpine Linux in a chroot - Alpine Linux](https://wiki.alpinelinux.org/wiki/Alpine_Linux_in_a_chroot)
 [GitHub - alpinelinux/alpine-chroot-install: Install Alpine Linux in chroot with a breeze. Build ARM on Travis CI or any other x86_64 CI.](https://github.com/alpinelinux/alpine-chroot-install)
 [W4TCHGUARD - How to make a portable Alpine linux chroot](https://w4tchguard.neocities.org/20200622-alpine-linux-chroot.html)
 
@@ -153,6 +213,7 @@ General Chroot
 
 Might need virtual, psuedo and temporary filesystems too
 [linux - mount dev, proc, sys in a chroot environment? - Super User](https://superuser.com/questions/165116/mount-dev-proc-sys-in-a-chroot-environment)
+[filesystems - What is a bind mount? - Unix & Linux Stack Exchange](https://unix.stackexchange.com/questions/198590/what-is-a-bind-mount)
 [6.2. Mounting Virtual Kernel File Systems](https://tldp.org/LDP/lfs/LFS-BOOK-6.1.1-HTML/chapter06/kernfs.html)
 
 ## USB Gadget and RaspAP (full setup of an access point)
@@ -162,7 +223,6 @@ Might need virtual, psuedo and temporary filesystems too
 [Pi4 USB-C Gadget – Ben’s Place](https://www.hardill.me.uk/wordpress/2019/11/02/pi4-usb-c-gadget/)
 [Raspberry Pi 4 USB Gadget · GitHub](https://gist.github.com/ianfinch/08288379b3575f360b64dee62a9f453f)
 [RaspAP — Simple wireless router setup for Debian-based devices](https://raspap.com)
-[Connect your Raspberry Pi 4 to an iPad Pro - Raspberry Pi](https://www.raspberrypi.com/news/connect-your-raspberry-pi-4-to-an-ipad-pro/)
 
 ## Pi WiFi Setup 
 
@@ -212,9 +272,9 @@ On a Raspberry Pi install the latest version of nodejs [Install Node js and Npm 
 `uname -m` to check the particular version required and then download it from [Download | Node.js](https://nodejs.org/en/download/) using `wget`, then extract and move it to the correct place. For example:
 
 ```bash
-wget https://nodejs.org/dist/v16.16.0/node-v16.16.0-linux-armv7l.tar.xz
-tar xvf node-v16.16.0-linux-armv7l.tar.xz node-v16.16.0-linux-armv7l/
-cd node-v16.16.0-linux-armv7l/
+wget https://nodejs.org/download/release/v16.19.0/node-v16.19.0-linux-armv7l.tar.xz
+tar xvf node-v16.19.0-linux-armv7l.tar.xz
+cd node-v16.19.0-linux-armv7l
 sudo cp -R * /usr/local/
 node -v
 ```
@@ -282,4 +342,7 @@ sed -i \
 <!-- markdownlint-disable MD034 -->
 <!-- markdownlint-enable MD034 -->
 
+* [Mounting other file providers · ish-app/ish Wiki · GitHub](https://github.com/ish-app/ish/wiki/Mounting-other-file-providers)
 * [VSCode on iPad Pro - Full Setup Guide with Raspberry Pi](https://techcraft.co/videos/2022/2/vscode-on-ipad-pro-full-setup-guide-with-raspberry-pi/)
+* [Apk spec - Alpine Linux](https://wiki.alpinelinux.org/wiki/Apk_spec)
+ 

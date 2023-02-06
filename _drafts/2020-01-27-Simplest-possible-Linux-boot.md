@@ -12,6 +12,10 @@ title: "Simplest possible Linux boot"
 
 All of this comes from Rob Landley's talk at the Linux Foundation [Tutorial: Building the Simplest Possible Linux System - Rob Landley, se-instruments.com - YouTube](https://www.youtube.com/watch?v=Sk9TatW9ino)
 
+And now an additional video [Build a minimal Linux with only Busybox in 1 hour](https://www.youtube.com/watch?v=asnXWOUKhTA) showing how to build Linux, busybox and boot it in Qemu. A whole website devoted to building operating systems [OSDev Wiki](https://wiki.osdev.org/Main_Page).
+
+[The Kernel Boot Process | Many But Finite](https://manybutfinite.com/post/kernel-boot-process/)
+
 For the simplest system required to build itself, [there are 4 conceptual components required](https://youtu.be/Sk9TatW9ino?t=160):
 
 * Kernel - e.g, Linux
@@ -101,12 +105,16 @@ rm -rf airlock
 
 ### Skinny Distributions
 
+* [Light-weight Linux distribution - Wikipedia](https://en.wikipedia.org/wiki/Light-weight_Linux_distribution)
+
 #### Probably Working
 
 * [Alpine Linux](https://alpinelinux.org)
 * [Welcome to Adélie Linux](https://www.adelielinux.org)
 * [KISS - home](https://k1ss.org)
 * [Compare Adélie Linux to other distros](https://www.adelielinux.org/about/compare.html)
+* [SliTaz - Wikipedia](https://en.wikipedia.org/wiki/SliTaz)
+* [Tiny Core Linux, Micro Core Linux, 12MB Linux GUI Desktop, Live, Frugal, Extendable](http://tinycorelinux.net)
 
 #### Experimental
 
@@ -131,6 +139,7 @@ rm -rf airlock
 * [Dropbear SSH](https://matt.ucc.asn.au/dropbear/dropbear.html) & [github for it](https://github.com/mkj/dropbear)
 
 * [mkroot - simple linux system builder, bootable under qemu for multiple architectures.](https://github.com/landley/mkroot)
+* [toybox/mkroot.sh at master · landley/toybox · GitHub](https://github.com/landley/toybox/blob/master/scripts/mkroot.sh)
 * [Blog about successor to Aboriginal Linux](https://landley.net/notes-2016.html#17-05-2016)
 * [beginnings of mkroot](http://lists.landley.net/pipermail/mkroot-landley.net/2017-May/000000.html)
 
