@@ -112,7 +112,7 @@ If you use localhost in your VNC config then you will have to use ssh as a tunne
 * [tbsm - minimal display manager](https://aur.archlinux.org/packages/tbsm/)
 * [st - simple terminal](https://st.suckless.org)
 * [GitHub - gitluin/sara: Originally a fork of catwm, now an offspring of dwm with a streamlined featureset, plus some bspwm.](https://github.com/gitluin/sara)
-* [Alacritty - graphics accellerated terminal](https://github.com/alacritty/alacritty)
+* [Alacritty - graphics accelerated terminal](https://github.com/alacritty/alacritty)
 * [st fonts](https://wiki.archlinux.org/index.php/st#Font)
 * [Symbol fonts for linux terminals](https://c42f.github.io/2015/12/29/crisp-terminal-fonts.html)
 * [Fonts - Arch Linux](https://wiki.archlinux.org/index.php/Fonts#Font_packages)

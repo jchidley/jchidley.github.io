@@ -73,7 +73,7 @@ pip install git+https://github.com/m-labs/nmigen-boards.git
 ## Graphviz VS Code Extension
 
 Graphviz Preview - simple preview
-Graphviz Interactive Preview - run "Graphviz Interactive:... " in the *Command Pallete*
+Graphviz Interactive Preview - run "Graphviz Interactive:... " in the *Command Palette*
 
 ## Alpine WSL
 

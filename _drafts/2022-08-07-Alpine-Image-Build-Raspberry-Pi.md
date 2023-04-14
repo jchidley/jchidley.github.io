@@ -30,7 +30,7 @@ curl -LO ${mirror}/latest-stable/main/${arch}/apk-tools-static-${version}.apk
 [Install Alpine on a Raspberry Pi](https://wiki.alpinelinux.org/wiki/Raspberry_Pi)
 
 We're going to install Alpine in "diskless" mode and use overlay files. Prepare an SD card with 500MB DOS bootable partition with the remainder as ext4
-[Create suitable partitions programatically](https://superuser.com/questions/332252/how-to-create-and-format-a-partition-using-a-bash-script)
+[Create suitable partitions programmatically](https://superuser.com/questions/332252/how-to-create-and-format-a-partition-using-a-bash-script)
 
 ```bash
 apk add e2fsprogs lsblk dosfstools
@@ -44,7 +44,7 @@ wipefs -a ${PIDEVICE} #  -a, --all wipe all magic strings (BE CAREFUL!)
 # letters and digits after optional spaces, 
 # This, in efffect, strips the comments, allowing for in-line comments.
 # Note that sending nothing (or spaces) will send a newline
-# usually selecting the defaul value.
+# usually selecting the default value.
 sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | fdisk ${PIDEVICE}
   o # create a new empty DOS partition table
   n # new partition
@@ -231,7 +231,7 @@ rngd -l
 
 ```bash
 apk -U upgrade
-apk add mkinitfs # update to inital ramfs
+apk add mkinitfs # update to initial ramfs
 apk -vv info|sort # list of installed packages, look for dropbear
 apk cache -v sync # download and clean out cache
 lbu ci -d
@@ -356,7 +356,7 @@ EOF
 
 <!-- Research -->
 
-Mininal must be: booted Linux kernel, apk.static, internet connection [Alpine Linux in a chroot - Alpine Linux](https://wiki.alpinelinux.org/wiki/Alpine_Linux_in_a_chroot)
+Minimal must be: booted Linux kernel, apk.static, internet connection [Alpine Linux in a chroot - Alpine Linux](https://wiki.alpinelinux.org/wiki/Alpine_Linux_in_a_chroot)
 [Raspberry Pi Documentation - Raspberry Pi Hardware](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#raspberry-pi-4-boot-eeprom)
 [Raspberry Pi Documentation - Raspberry Pi Hardware](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#raspberry-pi-boot-modes)
 [linux-rpi « main - aports - Alpine packages build scripts](https://git.alpinelinux.org/aports/tree/main/linux-rpi)
@@ -578,7 +578,7 @@ EOFgenapkovl
 
 ### First Script
 
-If using OpenRC the serivce should probably be added to `default`
+If using OpenRC the service should probably be added to `default`
 
 [Bash Tutorial => Conditional execution of command lists](https://riptutorial.com/bash/example/18001/conditional-execution-of-command-lists)
 [Shellscripting: Conditional Execution - DEV Community](https://dev.to/puritanic/shellscripting-conditional-execution-3kgm)
@@ -592,7 +592,7 @@ https://github.com/alpinelinux/aports/blob/master/main/openrc/firstboot.initd
 [OpenRC - Alpine Linux](https://wiki.alpinelinux.org/wiki/OpenRC)
 [How to enable and start services on Alpine Linux - nixCraft](https://www.cyberciti.biz/faq/how-to-enable-and-start-services-on-alpine-linux/)
 
-Could use this [/etc/local.d - Gentoo Wiki](https://wiki.gentoo.org/wiki//etc/local.d) but it requires the serice to be enabled. Probably just as easy to use an OpenRC service directly
+Could use this [/etc/local.d - Gentoo Wiki](https://wiki.gentoo.org/wiki//etc/local.d) but it requires the service to be enabled. Probably just as easy to use an OpenRC service directly
 
 [toybox/mkroot.sh at master · landley/toybox · GitHub](https://github.com/landley/toybox/blob/master/scripts/mkroot.sh)
 
