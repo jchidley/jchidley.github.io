@@ -73,7 +73,7 @@ from the windows command prompt cd to generated source file directory, then comp
 
 `bash -c "make"`
 
-You can use ST's GUI ST-Link Utility to Program & Verify or the same utilty from the command line the (the cli version). E.g.
+You can use ST's GUI ST-Link Utility to Program & Verify or the same utility from the command line the (the cli version). E.g.
 
 `"C:\\Program Files (x86)\\STMicroelectronics\\STM32 ST-LINK Utility\\ST-LINK Utility\\ST-Link\_CLI.exe" -me -p build\\try.hex -v -rst`
 

@@ -61,7 +61,7 @@ It turns out that spell checking any kind of code is problematic. The only tool 
 
 The only tool that I've found that might do this is [CSpell](https://cspell.org). For more information see this [blog entry](https://tjaddison.com/blog/2021/02/spell-checking-your-markdown-blog-posts-with-cspell/) and more information about a [Visual Studio Code version](https://marketplace.visualstudio.com/items?itemName=streetsidesoftware.code-spell-checker)
 
-Yet another argument for a seperate linux box, like a Raspberry Pi, in addition to iPad.
+Yet another argument for a separate linux box, like a Raspberry Pi, in addition to iPad.
 
 ## Process
 

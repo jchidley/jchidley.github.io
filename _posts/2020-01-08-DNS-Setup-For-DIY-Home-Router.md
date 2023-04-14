@@ -72,7 +72,7 @@ subnet 10.1.0.0 netmask 255.255.0.0 {
 subnet 192.168.2.0 netmask 255.255.255.0 {
 }
 ```
-The Arch Linx Wiki has [concise information on BIND](https://wiki.archlinux.org/index.php/BIND) with the simplest of examples, this has been extended follwing [the ISC recommendations](https://kb.isc.org/docs/aa-00269).  I used BigDinosaur and semicomplete to adjust it for dynamic updates of DHCP and DNS
+The Arch Linx Wiki has [concise information on BIND](https://wiki.archlinux.org/index.php/BIND) with the simplest of examples, this has been extended following [the ISC recommendations](https://kb.isc.org/docs/aa-00269).  I used BigDinosaur and semicomplete to adjust it for dynamic updates of DHCP and DNS
 
 ```bash
 acl "trusted" {

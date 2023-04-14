@@ -211,7 +211,7 @@ General Chroot
 [7.1. Introduction](https://www.linuxfromscratch.org/lfs/view/stable/chapter07/introduction.html)
 [chroot - ArchWiki](https://wiki.archlinux.org/title/Chroot#Using_chroot)
 
-Might need virtual, psuedo and temporary filesystems too
+Might need virtual, pseudo and temporary filesystems too
 [linux - mount dev, proc, sys in a chroot environment? - Super User](https://superuser.com/questions/165116/mount-dev-proc-sys-in-a-chroot-environment)
 [filesystems - What is a bind mount? - Unix & Linux Stack Exchange](https://unix.stackexchange.com/questions/198590/what-is-a-bind-mount)
 [6.2. Mounting Virtual Kernel File Systems](https://tldp.org/LDP/lfs/LFS-BOOK-6.1.1-HTML/chapter06/kernfs.html)
@@ -229,11 +229,11 @@ Might need virtual, psuedo and temporary filesystems too
 Need to think about this one. It's like a router setup but not quite.
 
 usb0 as the DNS/DHCP/client interface?
-wlan0 as the WAN, or as a LAN? Is both possible or desireable?
+wlan0 as the WAN, or as a LAN? Is both possible or desirable?
 Do we need DHCP at all if it's a single machine being worked on?
 Routing?
 Probably want nftables
-do we want to bring up usb0 as the client interface and, if that's not availabe, wlan0 as an AP (access point)?
+do we want to bring up usb0 as the client interface and, if that's not available, wlan0 as an AP (access point)?
 
 Or wlan0 as Access Point but manual switching to `wpa_supplicant`?
 

@@ -36,7 +36,7 @@ async def root():
     return {"message": "Hello World"}
 ```
 
-Run `uvicorn main:app --reload` in the diretory with `main.py`
+Run `uvicorn main:app --reload` in the directory with `main.py`
 
 `index.html`
 

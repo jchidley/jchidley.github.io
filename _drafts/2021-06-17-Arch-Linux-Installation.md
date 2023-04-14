@@ -76,7 +76,7 @@ pacman -S unzip sudo nano vim dhcpcd efibootmgr openssh git ntp
 * efibootmgr - manage system boot
 * openssh - allow ssh into this machine
 * git - for software management
-* ntp - syncronise time
+* ntp - synchronise time
 
 ## Users  
 
@@ -117,7 +117,7 @@ mkdir /boot/efi/nuc3arch1 # In the EFI boot partition
 rsync /boot/* /boot/efi/nuc3arch1/ # copy all of the boot files across
 ```
 
-Create an EFI shell script to boot the new opearting system.
+Create an EFI shell script to boot the new operating system.
 
 Tabbing for completion speeds this up and avoids errors
 
@@ -143,7 +143,7 @@ Only need to do this if you're direct booting Arch, otherwise do the EFI shell/r
 lsblk -o NAME,UUID # use the right UUID below
 efibootmgr --disk /dev/sda --part 1 --create --label "nuc3arch1" --loader /nuc3arch1/vmlinuz-linux --unicode 'root=UUID=761edd1d-27d0-406a-8033-45c5654dcbc9 rw initrd=/nuc3arch1/intel-ucode.img initrd=/nuc3arch1/initramfs-linux.img' --verbose
 efibootmgr -v # check to see what number it is, say 0004
-efibootmgr -n 4 # try the next boot without commiting to it
+efibootmgr -n 4 # try the next boot without committing to it
 ```
 
 If it boots correctly, then...

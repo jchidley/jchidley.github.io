@@ -9,7 +9,7 @@
 
 I have been using shells since the 1980s - over 40 years. If you are, or aspire to be, a systems administrator using shells is required for professional use. 
 
-Almost all of my working life had beeen spent on DOS and then Windows (I loved PowerShell). I had been using 'nix shells like very powerfull DOS/Windows ones. I was wrong. To be really effective on 'nix requires a deep understanding of the shell (ideally a POSIX one), shell quoting rules, `sed`, `awk`, 'here documents' and `tee`. This is because the unix was first used on text terminals and the primary user interface was the shell. 
+Almost all of my working life had been spent on DOS and then Windows (I loved PowerShell). I had been using 'nix shells like very powerful DOS/Windows ones. I was wrong. To be really effective on 'nix requires a deep understanding of the shell (ideally a POSIX one), shell quoting rules, `sed`, `awk`, 'here documents' and `tee`. This is because the unix was first used on text terminals and the primary user interface was the shell. 
 
 Everything on 'nix is a file and almost all 'nix shell programs are designed to take text input and deliver text output.
 
@@ -40,7 +40,7 @@ diff -s original changed
 ```
 
 ```text
-Files orginal and changed are identical
+Files original and changed are identical
 ```
 
 Note: `diff -u` to be the standard output of `busybox` `diff`. 
@@ -51,9 +51,9 @@ Note: `diff -u` to be the standard output of `busybox` `diff`.
 
 ### sed
 
-Never forget that `sed` stands for "stream editor" and should be treated like an automated editor. The process should be to write a script and test the outputs before commiting to final version. Another way to use `sed` is to treat it like a programming language with a REPL (Read Evaluate Print Loop).
+Never forget that `sed` stands for "stream editor" and should be treated like an automated editor. The process should be to write a script and test the outputs before committing to final version. Another way to use `sed` is to treat it like a programming language with a REPL (Read Evaluate Print Loop).
 
-Edit input files line by line and output them to a new file. Proably best to test on a small representative sample that fits on one screen. `sed -n 'l'` will show you what is in your data. Use `diff` to compare the before and after versions. Once the output file is perfected, use `mv` to replace the original. This is the safest way to use `sed`.
+Edit input files line by line and output them to a new file. Probably best to test on a small representative sample that fits on one screen. `sed -n 'l'` will show you what is in your data. Use `diff` to compare the before and after versions. Once the output file is perfected, use `mv` to replace the original. This is the safest way to use `sed`.
 
 `gsed` has the extremely useful `--debug` switch.
 

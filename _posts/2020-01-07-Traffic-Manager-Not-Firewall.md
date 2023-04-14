@@ -14,7 +14,7 @@ That thing called a "Firewall" really is just a traffic manager: every device mu
 
 I have had the privilege to work with large "blue chip" organisations and some astonishingly able IT people over my career.  One lesson was about the supposed security of private networks vs the Internet.  As one CSO (Chief Security Officer) said "People imagine that their networks provide a hard protective shell.  That shell is riddled with holes and their private networks contain suspect devices".
 
-DMZ, Firewall, etc are all words used to describe the points of contact between private, home or company, networks with the Internet.  They imply that these firewalls and related devices provide strong protection from the Internet whereas nothing could be further from the truth.  Firewalls provide traffic management, keeping inside traffic apart from outside, and this traffic management can certainly help with secuirty.  The less prying eyes on the network the better.  
+DMZ, Firewall, etc are all words used to describe the points of contact between private, home or company, networks with the Internet.  They imply that these firewalls and related devices provide strong protection from the Internet whereas nothing could be further from the truth.  Firewalls provide traffic management, keeping inside traffic apart from outside, and this traffic management can certainly help with security.  The less prying eyes on the network the better.  
 
 The idea that security problems are "out there" on the Internet and other networks is wrong. Even in the best organisations, with well managed networks, there will be suspect device: devices that have been on other networks, guest devices, compromised devices and devices that cannot be made secure (old pinters, for example). Thus any network may contain devices that can attack other devices from within the "secure" network. It is possible, but not trivial, to secure networks but don't imagine that a "firewall" suddenly makes your network secure.
 
@@ -43,13 +43,13 @@ table ip filter {
   chain input {
     type filter hook input priority filter; policy drop;
 
-    meta iif $wan ip saddr $martians drop
+    meta if $wan ip saddr $martians drop
 
     ct state invalid drop
 
-    meta iif lo ct state new accept
+    meta if lo ct state new accept
 
-    meta iif $lan ct state new accept
+    meta if $lan ct state new accept
 
     icmp type echo-request accept
 
@@ -59,9 +59,9 @@ table ip filter {
   chain forward {
     type filter hook forward priority filter; policy drop;
 
-    meta iif $lan meta oif $wan accept
+    meta if $lan meta oif $wan accept
 
-    meta iif $wan meta oif $lan ct state established,related accept
+    meta if $wan meta oif $lan ct state established,related accept
   }
 
 # Output hook is accept by default 

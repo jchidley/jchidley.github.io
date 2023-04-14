@@ -128,7 +128,7 @@
 
 [GitHub - Obijuan/open-fpga-verilog-tutorial: Learn how to design digital systems and synthesize them into an FPGA using only opensource tools](https://github.com/Obijuan/open-fpga-verilog-tutorial)
 [GitHub - EnigmaCurry/SAP: A very simple computer written in Verilog, with a Python test bench](https://github.com/EnigmaCurry/SAP)
-[GitHub - ellisgl/sap-1-v2-mojo: SAP-1 CPU in Verilog for the Mojo FPGA board - has seperate address bus.](https://github.com/ellisgl/sap-1-v2-mojo)
+[GitHub - ellisgl/sap-1-v2-mojo: SAP-1 CPU in Verilog for the Mojo FPGA board - has separate address bus.](https://github.com/ellisgl/sap-1-v2-mojo)
 [technogeek: SAP simple as possible computer Malvino: Verilog code](http://technoembed.blogspot.com/2014/01/sap-simple-as-possible-computer-malvino.html)
 
 [Cellular Solids: Structure, Properties and Applications | Materials Science and Engineering | MIT OpenCourseWare](https://ocw.mit.edu/courses/materials-science-and-engineering/3-054-cellular-solids-structure-properties-and-applications-spring-2015/)

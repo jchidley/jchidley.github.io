@@ -11,7 +11,7 @@ This is a follow up to my earlier posts about building cheap, high performance a
 
 ## Instructions
 
-Network addresses will need to be adjusted. Don't forget, that if you're behind a private network, the 'Martian' addresses will need to be adusted in the firewall.
+Network addresses will need to be adjusted. Don't forget, that if you're behind a private network, the 'Martian' addresses will need to be adjusted in the firewall.
 
 ### Basic Setup
 
@@ -78,7 +78,7 @@ lbu commit
 
 ```bash
 rc-service hwclock start # if you have a RTC with the date already set
-date -s 2012011342 # set date to approprite value, e.g. 2020 November 27 13:47
+date -s 2012011342 # set date to appropriate value, e.g. 2020 November 27 13:47
 setup-alpine -f answerfile.txt
 apk -U upgrade # update and upgrade
 apk add dropbear # dropbear not installed
